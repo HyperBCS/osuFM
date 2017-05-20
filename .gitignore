@@ -1,0 +1,10 @@
+
+crawler/keys.cfg
+*.pyc
+.DS_Store*
+
+# npm
+osuFM/node_modules
+*.log
+*.gz
+*.db*

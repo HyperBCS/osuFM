@@ -1,0 +1,1 @@
+DEBUG=osufm:* npm start
