@@ -1,26 +1,24 @@
-extends layout
+extends head
 
 block content
   h1= title
 
-  h2 Create a new user
-  form(action="/users/create", method="post")
-    input(type="text", name="username")
-    input(type="submit")
-
   h2 Users
 
   ul
-  each user in users
-    li
-      = user.acc
-      |  
-      | (
-      a(href="/users/" + user.id + "/destroy") Destroy
-      | )
-      ul
-        li
-          | Create a new task:
-          form(action="/users/" + user.id + "/tasks/create", method="post", style="display: inline")
-            input(type="text", name="title")
-            input(type="submit")
+  div
+    table.table
+      thead
+        tr
+          th UID
+          th ACC
+          th PP
+      tbody
+        each user, i in users
+          tr
+            td 
+              p= user.uid
+            td
+              p= user.acc
+            td
+              p= user.pp
