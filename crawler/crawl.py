@@ -2,10 +2,12 @@ import sys
 import configparser
 import re
 import mods
+import math
 import ssl
 import mods
 import json
 import requests
+from multiprocessing.dummy import Pool as ThreadPool 
 from collections import Counter
 from dateutil import parser
 from peewee import *
@@ -103,7 +105,7 @@ def urlBuilder(page, mode, type,uid=0):
             exit()
     elif type == 1:
         baseURL = "https://osu.ppy.sh/api/get_user_best"
-        return baseURL + "?k="+key+"&u="+str(uid[0])+"&m="+str(mode)+"&limit=10"
+        return baseURL + "?k="+key+"&u="+str(uid[0])+"&m="+str(mode)+"&limit=50"
     elif type == 2:
         baseURL = "https://osu.ppy.sh/api/get_user"
         return baseURL + "?k="+key+"&u="+str(uid[0])+"&m="+str(mode)
@@ -177,7 +179,7 @@ def getPage(page, mode, maps):
             rank = re.findall('\d+', data[count][0])
             pp_raw = data[count][4].replace(",","")
             pp_raw = re.findall('\d+', pp_raw)
-            print("Rank "+str(pp_raw))
+            print("Rank "+str(rank))
             tops = fetchTop(uid,mode)
             users.append(User(str(uid[0]),tops,pp_raw[0],rank[0]))
         count += 1
@@ -193,9 +195,13 @@ def getPage(page, mode, maps):
                         m.addScore(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank)
 
 
-def fetchMode(pages,mode):
+def fetchMode(info):
+    start = info['start']
+    pages = start + info['pages']
+    mode = info['mode']
     map_set = set()
-    for i in range(1,pages+1):
+    for i in range(start,pages+1):
+        print("[" + str(i) + "/" + str(start+pages) + "]")
         getPage(i,mode, map_set)
     return map_set
 
@@ -209,9 +215,23 @@ try:
     print("Initialized DB tables")
 except:
     pass
-pages = 10
+pages = 20
+threads = 4
 mode = 0
-maps = fetchMode(pages,mode)
+offset = pages % threads
+size = math.floor(pages / threads)
+current = 1
+pool = ThreadPool(threads)
+arg = []
+for i in range(0,math.floor(pages/size)): 
+    if i == 0:
+        arg.append({'start': 1,'pages': offset + size,'mode': 1})
+        current += offset + size
+    else:
+        arg.append({'start': current,'pages': current + size,'mode': 1})
+        current += size
+results = pool.map(fetchMode, arg)
+# maps = fetchMode(1,20,mode)
 for m in maps:
     db_map = None
     print("BID: "+str(m.bid))
@@ -238,6 +258,5 @@ for m in Beatmaps.select():
     pop_mod = list(modl.elements())[0]
     if pop_mod == 576:
         pop_mod -= 512
-    print(pop_mod)
     m.pop_mod = mods.main(pop_mod)
     m.save()
