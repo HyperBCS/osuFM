@@ -8,12 +8,14 @@ import mods
 import json
 import requests
 from multiprocessing.dummy import Pool as ThreadPool 
+from threading import Lock
 from collections import Counter
 from dateutil import parser
 from peewee import *
 from bs4 import BeautifulSoup
 
-db = SqliteDatabase('../osuFM/osuFM.db')
+db = SqliteDatabase('../osuFM/osuFM.db',threadlocals=True)
+lock = Lock()
 
 class BaseModel(Model):
     class Meta:
@@ -28,6 +30,7 @@ class Beatmaps(BaseModel):
     pop_mod = CharField()
     avg_pp = FloatField()
     avg_rank = IntegerField()
+    avg_pos = IntegerField()
     mode = IntegerField()
     date_ranked = DateTimeField()
     cs = FloatField()
@@ -43,6 +46,7 @@ class Scores(BaseModel):
     rank = IntegerField()
     acc = FloatField()
     mods = IntegerField()
+    pos = IntegerField()
     mode = IntegerField()
     map_pp = FloatField()
     user_pp = FloatField()
@@ -52,9 +56,9 @@ class Scores(BaseModel):
 class Beatmap(object):
     bid = 0
     scores = []
-    def __init__(self, bid, acc, mods,uid,pp,raw_pp,rank):
+    def __init__(self, bid, acc, mods,uid,pp,raw_pp,rank, pos):
         self.bid = bid
-        self.scores = [{'acc': acc,'mods': mods,'uid': uid,'pp': pp, 'raw_pp': raw_pp, 'rank': rank}]
+        self.scores = [{'acc': acc,'mods': mods,'uid': uid,'pp': pp, 'raw_pp': raw_pp, 'rank': rank, 'pos': pos}]
     def __eq__(self, other):
         if isinstance(other, Beatmap):
             return ((self.bid == other.bid))
@@ -64,8 +68,8 @@ class Beatmap(object):
         return (not self.__eq__(other))
     def __hash__(self):
         return hash(self.bid)
-    def addScore(self, bid, acc, mods,uid,pp,raw_pp,rank):
-        self.scores.append({'acc': acc,'mods': mods,'uid': uid,'pp': pp, 'raw_pp': raw_pp, 'rank': rank})
+    def addScore(self, bid, acc, mods,uid,pp,raw_pp,rank, pos):
+        self.scores.append({'acc': acc,'mods': mods,'uid': uid,'pp': pp, 'raw_pp': raw_pp, 'rank': rank, 'pos': pos})
 
 class User:
     uid = ""
@@ -92,6 +96,10 @@ try:
     config = configparser.ConfigParser()
     config.readfp(f)
     key = config._sections["osu"]['api_key']
+    pages = int(config._sections["crawler"]['pages'])
+    threads = int(config._sections["crawler"]['threads'])
+    # Need to make this auto get every mode soon. 
+    mode = int(config._sections["crawler"]['mode'])
 except:
     raise Exception("Invalid config")
 
@@ -114,7 +122,7 @@ def urlBuilder(page, mode, type,uid=0):
         return baseURL + "?k="+key+"&b="+str(uid)+"&m="+str(mode)+"&a=1"
 
 def fetchURL(url):
-    count = 10
+    count = 20
     while count > 0:
         try:
             count -= 1
@@ -138,24 +146,25 @@ def addBeatmap(beatmap, mode):
     page = fetchURL(url)
     map_info = (json.loads(page))[0]
     date_ranked = parser.parse(map_info['approved_date'])
-    new_map = Beatmaps.create(pop_mod=0,avg_pp=0,avg_rank=0,num_scores=len(beatmap.scores),mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
-    print("Adding beatmap to DB")
+    new_map = Beatmaps.create(avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
+    lock.release()
     updateScores(beatmap, mode)
 
 
 def updateScores(new_map, mode):
     score = None
     for sc in new_map.scores:
-        for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid):
+        for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid, Scores.mode == mode):
             score = s
             s.rank = sc['rank']
             s.acc = sc['acc']
             s.mods = sc['mods']
             s.map_pp = sc['pp']
             s.user_pp = sc['raw_pp']
+            s.pos = sc['pos']
             s.save()
         if score == None:
-            score = Scores.create(uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['pp'],user_pp=sc['raw_pp'])
+            score = Scores.create(pos=sc['pos'],uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['pp'],user_pp=sc['raw_pp'])
         score = None
 
 
@@ -184,26 +193,45 @@ def getPage(page, mode, maps):
             users.append(User(str(uid[0]),tops,pp_raw[0],rank[0]))
         count += 1
     for user in users:
+        count = 0
         for top in user.scores:
+            count += 1
             acc = Acc(top)
-            beatmap = Beatmap(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank)
+            beatmap = Beatmap(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank, count)
             if beatmap not in maps:
                 maps.add(beatmap)
             else:
                 for m in maps:
                     if beatmap == m:
-                        m.addScore(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank)
+                        m.addScore(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank, count)
 
 
 def fetchMode(info):
     start = info['start']
     pages = start + info['pages']
+    if pages > 200:
+        pages = 200
     mode = info['mode']
     map_set = set()
-    for i in range(start,pages+1):
-        print("[" + str(i) + "/" + str(start+pages) + "]")
+    for i in range(start,pages):
+        print("[" + str(i) + "/" + str(pages-1) + "]")
         getPage(i,mode, map_set)
-    return map_set
+    updateDB(map_set, mode)
+
+def updateDB(maps, mode):
+    for m in maps:
+        db_map = None
+        print("BID: "+str(m.bid))
+        lock.acquire()
+        db_map = Beatmaps.select().where(Beatmaps.bid == int(m.bid), Beatmaps.mode == mode)
+        # print("LENGTH "+str(len(db_map)))
+        if len(db_map) == 0:
+            print("Adding beatmap to DB")
+            addBeatmap(m, mode)
+        else:
+            lock.release()
+            print("Beatmap Found in DB")
+            updateScores(m, mode)
 
 
 try:
@@ -215,47 +243,44 @@ try:
     print("Initialized DB tables")
 except:
     pass
-pages = 20
-threads = 4
-mode = 0
 offset = pages % threads
 size = math.floor(pages / threads)
 current = 1
 pool = ThreadPool(threads)
 arg = []
-for i in range(0,math.floor(pages/size)): 
+for i in range(0,threads): 
     if i == 0:
-        arg.append({'start': 1,'pages': offset + size,'mode': 1})
+        arg.append({'start': 1,'pages': offset + size,'mode': mode})
         current += offset + size
     else:
-        arg.append({'start': current,'pages': current + size,'mode': 1})
-        current += size
+        arg.append({'start': current,'pages': size,'mode': mode})
+        current += size 
 results = pool.map(fetchMode, arg)
-# maps = fetchMode(1,20,mode)
-for m in maps:
-    db_map = None
-    print("BID: "+str(m.bid))
-    for n in Beatmaps.select().where(Beatmaps.bid == int(m.bid)):
-        db_map = n
-    if db_map == None:
-        addBeatmap(m, mode)
-    else:
-        updateScores(m, mode)
 for m in Beatmaps.select():
     avg_pp = 0
     avg_rank = 0
+    avg_pos = 0
     modl = []
     scores = Scores.select().where(Scores.bid == m.bid, Scores.mode == m.mode)
     for item in scores:
-        avg_pp += item.map_pp
-        avg_rank += item.rank
         modl.append(item.mods)
-    avg_pp /= len(scores)
-    avg_rank /= len(scores)
-    modl = Counter(modl)
+    modl = Counter(modl).most_common()
+    pop_mod = modl[0][0]
+    count_mod = 0
+    for item in scores:
+        if pop_mod == item.mods:
+            count_mod += 1
+            avg_pp += item.map_pp
+            avg_pos += item.pos
+            avg_rank += item.rank
+    # Avg pp and rank are for specific mod, but num scores are for everything
+    avg_pp /= count_mod
+    avg_rank /= count_mod
+    avg_pos /= count_mod
     m.avg_pp = avg_pp
     m.avg_rank = avg_rank
-    pop_mod = list(modl.elements())[0]
+    m.avg_pos = avg_pos
+    m.num_scores = len(scores)
     if pop_mod == 576:
         pop_mod -= 512
     m.pop_mod = mods.main(pop_mod)
