@@ -111,30 +111,29 @@ def urlBuilder(page, mode, type,uid=0):
         baseURL = "https://osu.ppy.sh/api/get_beatmaps"
         return baseURL + "?k="+key+"&b="+str(uid)+"&m="+str(mode)+"&a=1"
 
+def fetchURL(url):
+    count = 10
+    while count > 0:
+        try:
+            count -= 1
+            r = requests.get(url,timeout=1)
+            break
+        except Exception as e:
+            print(str(e))
+    if count == 0:
+        print("Network timeout")
+        exit()
+    return r.text
 
 # Need to detect except httplib.IncompleteRead
 def fetchTop(uid, mode):
     url = urlBuilder(0,mode, 1,uid)
-    count = 5
-    while count > 0:
-        try:
-            r = requests.get(url,timeout=1)
-            break
-        except Exception as e:
-            print(str(e))
-    page = r.text
+    page = fetchURL(url)
     return (json.loads(page))
 
 def addBeatmap(beatmap, mode):
     url = urlBuilder(0,mode,3,beatmap.bid)
-    count = 5
-    while count > 0:
-        try:
-            r = requests.get(url,timeout=1)
-            break
-        except Exception as e:
-            print(str(e))
-    page = r.text
+    page = fetchURL(url)
     map_info = (json.loads(page))[0]
     date_ranked = parser.parse(map_info['approved_date'])
     new_map = Beatmaps.create(pop_mod=0,avg_pp=0,avg_rank=0,num_scores=len(beatmap.scores),mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
@@ -160,14 +159,7 @@ def updateScores(new_map, mode):
 
 def getPage(page, mode, maps):
     url = urlBuilder(page,mode,0)
-    count = 5
-    while count > 0:
-        try:
-            r = requests.get(url,timeout=1)
-            break
-        except Exception as e:
-            print(str(e))
-    page = r.text
+    page = fetchURL(url)
     page = BeautifulSoup(page,"html.parser")
     table = page.find('table', attrs={'class':'beatmapListing'})
     raw_user = page.table.find_all('a')
@@ -217,8 +209,8 @@ try:
     print("Initialized DB tables")
 except:
     pass
-pages = 1
-mode = 3
+pages = 10
+mode = 0
 maps = fetchMode(pages,mode)
 for m in maps:
     db_map = None
