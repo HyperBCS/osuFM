@@ -8,6 +8,7 @@ module.exports = function(sequelize, DataTypes) {
     uid: DataTypes.INTEGER,
     rank: DataTypes.INTEGER,
     mode: DataTypes.INTEGER,
+    pos: DataTypes.INTEGER,
     user_pp: DataTypes.FLOAT,
     map_pp: DataTypes.FLOAT
   });

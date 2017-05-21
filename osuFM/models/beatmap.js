@@ -10,6 +10,7 @@ module.exports = function(sequelize, DataTypes) {
     pop_mod: DataTypes.INTEGER,
     avg_pp: DataTypes.FLOAT,
     avg_rank: DataTypes.INTEGER,
+    avg_pos: DataTypes.INTEGER,
     mode: DataTypes.INTEGER,
     date_ranked: DataTypes.DATE,
     cs: DataTypes.FLOAT,

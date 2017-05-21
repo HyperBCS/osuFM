@@ -2,5 +2,5 @@
 api_key = 
 [crawler]
 pages = 20
-threads = 8
+threads = 4
 mode = 0
