@@ -9,10 +9,10 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  models.Score.findAll().then(function(users) {
+  models.Beatmap.findAll({order: [['num_scores', 'DESC']], where: {mode: 3}}).then(function(maps) {
     res.render('index', {
       title: 'osuFM',
-      users: users
+      maps: maps
     });
   });
 });

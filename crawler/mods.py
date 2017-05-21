@@ -31,7 +31,7 @@ class Mods(IntEnum):
     Key3           = 134217728,
     Key2           = 268435456
 def main(bina):
-    bina = bin(int(bina))
+    bina = bin(bina)
     p = re.compile("0b")
     a = p.sub('',bina)
     pos = []

@@ -3,22 +3,34 @@ extends head
 block content
   h1= title
 
-  h2 Users
+  h2 Maps
 
   ul
   div
     table.table
       thead
         tr
-          th UID
-          th ACC
-          th PP
+          th MAP
+          th Scores
+          th Average PP
+          th Popular Mods
+          th Length
+          th BPM
+          th Stars
       tbody
-        each user, i in users
+        each map, i in maps
           tr
             td 
-              p= user.uid
+              p= map.artist + " - " + map.name + " [" + map.version + "]"
             td
-              p= user.acc
+              p= map.num_scores
             td
-              p= user.pp
+              p= (map.avg_pp).toFixed(2)
+            td
+              p= map.pop_mod
+            td
+              p= map.length
+            td
+              p= map.bpm
+            td
+              p= (map.diff).toFixed(2)

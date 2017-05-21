@@ -6,7 +6,10 @@ module.exports = function(sequelize, DataTypes) {
     acc: DataTypes.FLOAT,
     mods: DataTypes.INTEGER,
     uid: DataTypes.INTEGER,
-    pp: DataTypes.FLOAT
+    rank: DataTypes.INTEGER,
+    mode: DataTypes.INTEGER,
+    user_pp: DataTypes.FLOAT,
+    map_pp: DataTypes.FLOAT
   });
 
   return Score;
