@@ -9,7 +9,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  models.Beatmap.findAll({order: [['num_scores', 'DESC']], where: {mode: 3}, limit: 50}).then(function(maps) {
+  models.Beatmap.findAll({order: [['score', 'DESC']], where: {mode: 0}, limit: 50}).then(function(maps) {
     res.render('index', {
       title: 'osuFM',
       maps: maps

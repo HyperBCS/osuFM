@@ -39,6 +39,7 @@ class Beatmaps(BaseModel):
     bpm = FloatField()
     diff = FloatField()
     version = CharField()
+    score = FloatField()
 
 class Scores(BaseModel):
     uid = IntegerField()
@@ -98,6 +99,7 @@ try:
     key = config._sections["osu"]['api_key']
     pages = int(config._sections["crawler"]['pages'])
     threads = int(config._sections["crawler"]['threads'])
+    limit = int(config._sections["crawler"]['limit'])
     # Need to make this auto get every mode soon. 
     mode = int(config._sections["crawler"]['mode'])
 except:
@@ -113,7 +115,7 @@ def urlBuilder(page, mode, type,uid=0):
             exit()
     elif type == 1:
         baseURL = "https://osu.ppy.sh/api/get_user_best"
-        return baseURL + "?k="+key+"&u="+str(uid[0])+"&m="+str(mode)+"&limit=50"
+        return baseURL + "?k="+key+"&u="+str(uid[0])+"&m="+str(mode)+"&limit="+str(limit)
     elif type == 2:
         baseURL = "https://osu.ppy.sh/api/get_user"
         return baseURL + "?k="+key+"&u="+str(uid[0])+"&m="+str(mode)
@@ -146,7 +148,7 @@ def addBeatmap(beatmap, mode):
     page = fetchURL(url)
     map_info = (json.loads(page))[0]
     date_ranked = parser.parse(map_info['approved_date'])
-    new_map = Beatmaps.create(avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
+    new_map = Beatmaps.create(score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
     lock.release()
     updateScores(beatmap, mode)
 
@@ -233,6 +235,12 @@ def updateDB(maps, mode):
             print("Beatmap Found in DB")
             updateScores(m, mode)
 
+def ci(pos, n):
+    z = 5
+    phat = 1.0 * pos / n
+
+    return (phat + z*z/(2*n) - z * math.sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+
 
 try:
     db.connect()
@@ -255,19 +263,25 @@ for i in range(0,threads):
     else:
         arg.append({'start': current,'pages': size,'mode': mode})
         current += size 
-results = pool.map(fetchMode, arg)
+# results = pool.map(fetchMode, arg)
 for m in Beatmaps.select():
     avg_pp = 0
     avg_rank = 0
     avg_pos = 0
     modl = []
-    scores = Scores.select().where(Scores.bid == m.bid, Scores.mode == m.mode)
+    scores = Scores.select().where(Scores.bid == m.bid, Scores.mode == m.mode).order_by(+Scores.user_pp)
     for item in scores:
         modl.append(item.mods)
     modl = Counter(modl).most_common()
     pop_mod = modl[0][0]
     count_mod = 0
+    count_pos = 0
+    i = 0
     for item in scores:
+        i += 1
+        threshhold = 30 - math.ceil(20 * (i / len(scores)))
+        if item.pos < threshhold:
+            count_pos += 1
         if pop_mod == item.mods:
             count_mod += 1
             avg_pp += item.map_pp
@@ -281,6 +295,9 @@ for m in Beatmaps.select():
     m.avg_rank = avg_rank
     m.avg_pos = avg_pos
     m.num_scores = len(scores)
+    ci_score = ci(count_pos, len(scores))
+    # print("SCORE: " + str(ci_score) + " FOR " + m.artist + " - " + m.name)
+    m.score=ci_score
     if pop_mod == 576:
         pop_mod -= 512
     m.pop_mod = mods.main(pop_mod)

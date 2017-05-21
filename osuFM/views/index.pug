@@ -12,6 +12,7 @@ block content
         tr
           th MAP
           th Scores
+          th Rating
           th Average PP
           th Average Rank
           th Popular Mods
@@ -25,6 +26,8 @@ block content
               p= map.artist + " - " + map.name + " [" + map.version + "]"
             td
               p= map.num_scores
+            td
+              p= map.score
             td
               p= (map.avg_pp).toFixed(2)
             td

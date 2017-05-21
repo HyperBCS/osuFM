@@ -4,3 +4,4 @@ api_key =
 pages = 20
 threads = 4
 mode = 0
+limit = 20

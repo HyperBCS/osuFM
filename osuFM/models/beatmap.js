@@ -18,7 +18,8 @@ module.exports = function(sequelize, DataTypes) {
     length: DataTypes.INTEGER,
     bpm: DataTypes.FLOAT,
     diff: DataTypes.FLOAT,
-    version: DataTypes.STRING
+    version: DataTypes.STRING,
+    score: DataTypes.FLOAT
 
 
   });
