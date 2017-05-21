@@ -263,7 +263,7 @@ for i in range(0,threads):
     else:
         arg.append({'start': current,'pages': size,'mode': mode})
         current += size 
-# results = pool.map(fetchMode, arg)
+results = pool.map(fetchMode, arg)
 for m in Beatmaps.select():
     avg_pp = 0
     avg_rank = 0
