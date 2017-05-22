@@ -336,7 +336,6 @@ results = pool.map(fetchMode, arg)
 print("Beginning score processing...")
 with db.transaction():
     for m in Beatmaps.select():
-        print("dfsdf")
         avg_pp = 0
         avg_rank = 0
         avg_pos = 0
