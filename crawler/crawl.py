@@ -7,6 +7,7 @@ import ssl
 import mods
 import json
 import requests
+from time import sleep
 from multiprocessing.dummy import Pool as ThreadPool 
 from threading import Lock
 from collections import Counter
@@ -30,6 +31,7 @@ class Beatmaps(BaseModel):
     num_scores = IntegerField()
     pop_mod = CharField()
     avg_pp = FloatField()
+    avg_acc = FloatField()
     avg_rank = IntegerField()
     avg_pos = IntegerField()
     mode = IntegerField()
@@ -53,7 +55,7 @@ class Scores(BaseModel):
     map_pp = FloatField()
     user_pp = FloatField()
     class Meta:
-        primary_key = CompositeKey('uid', 'bid', 'rank', 'acc', 'mods', 'pos', 'mode', 'map_pp', 'user_pp')
+        primary_key = CompositeKey('uid', 'bid', 'mode')
 
 # Actually scores
 class Beatmap(object):
@@ -130,12 +132,13 @@ def fetchURL(url):
     while count > 0:
         try:
             count -= 1
-            r = requests.get(url,timeout=1)
+            r = requests.get(url,timeout=2)
             break
         except Exception as e:
+            sleep(1)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(str(e), fname, exc_tb.tb_lineno)
+            print("[" + str(20 - count) + "/20" + "]",str(e), fname, exc_tb.tb_lineno)
     if count == 0:
         print("Network timeout")
         exit()
@@ -155,7 +158,7 @@ def addBeatmap(beatmap, mode):
     tries = 3
     while tries > 0:
         try:
-            new_map = Beatmaps.create(score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
+            new_map = Beatmaps.create(avg_acc=0,score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
             break
         except Exception as e:
             tries -= 1
@@ -166,14 +169,24 @@ def addBeatmap(beatmap, mode):
     updateScores(beatmap, mode)
 
 
+# Create a function called "chunks" with two arguments, l and n:
+def chunks(l, n):
+    # For item i in a range that is a length of l,
+    for i in range(0, len(l), n):
+        # Create an index range for l of n items:
+        yield l[i:i+n]
+
+
 def updateScores(new_map, mode):
     score = None
     tries = 3
+    map_pieces = chunks(new_map.scores, 500)
     while tries > 0:
         try:
             with db.transaction():
-                query = Scores.insert_many(new_map.scores).upsert(upsert=True)
-                query.execute()
+                for maps in map_pieces:
+                    query = Scores.insert_many(maps).upsert(upsert=True)
+                    query.execute()
                 # Scores.get_or_create(uid = sc['uid'],bid = new_map.bid, mode = mode,defaults={'pos': sc['pos'],'rank': sc['rank'],'acc': sc['acc'],'mods': sc['mods'],'map_pp': sc['map_pp'],'user_pp': sc['user_pp']})
                 # for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid, Scores.mode == mode):
                 #     score = s
@@ -274,10 +287,26 @@ def updateDB(maps, mode):
             updateScores(m, mode)
 
 def ci(pos, n):
-    z = 1.96
+    z = 3.5
     phat = 1.0 * pos / n
 
     return (phat + z*z/(2*n) - z * math.sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+
+def weight_pos(tops, total):
+    ratio = tops[0][0]
+    if ratio ==0:
+        return 0
+    total = 0
+    summ = 0
+    for top in tops:
+        top[0] = top[0]/ratio
+        summ += top[1]
+    for top in tops:
+        total += top[0] * (top[1] / (1.0*summ))
+    return total*ratio
+
+def getKey(item):
+    return item[0]
 
 
 try:
@@ -303,54 +332,70 @@ for i in range(0,threads):
     else:
         arg.append({'start': current,'pages': size,'mode': mode})
         current += size 
-results = pool.map(fetchMode, arg)
+# results = pool.map(fetchMode, arg)
 print("Beginning score processing...")
-for m in Beatmaps.select():
-    avg_pp = 0
-    avg_rank = 0
-    avg_pos = 0
-    modl = []
-    scores = Scores.select().where(Scores.bid == m.bid, Scores.mode == m.mode)
-    for item in scores:
-        modl.append(item.mods)
-    modl = Counter(modl).most_common()
-    pop_mod = modl[0][0]
-    count_mod = 0
-    count_pos = 0
-    i = 0
-    num_scores = len(scores)
-    for item in scores:
-        i += 1
-        threshhold = 30
-        if pop_mod == item.mods:
-            if item.pos < threshhold:
-                count_pos += 1
-            count_mod += 1
-            avg_pp += item.map_pp
-            avg_pos += item.pos
-            avg_rank += item.rank
-    # Avg pp and rank are for specific mod, but num scores are for everything
-    avg_pp /= count_mod
-    avg_rank /= count_mod
-    avg_pos /= count_mod
-    m.avg_pp = avg_pp
-    m.avg_rank = avg_rank
-    m.avg_pos = avg_pos
-    m.num_scores = len(scores)
-    scaled_pos = num_scores * (count_pos / count_mod)
-    ci_score = ci(scaled_pos, num_scores)
-    # print("SCORE: " + str(ci_score) + " FOR " + m.artist + " - " + m.name)
-    m.score=ci_score
-    if pop_mod == 576:
-        pop_mod -= 512
-    m.pop_mod = mods.main(pop_mod)
-    tries = 3
-    while tries > 0:
-        try:
-            m.save()
-            break
-        except Exception as e:
-            tries -= 1
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print(str(e), fname, exc_tb.tb_lineno)
+with db.transaction():
+    for m in Beatmaps.select():
+        avg_pp = 0
+        avg_rank = 0
+        avg_pos = 0
+        avg_acc = 0
+        modl = []
+        top_mods = []
+        scores = Scores.select().where(Scores.bid == m.bid, Scores.mode == m.mode)
+        for item in scores:
+            modl.append(item.mods)
+        modl = Counter(modl).most_common(3)
+        if len(modl) == 0:
+            continue
+        pop_mod = modl[0][0]
+        count_mod = 0
+        count_pos = 0
+        num_scores = len(scores)
+        for pm in modl:
+            count_mod = 0
+            count_pos = 0
+            for item in scores:
+                threshhold = 33
+                if pm[0] == item.mods:
+                    count_mod += 1
+                    if item.pos < threshhold:
+                        count_pos += 1
+            top_mods.append([count_pos / count_mod, count_mod])
+        avg_good = weight_pos(sorted(top_mods,key=getKey, reverse=True),count_mod)
+        count_mod = 0
+        for item in scores:
+            if pop_mod == item.mods:
+                count_mod += 1
+                avg_pp += item.map_pp
+                avg_pos += item.pos
+                avg_rank += item.rank
+                avg_acc += item.acc
+        # Avg pp and rank are for specific mod, but num scores are for everything
+        avg_pp /= count_mod
+        avg_rank /= count_mod
+        avg_pos /= count_mod
+        avg_acc /= count_mod
+        m.avg_pp = avg_pp
+        m.avg_rank = avg_rank
+        m.avg_pos = avg_pos
+        m.avg_acc = avg_acc
+        m.num_scores = len(scores)
+        # scaled_pos = num_scores * (count_pos / count_mod)
+        scaled_pos = num_scores * avg_good
+        ci_score = ci(scaled_pos, num_scores)
+        # print("SCORE: " + str(ci_score) + " FOR " + m.artist + " - " + m.name)
+        m.score=ci_score
+        if pop_mod == 576:
+            pop_mod -= 512
+        m.pop_mod = mods.main(pop_mod)
+        tries = 3
+        while tries > 0:
+            try:
+                m.save()
+                break
+            except Exception as e:
+                tries -= 1
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(str(e), fname, exc_tb.tb_lineno)

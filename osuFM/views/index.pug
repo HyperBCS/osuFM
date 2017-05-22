@@ -10,26 +10,30 @@ block content
     table.table
       thead
         tr
+          th #
           th MAP
-          th Scores
           th Rating
           th Average PP
+          th Average Acc
           th Average Rank
           th Popular Mods
           th Length
           th BPM
           th Stars
+          th Scores
       tbody
         each map, i in maps
           tr
+            td
+              p= i
             td 
-              p= map.artist + " - " + map.name + " [" + map.version + "]"
+              a(href='https://osu.ppy.sh/b/'+map.bid) #{map.artist} - #{map.name} [#{map.version}]
             td
-              p= map.num_scores
-            td
-              p= map.score
+              p= (100*map.score).toFixed(2)
             td
               p= (map.avg_pp).toFixed(2)
+            td
+              p= (map.avg_acc).toFixed(2) + "%"
             td
                 p= map.avg_rank
             td
@@ -40,3 +44,5 @@ block content
               p= map.bpm
             td
               p= (map.diff).toFixed(2)
+            td
+              p= map.num_scores
