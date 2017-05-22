@@ -231,8 +231,8 @@ def getPage(page, mode, maps):
 def fetchMode(info):
     start = info['start']
     pages = start + info['pages']
-    if pages > 200:
-        pages = 200
+    if pages > 201:
+        pages = 201
     mode = info['mode']
     map_set = set()
     try:
