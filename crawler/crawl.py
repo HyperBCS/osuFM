@@ -210,7 +210,7 @@ def getPage(page, mode, maps):
             rank = re.findall('\d+', data[count][0])
             pp_raw = data[count][4].replace(",","")
             pp_raw = re.findall('\d+', pp_raw)
-            print("Rank "+str(rank))
+            # print("Rank "+str(rank))
             tops = fetchTop(uid,mode)
             users.append(User(str(uid[0]),tops,pp_raw[0],rank[0]))
         count += 1
