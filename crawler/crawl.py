@@ -109,7 +109,7 @@ except:
 def urlBuilder(page, mode, type,uid=0):
     if type == 0:
         baseURL = "https://osu.ppy.sh/p/pp/"
-        if (page > 0 and page < 200) and (mode >= 0 and mode < 4):
+        if (page > 0 and page <= 200) and (mode >= 0 and mode < 4):
             return baseURL+"?m="+str(mode)+"&page="+str(page)
         else:
             print("Page or mode out of range")
