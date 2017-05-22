@@ -171,18 +171,19 @@ def updateScores(new_map, mode):
         tries = 3
         while tries > 0:
             try:
-                for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid, Scores.mode == mode):
-                    score = s
-                    s.rank = sc['rank']
-                    s.acc = sc['acc']
-                    s.mods = sc['mods']
-                    s.map_pp = sc['pp']
-                    s.user_pp = sc['raw_pp']
-                    s.pos = sc['pos']
-                    s.save()
-                if score == None:
-                    score = Scores.create(pos=sc['pos'],uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['pp'],user_pp=sc['raw_pp'])
-                score = None
+                Scores.get_or_create(uid = sc['uid'],bid = new_map.bid, mode = mode,defaults={'pos': sc['pos'],'rank': sc['rank'],'acc': sc['acc'],'mods': sc['mods'],'map_pp': sc['pp'],'user_pp': sc['raw_pp']})
+                # for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid, Scores.mode == mode):
+                #     score = s
+                #     s.rank = sc['rank']
+                #     s.acc = sc['acc']
+                #     s.mods = sc['mods']
+                #     s.map_pp = sc['pp']
+                #     s.user_pp = sc['raw_pp']
+                #     s.pos = sc['pos']
+                #     s.save()
+                # if score == None:
+                #     score = Scores.create(pos=sc['pos'],uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['pp'],user_pp=sc['raw_pp'])
+                # score = None
                 break
             except Exception as e:
                 exc_type, exc_obj, exc_tb = sys.exc_info()
