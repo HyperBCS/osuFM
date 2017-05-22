@@ -1,4 +1,4 @@
-import sys
+import sys, os
 import configparser
 import re
 import mods
@@ -16,6 +16,7 @@ from bs4 import BeautifulSoup
 
 db = SqliteDatabase('../osuFM/osuFM.db',threadlocals=True)
 lock = Lock()
+score_lock = Lock()
 
 class BaseModel(Model):
     class Meta:
@@ -131,7 +132,9 @@ def fetchURL(url):
             r = requests.get(url,timeout=1)
             break
         except Exception as e:
-            print(str(e))
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(str(e), fname, exc_tb.tb_lineno)
     if count == 0:
         print("Network timeout")
         exit()
@@ -148,27 +151,44 @@ def addBeatmap(beatmap, mode):
     page = fetchURL(url)
     map_info = (json.loads(page))[0]
     date_ranked = parser.parse(map_info['approved_date'])
-    new_map = Beatmaps.create(score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
+    tries = 3
+    while tries > 0:
+        try:
+            new_map = Beatmaps.create(score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
+            break
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(str(e), fname, exc_tb.tb_lineno)
     lock.release()
     updateScores(beatmap, mode)
 
 
 def updateScores(new_map, mode):
     score = None
+    score_lock.acquire()
     for sc in new_map.scores:
-        for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid, Scores.mode == mode):
-            score = s
-            s.rank = sc['rank']
-            s.acc = sc['acc']
-            s.mods = sc['mods']
-            s.map_pp = sc['pp']
-            s.user_pp = sc['raw_pp']
-            s.pos = sc['pos']
-            s.save()
-        if score == None:
-            score = Scores.create(pos=sc['pos'],uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['pp'],user_pp=sc['raw_pp'])
-        score = None
-
+        tries = 3
+        while tries > 0:
+            try:
+                for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid, Scores.mode == mode):
+                    score = s
+                    s.rank = sc['rank']
+                    s.acc = sc['acc']
+                    s.mods = sc['mods']
+                    s.map_pp = sc['pp']
+                    s.user_pp = sc['raw_pp']
+                    s.pos = sc['pos']
+                    s.save()
+                if score == None:
+                    score = Scores.create(pos=sc['pos'],uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['pp'],user_pp=sc['raw_pp'])
+                score = None
+                break
+            except Exception as e:
+                exc_type, exc_obj, exc_tb = sys.exc_info()
+                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                print(str(e), fname, exc_tb.tb_lineno)
+    score_lock.release()
 
 def getPage(page, mode, maps):
     url = urlBuilder(page,mode,0)
@@ -184,7 +204,7 @@ def getPage(page, mode, maps):
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
         data.append([ele for ele in cols if ele]) # Get rid of empty values
-    for user in raw_user:
+    for user in raw_user[0:10]:
         if user != None:
             uid = re.findall('\d+', user['href'])
             rank = re.findall('\d+', data[count][0])
@@ -215,28 +235,42 @@ def fetchMode(info):
         pages = 200
     mode = info['mode']
     map_set = set()
-    for i in range(start,pages):
-        print("[" + str(i) + "/" + str(pages-1) + "]")
-        getPage(i,mode, map_set)
-    updateDB(map_set, mode)
+    try:
+        for i in range(start,pages):
+            print("[" + str(i) + "/" + str(pages-1) + "]")
+            getPage(i,mode, map_set)
+        updateDB(map_set, mode)
+    except Exception as e:
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        print(str(e), fname, exc_tb.tb_lineno)
+        lock.release()
+        score_lock.release()
 
 def updateDB(maps, mode):
+    counter = 0
+    length = len(maps)
     for m in maps:
+        counter += 1
         db_map = None
-        print("BID: "+str(m.bid))
+        db_map = Beatmaps.select().where(Beatmaps.bid == int(m.bid), Beatmaps.mode == mode)
+        if len(db_map) != 0:
+            print("[" + str(counter) +"/" + str(length) +  "]BID: "+str(m.bid) + " - FOUND")
+            updateScores(m, mode)
+            continue
         lock.acquire()
         db_map = Beatmaps.select().where(Beatmaps.bid == int(m.bid), Beatmaps.mode == mode)
         # print("LENGTH "+str(len(db_map)))
         if len(db_map) == 0:
-            print("Adding beatmap to DB")
+            print("[" + str(counter) +"/" + str(length) +  "]BID: "+str(m.bid) + " - ADDING")
             addBeatmap(m, mode)
         else:
             lock.release()
-            print("Beatmap Found in DB")
+            print("[" + str(counter) +"/" + str(length) +  "]BID: "+str(m.bid) + " - FOUND")
             updateScores(m, mode)
 
 def ci(pos, n):
-    z = 5
+    z = 1.96
     phat = 1.0 * pos / n
 
     return (phat + z*z/(2*n) - z * math.sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
@@ -264,12 +298,13 @@ for i in range(0,threads):
         arg.append({'start': current,'pages': size,'mode': mode})
         current += size 
 results = pool.map(fetchMode, arg)
+print("Beginning score processing...")
 for m in Beatmaps.select():
     avg_pp = 0
     avg_rank = 0
     avg_pos = 0
     modl = []
-    scores = Scores.select().where(Scores.bid == m.bid, Scores.mode == m.mode).order_by(+Scores.user_pp)
+    scores = Scores.select().where(Scores.bid == m.bid, Scores.mode == m.mode)
     for item in scores:
         modl.append(item.mods)
     modl = Counter(modl).most_common()
@@ -277,12 +312,13 @@ for m in Beatmaps.select():
     count_mod = 0
     count_pos = 0
     i = 0
+    num_scores = len(scores)
     for item in scores:
         i += 1
-        threshhold = 30 - math.ceil(20 * (i / len(scores)))
-        if item.pos < threshhold:
-            count_pos += 1
+        threshhold = 30
         if pop_mod == item.mods:
+            if item.pos < threshhold:
+                count_pos += 1
             count_mod += 1
             avg_pp += item.map_pp
             avg_pos += item.pos
@@ -295,10 +331,19 @@ for m in Beatmaps.select():
     m.avg_rank = avg_rank
     m.avg_pos = avg_pos
     m.num_scores = len(scores)
-    ci_score = ci(count_pos, len(scores))
+    scaled_pos = num_scores * (count_pos / count_mod)
+    ci_score = ci(scaled_pos, num_scores)
     # print("SCORE: " + str(ci_score) + " FOR " + m.artist + " - " + m.name)
     m.score=ci_score
     if pop_mod == 576:
         pop_mod -= 512
     m.pop_mod = mods.main(pop_mod)
-    m.save()
+    tries = 3
+    while tries > 0:
+        try:
+            m.save()
+            break
+        except Exception as e:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(str(e), fname, exc_tb.tb_lineno)
