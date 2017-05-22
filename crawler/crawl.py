@@ -52,15 +52,16 @@ class Scores(BaseModel):
     mode = IntegerField()
     map_pp = FloatField()
     user_pp = FloatField()
-    
+    class Meta:
+        primary_key = CompositeKey('uid', 'bid', 'rank', 'acc', 'mods', 'pos', 'mode', 'map_pp', 'user_pp')
 
 # Actually scores
 class Beatmap(object):
     bid = 0
     scores = []
-    def __init__(self, bid, acc, mods,uid,pp,raw_pp,rank, pos):
+    def __init__(self, bid, acc, mods,uid,pp,raw_pp,rank, pos, mode):
         self.bid = bid
-        self.scores = [{'acc': acc,'mods': mods,'uid': uid,'pp': pp, 'raw_pp': raw_pp, 'rank': rank, 'pos': pos}]
+        self.scores = [{'bid': bid,'acc': acc,'mods': mods,'uid': uid,'map_pp': pp, 'user_pp': raw_pp, 'rank': rank, 'pos': pos, 'mode': mode}]
     def __eq__(self, other):
         if isinstance(other, Beatmap):
             return ((self.bid == other.bid))
@@ -70,8 +71,8 @@ class Beatmap(object):
         return (not self.__eq__(other))
     def __hash__(self):
         return hash(self.bid)
-    def addScore(self, bid, acc, mods,uid,pp,raw_pp,rank, pos):
-        self.scores.append({'acc': acc,'mods': mods,'uid': uid,'pp': pp, 'raw_pp': raw_pp, 'rank': rank, 'pos': pos})
+    def addScore(self, bid, acc, mods,uid,pp,raw_pp,rank, pos, mode):
+        self.scores.append({'bid': bid, 'acc': acc,'mods': mods,'uid': uid,'map_pp': pp, 'user_pp': raw_pp, 'rank': rank, 'pos': pos, 'mode': mode})
 
 class User:
     uid = ""
@@ -157,6 +158,7 @@ def addBeatmap(beatmap, mode):
             new_map = Beatmaps.create(score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
             break
         except Exception as e:
+            tries -= 1
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(str(e), fname, exc_tb.tb_lineno)
@@ -166,28 +168,31 @@ def addBeatmap(beatmap, mode):
 
 def updateScores(new_map, mode):
     score = None
-    for sc in new_map.scores:
-        tries = 3
-        while tries > 0:
-            try:
-                Scores.get_or_create(uid = sc['uid'],bid = new_map.bid, mode = mode,defaults={'pos': sc['pos'],'rank': sc['rank'],'acc': sc['acc'],'mods': sc['mods'],'map_pp': sc['pp'],'user_pp': sc['raw_pp']})
+    tries = 3
+    while tries > 0:
+        try:
+            with db.transaction():
+                query = Scores.insert_many(new_map.scores).upsert(upsert=True)
+                query.execute()
+                # Scores.get_or_create(uid = sc['uid'],bid = new_map.bid, mode = mode,defaults={'pos': sc['pos'],'rank': sc['rank'],'acc': sc['acc'],'mods': sc['mods'],'map_pp': sc['map_pp'],'user_pp': sc['user_pp']})
                 # for s in Scores.select().where(Scores.uid == sc['uid'],Scores.bid == new_map.bid, Scores.mode == mode):
                 #     score = s
                 #     s.rank = sc['rank']
                 #     s.acc = sc['acc']
                 #     s.mods = sc['mods']
-                #     s.map_pp = sc['pp']
-                #     s.user_pp = sc['raw_pp']
+                #     s.map_pp = sc['map_pp']
+                #     s.user_pp = sc['user_pp']
                 #     s.pos = sc['pos']
                 #     s.save()
                 # if score == None:
-                #     score = Scores.create(pos=sc['pos'],uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['pp'],user_pp=sc['raw_pp'])
+                #     score = Scores.create(pos=sc['pos'],uid=sc['uid'],bid=new_map.bid,rank=sc['rank'],acc=sc['acc'],mods=sc['mods'],mode=mode,map_pp=sc['map_pp'],user_pp=sc['user_pp'])
                 # score = None
                 break
-            except Exception as e:
-                exc_type, exc_obj, exc_tb = sys.exc_info()
-                fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                print(str(e), fname, exc_tb.tb_lineno)
+        except Exception as e:
+            tries -= 1
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print(str(e), fname, exc_tb.tb_lineno)
 
 def getPage(page, mode, maps):
     url = urlBuilder(page,mode,0)
@@ -203,7 +208,7 @@ def getPage(page, mode, maps):
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
         data.append([ele for ele in cols if ele]) # Get rid of empty values
-    for user in raw_user[0:10]:
+    for user in raw_user:
         if user != None:
             uid = re.findall('\d+', user['href'])
             rank = re.findall('\d+', data[count][0])
@@ -218,13 +223,13 @@ def getPage(page, mode, maps):
         for top in user.scores:
             count += 1
             acc = Acc(top)
-            beatmap = Beatmap(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank, count)
+            beatmap = Beatmap(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank, count, mode)
             if beatmap not in maps:
                 maps.add(beatmap)
             else:
                 for m in maps:
                     if beatmap == m:
-                        m.addScore(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank, count)
+                        m.addScore(top['beatmap_id'],acc,top['enabled_mods'], user.uid, top['pp'],user.pp,user.rank, count, mode)
 
 
 def fetchMode(info):
@@ -280,7 +285,9 @@ try:
 except:
     pass
 try:
-    db.create_tables([Beatmaps, Scores])
+    Beatmaps.create_table(True)
+    Scores.create_table(True)
+    # db.create_tables([Beatmaps, Scores])
     print("Initialized DB tables")
 except:
     pass
@@ -343,6 +350,7 @@ for m in Beatmaps.select():
             m.save()
             break
         except Exception as e:
+            tries -= 1
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(str(e), fname, exc_tb.tb_lineno)
