@@ -166,7 +166,6 @@ def addBeatmap(beatmap, mode):
 
 def updateScores(new_map, mode):
     score = None
-    score_lock.acquire()
     for sc in new_map.scores:
         tries = 3
         while tries > 0:
@@ -189,7 +188,6 @@ def updateScores(new_map, mode):
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(str(e), fname, exc_tb.tb_lineno)
-    score_lock.release()
 
 def getPage(page, mode, maps):
     url = urlBuilder(page,mode,0)
