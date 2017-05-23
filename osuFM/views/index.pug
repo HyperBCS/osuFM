@@ -56,24 +56,42 @@ block content
   .container#performance
     h4 Performance options
     hr
-    .row
-      input.form-group(type='text', name='mpp', placeholder='Min PP').col-sm-2
-      input.form-group(type='text', name='xpp', placeholder='Max PP').col-sm-2
-
-      input.form-group(type='text', name='mr', placeholder='Min Rank').col-sm-2.col-sm-offset-2
-      input.form-group(type='text', name='xr', placeholder='Max Rank').col-sm-2
+    .form-group.row
+      .col-sm-2
+        label Min PP
+        input.form-control(type='text', name='mpp', placeholder='Min PP')
+      .col-sm-2
+        label Max PP
+        input.form-control(type='text', name='xpp', placeholder='Max PP')
+      .col-sm-2.col-sm-offset-2
+        label Min Rank
+        input.form-control(type='text', name='mr', placeholder='Min Rank')
+      .col-sm-2
+        label Max Rank
+        input.form-control(type='text', name='xr', placeholder='Max Rank')
   .container#options
     h4 Map Options
     hr
-    .row
-      input.form-group(type='text', name='ml', placeholder='Min Length(sec)').col-1
-      input.form-group(type='text', name='xl', placeholder='Max Length(sec)').col-1
+    .form-group.row
+      .col-sm-2
+        label Min Length(secs)
+        input.form-control(type='text', name='ml', placeholder='Min Length')
+      .col-sm-2
+        label Max Length(secs)
+        input.form-control(type='text', name='xl', placeholder='Max Length')
 
-      input.form-group(type='text', name='mb', placeholder='Min BPM').col-1.col-sm-offset-1
-      input.form-group(type='text', name='xb', placeholder='Max BPM').col-1
-
-      input.form-group(type='text', name='md', placeholder='Min Diff').col-1.col-sm-offset-1
-      input.form-group(type='text', name='xd', placeholder='Max Diff').col-1
+      .col-sm-2
+        label Min BPM
+        input.form-control(type='text', name='mb', placeholder='Min BPM')
+      .col-sm-2
+        label Max BPM
+        input.form-control(type='text', name='xb', placeholder='Max BPM')
+      .col-sm-2
+        label Min Difficulty
+        input.form-control(type='text', name='md', placeholder='Min Diff')
+      .col-sm-2
+        label Max Difficulty
+        input.form-control(type='text', name='xd', placeholder='Max Diff')
   h2 Maps
 
   ul
