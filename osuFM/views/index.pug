@@ -2,7 +2,78 @@ extends head
 
 block content
   h1= title
+  .container
+  .row
+    form(action='/',method='get')
+      .col-xs-8.col-xs-offset-2
+        .input-group
+          .input-group-btn.search-panel
+            button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown')
+              span#search_concept Game Mode
+              span.caret
+            ul.dropdown-menu(role='menu',name='mode')
+              li(onclick="$('#mode').val(0)")
+                a Standard
+              li(onclick="$('#mode').val(1)")
+                a Taiko
+              li(onclick="$('#mode').val(2)")
+                a Catch the Beat
+              li(onclick="$('#mode').val(3)")
+                a Mania
+              li.divider
+              li(onclick="$('#mode').val(-1)")
+                a All
 
+          input#mods(type='hidden', name='mods', value=0)
+          input#mode(type='hidden', name='m', value='all')
+          input.form-control(type='text', name='n', placeholder='Search beatmaps...')
+          span.input-group-btn
+            button.btn.btn-default(type="submit")
+              span.glyphicon.glyphicon-search
+  .container#mods
+    .checkbox
+      h4 Mods
+        hr
+        .row.col-xs-offset-1
+          label.checkbox-inline.col
+            input(type='checkbox', value='64', id='DT')
+            | Double Time
+          label.checkbox-inline.col
+            input(type='checkbox', value='8', id='HD')
+            | Hidden
+          label.checkbox-inline.col
+            input(type='checkbox', value='16', id='HR')
+            | Hard Rock
+          label.checkbox-inline.col
+            input(type='checkbox', value='2', id='EZ')
+            | Easy
+          label.checkbox-inline.col
+            input(type='checkbox', value='1024', id='FL')
+            | Flashlight
+          label.checkbox-inline.col
+            input(type='checkbox', value='0', id='NO')
+            | No Mods/Strict
+  .container#performance
+    h4 Performance options
+    hr
+    .row
+      input.form-group(type='text', name='mpp', placeholder='Min PP').col-sm-2
+      input.form-group(type='text', name='xpp', placeholder='Max PP').col-sm-2
+
+      input.form-group(type='text', name='mr', placeholder='Min Rank').col-sm-2.col-sm-offset-2
+      input.form-group(type='text', name='xr', placeholder='Max Rank').col-sm-2
+  .container#options
+    h4 Map Options
+    hr
+    .row
+      input.form-group(type='text', name='ml', placeholder='Min Length(sec)').col-1
+      input.form-group(type='text', name='xl', placeholder='Max Length(sec)').col-1
+
+      input.form-group(type='text', name='mb', placeholder='Min BPM').col-1.col-sm-offset-1
+      input.form-group(type='text', name='xb', placeholder='Max BPM').col-1
+
+      input.form-group(type='text', name='md', placeholder='Min Diff').col-1.col-sm-offset-1
+      input.form-group(type='text', name='xd', placeholder='Max Diff').col-1
   h2 Maps
 
   ul
@@ -46,3 +117,35 @@ block content
               p= (map.diff).toFixed(2)
             td
               p= map.num_scores
+  script.
+    $(':checkbox').change(function () {
+      var nomod = $('#NO').is(':checked');
+      var current_val = Number($('#mods').val());
+      var value = Number($(this).val());
+      var checked = Number(this.checked);
+      if(nomod == true){
+        value *= -1
+        if(current_val > 0){
+        current_val *= -1
+        }
+      } else{
+        if(current_val < 0){
+        current_val *= -1
+        } else if(current_val == 0 && checked == false){
+          $('#mods').val(-1)
+          return
+        }
+      }
+      if(current_val == -1){
+       current_val = 0
+      }
+      if(checked && value != -1){
+      $('#mods').val(current_val + value)
+      } else if(!checked && value != -1){
+      $('#mods').val(current_val - value)
+      }
+      mod = value
+      console.log(mod+": " + $('#mods').val());
+   });
+
+
