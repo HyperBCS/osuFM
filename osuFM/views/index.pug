@@ -164,6 +164,9 @@ block content
       $('#mods').val(current_val + value)
       } else if(!checked && value != -1){
       $('#mods').val(current_val - value)
+      if($('#mods').val() == 0 && $('#NO').is(':checked') == false){
+        $('#mods').val(-1)
+      }
       }
       mod = value
    });
