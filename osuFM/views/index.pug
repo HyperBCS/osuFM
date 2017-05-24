@@ -129,7 +129,7 @@ block content
           th #
           th
           th Map
-          th Rating
+          th Fresh
           th Average PP
           th Average Acc
           th Average Rank
@@ -141,19 +141,20 @@ block content
         each map, i in maps
           tr
             td
-              p= i + 1
+              p= offset + i + 1
             td
-              img(src= 'https://b.ppy.sh/thumb/' + map.sid + ".jpg")
+              a(href='https://osu.ppy.sh/b/'+map.bid)
+                img(src= 'https://b.ppy.sh/thumb/' + map.sid + ".jpg")
             td 
               a(href='https://osu.ppy.sh/b/'+map.bid) #{map.artist} - #{map.name} [#{map.version}]
             td
-              p= (100*map.score).toFixed(2)
+              p= (100*map.score).toFixed(2) + "%"
             td
               p= (map.avg_pp).toFixed(2)
             td
               p= (map.avg_acc).toFixed(2) + "%"
             td
-                p= map.avg_rank
+                p= "#"+map.avg_rank
             td
               p= map.pop_mod
             td

@@ -101,6 +101,7 @@ router.get('/', function(req, res, next) {
     res.render('index', {
       title: 'osuFM',
       pages:  Math.ceil(maps.count / 10),
+      offset: offset,
       current_page: page,
       maps: maps.rows,
       response: response
