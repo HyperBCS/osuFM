@@ -42,12 +42,11 @@ var format_min_max = function(min,max){
 	if(max == null || max == ""){
 		max = Number.MAX_VALUE
 	}
-	if(min > min){
+	if(min > max){
 		temp = min
 		min = max
 		max = temp
 	}
-
 	return [min,max]
 
 }
@@ -71,11 +70,14 @@ router.get('/', function(req, res, next) {
 		req.query.n = ''
 	}
 	name = "%" + req.query.n + "%"
+	ranges = {}
 	pp_range = format_min_max(req.query.mpp,req.query.xpp)
 	rank_range = format_min_max(req.query.mr,req.query.xr)
 	time_range = format_min_max(req.query.ml,req.query.xl)
 	bpm_range = format_min_max(req.query.mb,req.query.xb)
 	diff_range = format_min_max(req.query.md,req.query.xd)
+	ar_range = format_min_max(req.query.mar,req.query.xar)
+	cs_range = format_min_max(req.query.mcs,req.query.xcs)
 	limit = 10
 	page = req.query.page
 	if(page == null || page == ''){
@@ -90,7 +92,7 @@ router.get('/', function(req, res, next) {
 	mode = 0
 	}
 	mode = get_mode(mode)
-  models.Beatmap.findAndCountAll({order: [['score', 'DESC']], where: {diff: {$gt: diff_range[0], $lt: diff_range[1]}, bpm: {$gt: bpm_range[0], $lt: bpm_range[1]}, length: {$gt: time_range[0], $lt: time_range[1]}, avg_rank: {$gt: rank_range[0], $lt: rank_range[1]}, avg_pp: {$gt: pp_range[0], $lt: pp_range[1]}, pop_mod: {$like: mods},$and: [{$or: [{name: {$like: name}}, {artist: {$like: name}}, {mapper: {$like: name}}, {version: {$like: name}}]},{$or: mode} ]}, limit: limit, offset: offset}).then(function(maps) {
+  models.Beatmap.findAndCountAll({order: [['score', 'DESC']], where: {diff: {$gte: diff_range[0], $lte: diff_range[1]}, bpm: {$gte: bpm_range[0], $lte: bpm_range[1]}, length: {$gte: time_range[0], $lte: time_range[1]}, avg_rank: {$gte: rank_range[0], $lte: rank_range[1]}, avg_pp: {$gte: pp_range[0], $lte: pp_range[1]}, cs: {$gte: cs_range[0], $lte: cs_range[1]},ar: {$gte: ar_range[0], $lte: ar_range[1]} ,pop_mod: {$like: mods},$and: [{$or: [{name: {$like: name}}, {artist: {$like: name}}, {mapper: {$like: name}}, {version: {$like: name}}]},{$or: mode} ]}, limit: limit, offset: offset}).then(function(maps) {
     for(m in maps.rows){
     	if(maps.rows[m].pop_mod == ''){
     		maps.rows[m].pop_mod = 'No Mod'

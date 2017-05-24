@@ -1,7 +1,10 @@
 extends head
 
 block content
-  h1= title
+  h1 osuF
+    span.h6 armers
+    span.h1 M
+    span.h6 arket
   form(action='/',method='get')
     .container
     .row
@@ -27,7 +30,7 @@ block content
           input#mods(type='hidden', name='mods', value=response.params.mods)
           input#page(type='hidden', name='page', value=1)
           input#mode(type='hidden', name='m', value=response.params.m)
-          input.form-control(type='text', name='n', placeholder='Search beatmaps...', value = response.n)
+          input.form-control(type='text', name='n', placeholder='Search Beatmaps...', value = response.n)
           span.input-group-btn
             button.btn.btn-default(type="submit")
               span.glyphicon.glyphicon-search
@@ -95,8 +98,29 @@ block content
           .col-sm-2
             label Max Difficulty
             input.form-control(type='text', name='xd', placeholder='Max Diff', value=response.params.xd)
-  h2 Maps
-
+        .form-group.row
+          .col-sm-2
+            label Min AR
+            input.form-control(type='text', name='mar', placeholder='Min AR', value=response.params.mar)
+          .col-sm-2
+            label Max AR
+            input.form-control(type='text', name='xar', placeholder='Max AR', value=response.params.xar)
+          .col-sm-2.col-sm-offset-2
+            label  Min&nbsp
+            if response.params.m == 3
+              label Keys
+              input.form-control(type='text', name='mcs', placeholder='Min Keys', value=response.params.mcs)
+            else 
+              label CS
+              input.form-control(type='text', name='mcs', placeholder='Min CS', value=response.params.mcs)
+          .col-sm-2
+            label  Max&nbsp
+            if response.params.m == 3
+              label Keys
+              input.form-control(type='text', name='xcs', placeholder='Max Keys', value=response.params.xcs)
+            else 
+              label CS
+              input.form-control(type='text', name='xcs', placeholder='Max CS', value=response.params.xcs)
   ul
   div#table
     table.table
@@ -180,7 +204,7 @@ block content
         $('form').submit();
     });
 
-    $("[name='mods'] li a").click( function() {
+    $("[name='mode'] li a").click( function() {
     mode = $(this).text();
     var y = document.getElementById('modes');
     var aNode = y.innerHTML = mode + ' <span class="caret"></span>'; // Append
