@@ -29,18 +29,41 @@ var mod_conv = function(mods){
 	return string
 }
 
+var format_min_max = function(min,max){
+	if(min == null || min == ""){
+		min = 0
+	}
+	if(max == null || max == ""){
+		max = Number.MAX_VALUE
+	}
+	if(min > min){
+		temp = min
+		min = max
+		max = temp
+	}
+
+	return [min,max]
+
+}
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	mods = req.query.mods
-	if(mods == null){
+	if(mods == null || mods==0){
 		mods = -1
 	}
+	name = "%" + req.query.n + "%"
+	pp_range = format_min_max(req.query.mpp,req.query.xpp)
+	rank_range = format_min_max(req.query.mr,req.query.xr)
+	time_range = format_min_max(req.query.ml,req.query.xl)
+	bpm_range = format_min_max(req.query.mb,req.query.xb)
+	diff_range = format_min_max(req.query.md,req.query.xd)
 	mods = mod_conv(mods)
 	map_name = req.query.n
 	mode = req.query.m
-    console.log('MODS: '+mods)
-  models.Beatmap.findAll({order: [['score', 'DESC']], where: {mode: 0, avg_pp: {$gt: 220, $lt: 300}, pop_mod: {$like: mods} }, limit: 100}).then(function(maps) {
+    console.log('MinPP: '+pp_range[0] + " MAX PP " + pp_range[1])
+  models.Beatmap.findAll({order: [['score', 'DESC']], where: {mode: 0, diff: {$gt: diff_range[0], $lt: diff_range[1]}, bpm: {$gt: bpm_range[0], $lt: bpm_range[1]}, length: {$gt: time_range[0], $lt: time_range[1]}, avg_rank: {$gt: rank_range[0], $lt: rank_range[1]}, avg_pp: {$gt: pp_range[0], $lt: pp_range[1]}, pop_mod: {$like: mods},$or: [{name: {$like: name}}, {artist: {$like: name}}, {mapper: {$like: name}}]}, limit: 100}).then(function(maps) {
     res.render('index', {
       title: 'osuFM',
       maps: maps
