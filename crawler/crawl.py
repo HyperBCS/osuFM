@@ -7,6 +7,8 @@ import ssl
 import mods
 import json
 import requests
+import logging
+import threading
 from time import sleep
 from multiprocessing.dummy import Pool as ThreadPool 
 from threading import Lock
@@ -15,7 +17,10 @@ from dateutil import parser
 from peewee import *
 from bs4 import BeautifulSoup
 
-db = SqliteDatabase('../osuFM/osuFM.db',threadlocals=True)
+db = SqliteDatabase('../osuFM/osuFM.db',threadlocals=True,pragmas=[('journal_mode', 'wal')])
+# logger = logging.getLogger('peewee')
+# logger.setLevel(logging.DEBUG)
+# logger.addHandler(logging.StreamHandler())
 lock = Lock()
 score_lock = Lock()
 
@@ -129,7 +134,7 @@ def urlBuilder(page, mode, type,uid=0):
         return baseURL + "?k="+key+"&b="+str(uid)+"&m="+str(mode)+"&a=1"
 
 def fetchURL(url):
-    count = 20
+    count = 30
     while count > 0:
         try:
             count -= 1
@@ -139,7 +144,9 @@ def fetchURL(url):
             sleep(1)
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print("[" + str(20 - count) + "/20" + "]",str(e), fname, exc_tb.tb_lineno)
+            print("[" + str(30 - count) + "/20" + "]",str(e), fname, exc_tb.tb_lineno)
+            if count == 1:
+                exit()
     if count == 0:
         print("Network timeout")
         exit()
@@ -274,58 +281,12 @@ def updateDB(maps, mode):
             print("[" + str(counter) +"/" + str(length) +  "]BID: "+str(m.bid) + " - FOUND")
             updateScores(m, mode)
 
-def ci(pos, n):
-    z = 3.5
-    phat = 1.0 * pos / n
-
-    return (phat + z*z/(2*n) - z * math.sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
-
-def weight_pos(tops, total):
-    ratio = tops[0][0]
-    if ratio ==0:
-        return 0
-    total = 0
-    summ = 0
-    for top in tops:
-        top[0] = top[0]/ratio
-        summ += top[1]
-    for top in tops:
-        total += top[0] * (top[1] / (1.0*summ))
-    return total*ratio
-
-def getKey(item):
-    return item[0]
-
-
-try:
-    db.connect()
-except:
-    pass
-try:
-    Beatmaps.create_table(True)
-    Scores.create_table(True)
-    # db.create_tables([Beatmaps, Scores])
-    print("Initialized DB tables")
-except:
-    pass
-offset = pages % threads
-size = math.floor(pages / threads)
-current = 1
-pool = ThreadPool(threads)
-arg = []
-for i in range(0,threads): 
-    if i == 0:
-        arg.append({'start': 1,'pages': offset + size,'mode': mode})
-        current += offset + size
-    else:
-        arg.append({'start': current,'pages': size,'mode': mode})
-        current += size 
-results = pool.map(fetchMode, arg)
-print("Beginning score processing...")
-count = Beatmaps.select().where(Beatmaps.mode == mode).count()
-n = 0
-with db.transaction():
-    for m in Beatmaps.select().where(Beatmaps.mode == mode):
+def processMaps(args):
+    n = 0
+    mode = args['mode']
+    count = args['size']
+    print("STARTING" + str(len(args['maps'])))
+    for m in args['maps']:
         n +=1 
         print("["+str(n)+"/"+str(count) + "] "+m.artist + " - " + m.name)
         avg_pp = 0
@@ -381,13 +342,81 @@ with db.transaction():
         if pop_mod == 576:
             pop_mod -= 512
         m.pop_mod = mods.main(pop_mod)
-        tries = 3
+        tries = 20
         while tries > 0:
             try:
-                m.save()
+                query = Beatmaps.update(avg_pp = avg_pp,avg_rank = avg_rank,avg_pos = avg_pos,avg_acc = avg_acc,num_scores = len(scores),score=ci_score,pop_mod = mods.main(pop_mod)).where(Beatmaps.bid == m.bid, Beatmaps.mode == m.mode)
+                query.execute()
                 break
             except Exception as e:
                 tries -= 1
                 exc_type, exc_obj, exc_tb = sys.exc_info()
                 fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
                 print(str(e), fname, exc_tb.tb_lineno)
+
+def ci(pos, n):
+    z = 3.5
+    phat = 1.0 * pos / n
+
+    return (phat + z*z/(2*n) - z * math.sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n)
+
+def weight_pos(tops, total):
+    ratio = tops[0][0]
+    if ratio ==0:
+        return 0
+    total = 0
+    summ = 0
+    for top in tops:
+        top[0] = top[0]/ratio
+        summ += top[1]
+    for top in tops:
+        total += top[0] * (top[1] / (1.0*summ))
+    return total*ratio
+
+def getKey(item):
+    return item[0]
+
+
+try:
+    db.connect()
+except:
+    pass
+try:
+    Beatmaps.create_table(True)
+    Scores.create_table(True)
+    # db.create_tables([Beatmaps, Scores])
+    print("Initialized DB tables")
+except:
+    pass
+offset = pages % threads
+size = math.floor(pages / threads)
+current = 1
+pool = ThreadPool(threads)
+arg = []
+for i in range(0,threads): 
+    if i == 0:
+        arg.append({'start': 1,'pages': offset + size,'mode': mode})
+        current += offset + size
+    else:
+        arg.append({'start': current,'pages': size,'mode': mode})
+        current += size 
+# results = pool.map(fetchMode, arg)
+print("Beginning score processing...")
+arg = []
+maps = []
+print("Loading Maps")
+for m in Beatmaps.select().where(Beatmaps.mode == mode):
+    maps.append(m)
+count = Beatmaps.select().where(Beatmaps.mode == mode).count()
+offset = count % threads
+current = 0
+size = math.floor(count / threads)
+for i in range(0,threads): 
+    if i == 0:
+        arg.append({'start': 0,'size': offset + size,'mode': mode, 'count': count, 'maps': maps[current:offset+size]})
+        current += offset + size
+    else:
+        arg.append({'start': current,'size': size,'mode': mode, 'count': count, 'maps': maps[current:current + size]})
+        current += size 
+
+pool.map(processMaps,arg)
