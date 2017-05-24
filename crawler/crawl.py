@@ -320,7 +320,7 @@ for i in range(0,threads):
     else:
         arg.append({'start': current,'pages': size,'mode': mode})
         current += size 
-# results = pool.map(fetchMode, arg)
+results = pool.map(fetchMode, arg)
 print("Beginning score processing...")
 count = Beatmaps.select().where(Beatmaps.mode == mode).count()
 n = 0
