@@ -3,6 +3,7 @@
     "host": "127.0.0.1",
     "dialect": "sqlite",
     "storage": "osuFM.db",
-    "define": {"timestamps": false}
+    "define": {"timestamps": false},
+    "logging": false
   }
 }
