@@ -53,6 +53,9 @@ router.get('/', function(req, res, next) {
 	if(mods == null || mods==0){
 		mods = -1
 	}
+	if(req.query.n == null){
+		req.query.n = ''
+	}
 	name = "%" + req.query.n + "%"
 	pp_range = format_min_max(req.query.mpp,req.query.xpp)
 	rank_range = format_min_max(req.query.mr,req.query.xr)
