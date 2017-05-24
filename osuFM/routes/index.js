@@ -79,16 +79,22 @@ router.get('/', function(req, res, next) {
 	}
 	name = "%" + req.query.n + "%"
 	ranges = {}
-	pp_range = format_min_max(req.query.mpp,req.query.xpp)
-	rank_range = format_min_max(req.query.mr,req.query.xr)
-	time_range = format_min_max(req.query.ml,req.query.xl)
-	bpm_range = format_min_max(req.query.mb,req.query.xb)
-	diff_range = format_min_max(req.query.md,req.query.xd)
-	ar_range = format_min_max(req.query.mar,req.query.xar)
-	cs_range = format_min_max(req.query.mcs,req.query.xcs)
+	try{
+		pp_range = format_min_max(req.query.mpp,req.query.xpp)
+		rank_range = format_min_max(req.query.mr,req.query.xr)
+		time_range = format_min_max(req.query.ml,req.query.xl)
+		bpm_range = format_min_max(req.query.mb,req.query.xb)
+		diff_range = format_min_max(req.query.md,req.query.xd)
+		ar_range = format_min_max(req.query.mar,req.query.xar)
+		cs_range = format_min_max(req.query.mcs,req.query.xcs)
+	} catch(err){
+		  var err = new Error('Internal Server Error');
+		  err.status = 500;
+		  return next(err);
+	}
 	limit = 10
 	page = req.query.page
-	if(page == null || page == ''){
+	if(page == null || page == '' || page < 1){
 		page = 1
 	}
 	offset = (page-1) * limit
@@ -116,7 +122,11 @@ router.get('/', function(req, res, next) {
       maps: maps.rows,
       response: response
     });
-  });
+  }).catch(function (err) {
+		  var err = new Error('Internal Server Error');
+		  err.status = 500;
+		  return next(err);
+	});
 });
 
 module.exports = router;
