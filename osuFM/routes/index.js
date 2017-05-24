@@ -11,7 +11,7 @@ var mod_conv = function(mods, response){
 	mod_nums = {"NoMod": 0, "NF": 1, "EZ": 2, "NoVideo": 4, "HD": 8, "HR": 16, "SD": 32, "DT": 64, "Relax": 128, "HT": 256, "NC": 512, "FL": 1024, "Autoplay": 2048, "SO": 4096, "Relax2": 8192, "PF": 16384, "Key4": 32768, "Key5": 65536, "Key6": 131072, "Key7": 262144, "Key8": 524288, "FadeIn": 1048576, "Random": 2097152, "LastMod": 4194304, "Key9": 16777216, "Key10": 33554432, "Key1": 67108864, "Key3": 134217728, "Key2": 268435456}
 	strict = 0;
 	if(mods == -1){
-		response.m = 0
+		response.params.mods = null
 		return "%"
 	} else if(mods == 0){
 		response['NO'] = true
@@ -64,7 +64,7 @@ var get_mode = function(mode){
 router.get('/', function(req, res, next) {
 	mods = req.query.mods
 	mods_o = mods
-	if(mods == null){
+	if(mods == null || mods == ''){
 		mods = -1
 	}
 	if(req.query.n == null){

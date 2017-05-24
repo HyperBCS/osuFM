@@ -177,7 +177,7 @@ block content
         $('form').submit();
     });
 
-    $("ul li a").click( function() {
+    $("[name='mods'] li a").click( function() {
     mode = $(this).text();
     var y = document.getElementById('modes');
     var aNode = y.innerHTML = mode + ' <span class="caret"></span>'; // Append
