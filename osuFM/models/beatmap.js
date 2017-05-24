@@ -3,11 +3,12 @@
 module.exports = function(sequelize, DataTypes) {
   var Beatmap = sequelize.define("Beatmap", {
     bid: DataTypes.INTEGER,
+    sid: DataTypes.INTEGER,
     name: DataTypes.STRING,
     artist: DataTypes.STRING,
     mapper: DataTypes.STRING,
     num_scores: DataTypes.INTEGER,
-    pop_mod: DataTypes.INTEGER,
+    pop_mod: DataTypes.STRING,
     avg_pp: DataTypes.FLOAT,
     avg_rank: DataTypes.INTEGER,
     avg_acc: DataTypes.FLOAT,

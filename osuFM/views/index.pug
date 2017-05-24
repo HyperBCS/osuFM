@@ -8,7 +8,7 @@ block content
       .col-xs-8.col-xs-offset-2
         .input-group
           .input-group-btn.search-panel
-            button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown')
+            button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown', id="modes")
               span#search_concept Game Mode
               span.caret
             ul.dropdown-menu(role='menu',name='mode')
@@ -23,84 +23,88 @@ block content
               li.divider
               li(onclick="$('#mode').val(-1)")
                 a All
-
-          input#mods(type='hidden', name='mods', value=0)
-          input#mode(type='hidden', name='m', value='all')
-          input.form-control(type='text', name='n', placeholder='Search beatmaps...')
+            button(type="button",data-toggle="collapse", data-target="#filters").btn.btn-default Filters
+          input#mods(type='hidden', name='mods', value=response.params.mods)
+          input#page(type='hidden', name='page', value=current_page)
+          input#mode(type='hidden', name='m', value=response.params.m)
+          input.form-control(type='text', name='n', placeholder='Search beatmaps...', value = response.n)
           span.input-group-btn
             button.btn.btn-default(type="submit")
               span.glyphicon.glyphicon-search
-    .container#mods
-      .checkbox
-        h4 Mods
-          hr
-          .row.col-xs-offset-2
-            label.checkbox-inline.col
-              input(type='checkbox', value='64', id='DT')
-              | Double Time
-            label.checkbox-inline.col
-              input(type='checkbox', value='8', id='HD')
-              | Hidden
-            label.checkbox-inline.col
-              input(type='checkbox', value='16', id='HR')
-              | Hard Rock
-            label.checkbox-inline.col
-              input(type='checkbox', value='2', id='EZ')
-              | Easy
-            label.checkbox-inline.col
-              input(type='checkbox', value='1024', id='FL')
-              | Flashlight
-            label.checkbox-inline.col
-              input(type='checkbox', value='0', id='NO')
-              | No Mods/Strict Mode
-    .container#performance
-      h4 Performance options
-      hr
-      .form-group.row
-        .col-sm-2
-          label Min PP
-          input.form-control(type='text', name='mpp', placeholder='Min PP')
-        .col-sm-2
-          label Max PP
-          input.form-control(type='text', name='xpp', placeholder='Max PP')
-        .col-sm-2.col-sm-offset-2
-          label Min Rank
-          input.form-control(type='text', name='mr', placeholder='Min Rank')
-        .col-sm-2
-          label Max Rank
-          input.form-control(type='text', name='xr', placeholder='Max Rank')
-    .container#options
-      h4 Map Options
-      hr
-      .form-group.row
-        .col-sm-2
-          label Min Length(secs)
-          input.form-control(type='text', name='ml', placeholder='Min Length')
-        .col-sm-2
-          label Max Length(secs)
-          input.form-control(type='text', name='xl', placeholder='Max Length')
+    br
+    .collapse#filters
+      .container#mods
+        .checkbox
+          h4 Mods
+            hr
+            .row.col-xs-offset-2
+              label.checkbox-inline.col
+                input(type='checkbox', value='64', id='DT', checked= response.DT)
+                | Double Time
+              label.checkbox-inline.col
+                input(type='checkbox', value='8', id='HD', checked= response.HD)
+                | Hidden
+              label.checkbox-inline.col
+                input(type='checkbox', value='16', id='HR', checked= response.HR)
+                | Hard Rock
+              label.checkbox-inline.col
+                input(type='checkbox', value='2', id='EZ', checked= response.EZ)
+                | Easy
+              label.checkbox-inline.col
+                input(type='checkbox', value='1024', id='FL', checked= response.FL)
+                | Flashlight
+              label.checkbox-inline.col
+                input(type='checkbox', value='0', id='NO', checked= response.NO)
+                | No Mod/Strict Mode
+      .container#performance
+        h4 Performance options
+        hr
+        .form-group.row
+          .col-sm-2
+            label Min PP
+            input.form-control(type='text', name='mpp', placeholder='Min PP', value=response.params.mpp)
+          .col-sm-2
+            label Max PP
+            input.form-control(type='text', name='xpp', placeholder='Max PP', value=response.params.xpp)
+          .col-sm-2.col-sm-offset-2
+            label Min Rank
+            input.form-control(type='text', name='mr', placeholder='Min Rank', value=response.params.mr)
+          .col-sm-2
+            label Max Rank
+            input.form-control(type='text', name='xr', placeholder='Max Rank', value=response.params.xr)
+      .container#options
+        h4 Map Options
+        hr
+        .form-group.row
+          .col-sm-2
+            label Min Length(secs)
+            input.form-control(type='text', name='ml', placeholder='Min Length', value=response.params.ml)
+          .col-sm-2
+            label Max Length(secs)
+            input.form-control(type='text', name='xl', placeholder='Max Length', value=response.params.xl)
 
-        .col-sm-2
-          label Min BPM
-          input.form-control(type='text', name='mb', placeholder='Min BPM')
-        .col-sm-2
-          label Max BPM
-          input.form-control(type='text', name='xb', placeholder='Max BPM')
-        .col-sm-2
-          label Min Difficulty
-          input.form-control(type='text', name='md', placeholder='Min Diff')
-        .col-sm-2
-          label Max Difficulty
-          input.form-control(type='text', name='xd', placeholder='Max Diff')
+          .col-sm-2
+            label Min BPM
+            input.form-control(type='text', name='mb', placeholder='Min BPM',value=response.params.mb)
+          .col-sm-2
+            label Max BPM
+            input.form-control(type='text', name='xb', placeholder='Max BPM', value=response.params.xb)
+          .col-sm-2
+            label Min Difficulty
+            input.form-control(type='text', name='md', placeholder='Min Diff', value=response.params.md)
+          .col-sm-2
+            label Max Difficulty
+            input.form-control(type='text', name='xd', placeholder='Max Diff', value=response.params.xd)
   h2 Maps
 
   ul
-  div
+  div#table
     table.table
       thead
         tr
           th #
-          th MAP
+          th
+          th Map
           th Rating
           th Average PP
           th Average Acc
@@ -109,12 +113,13 @@ block content
           th Length
           th BPM
           th Stars
-          th Scores
       tbody
         each map, i in maps
           tr
             td
               p= i + 1
+            td
+              img(src= 'https://b.ppy.sh/thumb/' + map.sid + ".jpg")
             td 
               a(href='https://osu.ppy.sh/b/'+map.bid) #{map.artist} - #{map.name} [#{map.version}]
             td
@@ -133,8 +138,6 @@ block content
               p= map.bpm
             td
               p= (map.diff).toFixed(2)
-            td
-              p= map.num_scores
   script.
     $(':checkbox').change(function () {
       var nomod = $('#NO').is(':checked');
@@ -166,5 +169,24 @@ block content
       mod = value
       console.log(mod+": " + $('#mods').val());
    });
+
+    $('#table').bootpag({
+   total: #{pages},
+   page: #{current_page},
+   maxVisible: 10
+    }).on('page', function(event, num){
+        console.log("PAGE "+num)
+        $('#page').val(num)
+        $('form').submit();
+    });
+
+    $("ul li a").click( function() {
+    mode = $(this).text();
+    var y = document.getElementById('modes');
+    var aNode = y.innerHTML = mode + ' <span class="caret"></span>'; // Append
+    // console.log("Table Size " + table_size);
+    });
+
+
 
 

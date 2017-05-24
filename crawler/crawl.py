@@ -25,6 +25,7 @@ class BaseModel(Model):
 
 class Beatmaps(BaseModel):
     bid = IntegerField()
+    sid = IntegerField()
     name = CharField()
     artist = CharField()
     mapper = CharField()
@@ -158,7 +159,7 @@ def addBeatmap(beatmap, mode):
     tries = 3
     while tries > 0:
         try:
-            new_map = Beatmaps.create(avg_acc=0,score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'])
+            new_map = Beatmaps.create(avg_acc=0,score=0,avg_pos = 0,pop_mod=0,avg_pp=0,avg_rank=0,num_scores=0,mode=mode,bid = beatmap.bid, name = map_info['title'], artist=map_info['artist'],mapper=map_info['creator'],date_ranked=date_ranked,cs=map_info['diff_size'],ar=map_info['diff_approach'],length=map_info['total_length'],bpm=map_info['bpm'],diff=map_info['difficultyrating'],version=map_info['version'],sid=map_info['beatmapset_id'])
             break
         except Exception as e:
             tries -= 1
@@ -332,10 +333,10 @@ for i in range(0,threads):
     else:
         arg.append({'start': current,'pages': size,'mode': mode})
         current += size 
-results = pool.map(fetchMode, arg)
+# results = pool.map(fetchMode, arg)
 print("Beginning score processing...")
 with db.transaction():
-    for m in Beatmaps.select():
+    for m in Beatmaps.select().where(Beatmaps.mode == mode):
         avg_pp = 0
         avg_rank = 0
         avg_pos = 0
