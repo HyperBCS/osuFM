@@ -55,7 +55,7 @@ block content
                 | Flashlight
               label.checkbox-inline.col
                 input(type='checkbox', value='0', id='NO', checked= response.NO)
-                | No Mod/Strict Mode
+                | No Mod/Strict Mods
       .container#performance
         h4 Performance options
         hr
@@ -154,7 +154,6 @@ block content
         current_val *= -1
         } else if(current_val == 0 && checked == false){
           $('#mods').val(-1)
-          console.log(value+": " + $('#mods').val());
           return
         }
       }
@@ -167,7 +166,6 @@ block content
       $('#mods').val(current_val - value)
       }
       mod = value
-      console.log(mod+": " + $('#mods').val());
    });
 
     $('#table').bootpag({
@@ -175,7 +173,6 @@ block content
    page: #{current_page},
    maxVisible: 10
     }).on('page', function(event, num){
-        console.log("PAGE "+num)
         $('#page').val(num)
         $('form').submit();
     });
@@ -184,7 +181,6 @@ block content
     mode = $(this).text();
     var y = document.getElementById('modes');
     var aNode = y.innerHTML = mode + ' <span class="caret"></span>'; // Append
-    // console.log("Table Size " + table_size);
     });
 
 

@@ -11,8 +11,13 @@ var mod_conv = function(mods, response){
 	mod_nums = {"NoMod": 0, "NF": 1, "EZ": 2, "NoVideo": 4, "HD": 8, "HR": 16, "SD": 32, "DT": 64, "Relax": 128, "HT": 256, "NC": 512, "FL": 1024, "Autoplay": 2048, "SO": 4096, "Relax2": 8192, "PF": 16384, "Key4": 32768, "Key5": 65536, "Key6": 131072, "Key7": 262144, "Key8": 524288, "FadeIn": 1048576, "Random": 2097152, "LastMod": 4194304, "Key9": 16777216, "Key10": 33554432, "Key1": 67108864, "Key3": 134217728, "Key2": 268435456}
 	strict = 0;
 	if(mods == -1){
+		response.m = 0
 		return "%"
+	} else if(mods == 0){
+		response['NO'] = true
+		return ''
 	} else if(mods < 0){
+		response['NO'] = true
 		strict = 1;
 		mods *= -1
 	}
@@ -59,7 +64,7 @@ var get_mode = function(mode){
 router.get('/', function(req, res, next) {
 	mods = req.query.mods
 	mods_o = mods
-	if(mods == null || mods==0){
+	if(mods == null){
 		mods = -1
 	}
 	if(req.query.n == null){
@@ -85,8 +90,6 @@ router.get('/', function(req, res, next) {
 	mode = 0
 	}
 	mode = get_mode(mode)
-	console.log("MODE "+mode)
-    console.log('MODS: '+mods)
   models.Beatmap.findAndCountAll({order: [['score', 'DESC']], where: {diff: {$gt: diff_range[0], $lt: diff_range[1]}, bpm: {$gt: bpm_range[0], $lt: bpm_range[1]}, length: {$gt: time_range[0], $lt: time_range[1]}, avg_rank: {$gt: rank_range[0], $lt: rank_range[1]}, avg_pp: {$gt: pp_range[0], $lt: pp_range[1]}, pop_mod: {$like: mods},$and: [{$or: [{name: {$like: name}}, {artist: {$like: name}}, {mapper: {$like: name}}, {version: {$like: name}}]},{$or: mode} ]}, limit: limit, offset: offset}).then(function(maps) {
     for(m in maps.rows){
     	if(maps.rows[m].pop_mod == ''){
