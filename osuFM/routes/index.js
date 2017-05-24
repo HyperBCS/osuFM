@@ -58,6 +58,14 @@ var get_mode = function(mode){
 	return [{mode: mode}]
 }
 
+var str_time = function(length){
+	minutes = Math.floor(length / 60);
+	seconds = length % 60;
+	seconds = ("00" + seconds)
+	seconds = seconds.substring(seconds.length-2,seconds.length)
+	return minutes + ":" + seconds
+}
+
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -94,10 +102,12 @@ router.get('/', function(req, res, next) {
 	mode = get_mode(mode)
   models.Beatmap.findAndCountAll({order: [['score', 'DESC']], where: {diff: {$gte: diff_range[0], $lte: diff_range[1]}, bpm: {$gte: bpm_range[0], $lte: bpm_range[1]}, length: {$gte: time_range[0], $lte: time_range[1]}, avg_rank: {$gte: rank_range[0], $lte: rank_range[1]}, avg_pp: {$gte: pp_range[0], $lte: pp_range[1]}, cs: {$gte: cs_range[0], $lte: cs_range[1]},ar: {$gte: ar_range[0], $lte: ar_range[1]} ,pop_mod: {$like: mods},$and: [{$or: [{name: {$like: name}}, {artist: {$like: name}}, {mapper: {$like: name}}, {version: {$like: name}}]},{$or: mode} ]}, limit: limit, offset: offset}).then(function(maps) {
     for(m in maps.rows){
+    	maps.rows[m].length = str_time(maps.rows[m].length)
     	if(maps.rows[m].pop_mod == ''){
     		maps.rows[m].pop_mod = 'No Mod'
     	}
     }
+
     res.render('index', {
       title: 'osuFM',
       pages:  Math.ceil(maps.count / 10),
