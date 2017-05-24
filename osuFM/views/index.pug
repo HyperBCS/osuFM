@@ -9,7 +9,7 @@ block content
         .input-group
           .input-group-btn.search-panel
             button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown', id="modes")
-              span#search_concept Game Mode
+              span#search_concept Game Mode 
               span.caret
             ul.dropdown-menu(role='menu',name='mode')
               li(onclick="$('#mode').val(0)")
@@ -23,9 +23,9 @@ block content
               li.divider
               li(onclick="$('#mode').val(-1)")
                 a All
-            button(type="button",data-toggle="collapse", data-target="#filters").btn.btn-default Filters
+            button(type="button",data-toggle="collapse", data-target="#filters", id='filter').btn.btn-default Filters
           input#mods(type='hidden', name='mods', value=response.params.mods)
-          input#page(type='hidden', name='page', value=current_page)
+          input#page(type='hidden', name='page', value=1)
           input#mode(type='hidden', name='m', value=response.params.m)
           input.form-control(type='text', name='n', placeholder='Search beatmaps...', value = response.n)
           span.input-group-btn
