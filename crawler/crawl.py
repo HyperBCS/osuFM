@@ -320,10 +320,14 @@ for i in range(0,threads):
     else:
         arg.append({'start': current,'pages': size,'mode': mode})
         current += size 
-results = pool.map(fetchMode, arg)
+# results = pool.map(fetchMode, arg)
 print("Beginning score processing...")
+count = Beatmaps.select().where(Beatmaps.mode == mode).count()
+n = 0
 with db.transaction():
     for m in Beatmaps.select().where(Beatmaps.mode == mode):
+        n +=1 
+        print("["+str(n)+"/"+str(count) + "] "+m.artist + " - " + m.name)
         avg_pp = 0
         avg_rank = 0
         avg_pos = 0
