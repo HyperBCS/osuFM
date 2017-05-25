@@ -111,6 +111,7 @@ try:
     threads = int(config._sections["crawler"]['threads'])
     limit = int(config._sections["crawler"]['limit'])
     start_page = int(config._sections["crawler"]['start_page'])
+    country = config._sections["crawler"]['country']
     # Need to make this auto get every mode soon. 
     mode = int(config._sections["crawler"]['mode'])
 except:
@@ -120,7 +121,7 @@ def urlBuilder(page, mode, type,uid=0):
     if type == 0:
         baseURL = "https://osu.ppy.sh/p/pp/"
         if (page > 0 and page <= 200) and (mode >= 0 and mode < 4):
-            return baseURL+"?m="+str(mode)+"&page="+str(page)
+            return baseURL+"?m="+str(mode)+"&page="+str(page) + "&c="+country
         else:
             print("Page or mode out of range")
             exit()
@@ -225,7 +226,10 @@ def getPage(page, mode, maps):
             pp_raw = re.findall('\d+', pp_raw)
             # print("Rank "+str(rank))
             tops = fetchTop(uid,mode)
-            users.append(User(str(uid[0]),tops,pp_raw[0],rank[0]))
+            url = urlBuilder(0,mode, 2,uid)
+            page = json.loads(fetchURL(url))[0]
+            rank = page['pp_rank']
+            users.append(User(str(uid[0]),tops,pp_raw[0],rank))
         count += 1
     for user in users:
         count = 0
