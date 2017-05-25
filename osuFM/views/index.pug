@@ -177,15 +177,14 @@ block content
         current_val *= -1
         }
       } else{
-        if(current_val < 0){
+        if(current_val == -1){
+          current_val = 0
+        } else if(current_val < 0){
         current_val *= -1
         } else if(current_val == 0 && checked == false){
           $('#mods').val(-1)
           return
         }
-      }
-      if(current_val == -1){
-       current_val = 0
       }
       if(checked && value != -1){
       $('#mods').val(current_val + value)
