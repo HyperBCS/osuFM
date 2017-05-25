@@ -12,6 +12,7 @@ This is an all in one way to find the most farmable maps on osu!. The program su
 **Requirements**
 
 - Node.js
+- osu! api key
 - npm
 - Python 3.5+
 
