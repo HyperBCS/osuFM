@@ -99,6 +99,7 @@ router.get('/', function(req, res, next) {
 	}
 	offset = (page-1) * limit
 	response = {n: name.replace(/%/g,''), 'DT': false, 'HD': false, 'HR': false, 'EZ': false, 'FL': false, 'NO': false, params: req.query}
+	name = name.replace(/ /g,'%')
 	mods = mod_conv(mods ,response)
 	map_name = req.query.n
 	mode = req.query.m
