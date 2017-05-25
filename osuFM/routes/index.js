@@ -42,7 +42,7 @@ var format_min_max = function(min,max){
 	if(max == null || max == ""){
 		max = Number.MAX_VALUE
 	}
-	if(min > max){
+	if(Number(min) > Number(max)){
 		temp = min
 		min = max
 		max = temp
