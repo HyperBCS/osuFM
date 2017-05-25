@@ -96,6 +96,11 @@ router.get('/', function(req, res, next) {
 	page = req.query.page
 	if(page == null || page == '' || page < 1){
 		page = 1
+	} else{
+		page = page.replace(/[^0-9]/g, '');
+		if(page == ''){
+			page = 1
+		}
 	}
 	offset = (page-1) * limit
 	response = {n: name.replace(/%/g,''), 'DT': false, 'HD': false, 'HR': false, 'EZ': false, 'FL': false, 'NO': false, params: req.query}
