@@ -122,8 +122,8 @@ block content
             else 
               label CS
               input.form-control(type='text', name='xcs', placeholder='Max CS', value=response.params.xcs)
-  ul
-  div#table
+
+  div.table-responsive#table
     table.table
       thead
         tr
@@ -164,6 +164,7 @@ block content
               p= map.bpm
             td
               p= (map.diff).toFixed(2)
+  div.text-center#pages
   script.
     $(':checkbox').change(function () {
       var nomod = $('#NO').is(':checked');
@@ -197,7 +198,7 @@ block content
       mod = value
    });
 
-    $('#table').bootpag({
+    $('#pages').bootpag({
    total: #{pages},
    page: #{current_page},
    maxVisible: 10
