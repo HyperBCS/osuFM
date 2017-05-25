@@ -94,11 +94,11 @@ router.get('/', function(req, res, next) {
 	}
 	limit = 10
 	page = req.query.page
-	if(page == null || page == '' || page < 1){
+	if(page == null || page == '' || page < 1 || Math.abs(page) > Number.MAX_SAFE_INTEGER){
 		page = 1
 	} else{
 		page = page.replace(/[^0-9]/g, '');
-		if(page == ''){
+		if(page == '' || Math.abs(page) > Number.MAX_SAFE_INTEGER){
 			page = 1
 		}
 	}
@@ -129,6 +129,7 @@ router.get('/', function(req, res, next) {
       response: response
     });
   }).catch(function (err) {
+  		  console.error(err.stack)
 		  var err = new Error('Internal Server Error');
 		  err.status = 500;
 		  return next(err);
