@@ -48,6 +48,7 @@ class Beatmaps(BaseModel):
     diff = FloatField()
     version = CharField()
     score = FloatField()
+    calculated = BooleanField(null = True)
 
 class Scores(BaseModel):
     uid = IntegerField()
@@ -163,7 +164,7 @@ def fetchTop(uid, mode):
     return (json.loads(page))
 
 def addBeatmap(beatmap, mode):
-    bm = Beatmaps.select().where(Beatmaps.bid == beatmap['bid'], Beatmaps.mode == mode)
+    bm = Beatmaps.select().where(Beatmaps.bid == beatmap['bid'], Beatmaps.mode == mode, Beatmaps.pop_mod == "" | Beatmaps.pop_mod == "HD" )
     sid = None
     cs = None
     ar = None

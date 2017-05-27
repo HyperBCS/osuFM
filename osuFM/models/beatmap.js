@@ -20,6 +20,7 @@ module.exports = function(sequelize, DataTypes) {
     bpm: DataTypes.FLOAT,
     diff: DataTypes.FLOAT,
     version: DataTypes.STRING,
+    calculated: DataTypes.BOOLEAN,
     score: DataTypes.FLOAT
 
 
