@@ -148,6 +148,10 @@ block content
                 img(src= 'https://b.ppy.sh/thumb/' + map.sid + ".jpg")
             td 
               a(href='https://osu.ppy.sh/b/'+map.bid) #{map.artist} - #{map.name} [#{map.version}]
+              if map.mode == 3
+                p.text-muted.small= "Keys: " + map.cs
+              else if map.mode == 0 || map.mode == 2
+                p.text-muted.small= "AR: " + (map.ar).toFixed(1) + " CS: " + (map.cs).toFixed(2)
             td
               p= (100*map.score).toFixed(2) + "%"
             td
