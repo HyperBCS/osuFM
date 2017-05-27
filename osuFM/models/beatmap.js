@@ -14,7 +14,6 @@ module.exports = function(sequelize, DataTypes) {
     avg_acc: DataTypes.FLOAT,
     avg_pos: DataTypes.INTEGER,
     mode: DataTypes.INTEGER,
-    date_ranked: DataTypes.DATE,
     cs: DataTypes.FLOAT,
     ar: DataTypes.FLOAT,
     length: DataTypes.INTEGER,
