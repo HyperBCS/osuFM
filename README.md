@@ -4,8 +4,8 @@ This is an all in one way to find the most farmable maps on osu!. The program su
 
 # Repository Structure
 
-- `crawler/` Contains code to gather user and beatmap statistics
-- `osuFM/` Contains the front end to display map information
+- `crawler/` Contains code to gather user and beatmap statistics. The crawler is multi-threaded which should help performance. You can choose the number of threads in the config.
+- `osuFM/` Contains the front end to display map information.
 
 # Installation
 

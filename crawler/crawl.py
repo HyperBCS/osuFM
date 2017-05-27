@@ -347,12 +347,8 @@ def processMaps(args):
                     count_mod += 1
                     if item['pos'] < threshhold:
                         count_pos += 1
-            if mode == 0:
-                if count_pos < 50:
-                    continue
-            else:
-                if count_pos < 30:
-                    continue
+            if count_pos < 50:
+                continue
             top_mods = count_pos / count_mod
             for item in scores:
                 if pop_mod == item['mods']:
