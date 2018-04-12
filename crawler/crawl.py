@@ -8,6 +8,10 @@ import json
 import requests
 import logging
 import threading
+from requests.adapters import HTTPAdapter 
+from requests.packages.urllib3.util.retry import Retry
+from requests_futures.sessions import FuturesSession
+from requests import Session
 from time import sleep
 from multiprocessing.dummy import Pool as ThreadPool 
 from threading import Lock
@@ -131,7 +135,7 @@ def urlBuilder(page, mode, type,uid=0):
             exit()
     elif type == 1:
         baseURL = "https://osu.ppy.sh/api/get_user_best"
-        return baseURL + "?k="+key+"&u="+str(uid[0])+"&m="+str(mode)+"&limit="+str(limit)
+        return baseURL + "?k="+key+"&u="+str(uid)+"&m="+str(mode)+"&limit="+str(limit)
     elif type == 2:
         baseURL = "https://osu.ppy.sh/osu/"
         return baseURL + str(uid)
@@ -160,10 +164,19 @@ def fetchURL(url):
     return r.text
 
 # Need to detect except httplib.IncompleteRead
-def fetchTop(uid, mode):
-    url = urlBuilder(0,mode, 1,uid)
-    page = fetchURL(url)
-    return (json.loads(page))
+def fetchTop(uids, mode):
+    urls = [urlBuilder(0,mode,1,uid) for uid in uids]
+    # page = fetchURL(url)
+    ss = Session()
+    retries = Retry(total=5, raise_on_redirect=True,
+                    raise_on_status=True)
+    ss.mount('http://', HTTPAdapter(max_retries=retries))
+    ss.mount('https://', HTTPAdapter(max_retries=retries))
+    s = FuturesSession(max_workers=50, session=ss)
+    cookies = dict(osu_site_v='old')
+    rs = (s.get(u,cookies=cookies, timeout=2) for u in urls)
+    pages = [json.loads(pg.result().text) for pg in rs]
+    return pages
 
 def addBeatmap(beatmap, mode):
     bm = Beatmaps.select().where(Beatmaps.bid == beatmap['bid'], Beatmaps.mode == mode, Beatmaps.pop_mod == "" | Beatmaps.pop_mod == "HD" )
@@ -263,6 +276,7 @@ def getPage(page, mode):
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
         data.append([ele for ele in cols if ele]) # Get rid of empty values
+    user_data = []
     for user in raw_user:
         if user != None:
             uid = re.findall('\d+', user['href'])
@@ -270,9 +284,11 @@ def getPage(page, mode):
             pp_raw = data[count][4].replace(",","")
             pp_raw = re.findall('\d+', pp_raw)
             # print("Rank "+str(rank))
-            tops = fetchTop(uid,mode)
-            users.append(User(str(uid[0]),tops,pp_raw[0],rank[0]))
-        count += 1
+            count += 1
+            user_data.append({'uid': uid[0], 'rank': rank[0], 'pp_raw': pp_raw[0]})
+    tops = fetchTop([ud['uid'] for ud in user_data], mode)
+    for ind, user in enumerate(user_data):
+        users.append(User(str(user['uid']),tops[ind],user['pp_raw'],user['rank']))
     for user in users:
         count = 0
         lock.acquire()
