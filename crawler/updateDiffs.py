@@ -45,6 +45,7 @@ class Beatmaps(BaseModel):
     mode = IntegerField()
     cs = FloatField()
     ar = FloatField()
+    od = FloatField()
     length = IntegerField()
     bpm = FloatField()
     diff = FloatField()
@@ -159,6 +160,7 @@ def calcDiff(m):
     diff = diff_calc.main(map)[2]
     m.cs = map.cs
     m.ar = map.ar
+    m.od = map.od
     m.bpm = map.bpm
     m.length = map.length
     m.diff = diff

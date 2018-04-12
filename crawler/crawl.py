@@ -43,6 +43,7 @@ class Beatmaps(BaseModel):
     mode = IntegerField()
     cs = FloatField()
     ar = FloatField()
+    od = FloatField()
     length = IntegerField()
     bpm = FloatField()
     diff = FloatField()
@@ -143,7 +144,8 @@ def fetchURL(url):
     while count > 0:
         try:
             count -= 1
-            r = requests.get(url,timeout=2)
+            cookies = dict(osu_site_v='old')
+            r = requests.get(url,timeout=2,cookies=cookies)
             break
         except Exception as e:
             sleep(1)
@@ -168,6 +170,7 @@ def addBeatmap(beatmap, mode):
     sid = None
     cs = None
     ar = None
+    od = None
     diff = None
     bpm = None
     length = None
@@ -183,6 +186,7 @@ def addBeatmap(beatmap, mode):
         sid = map_info['beatmapset_id']
         cs = map_info['diff_size']
         ar = map_info['diff_approach']
+        od = map_info['diff_overall']
         diff = map_info['difficultyrating']
         bpm = map_info['bpm']
         length = map_info['total_length']
@@ -195,6 +199,7 @@ def addBeatmap(beatmap, mode):
         sid = bm.sid
         cs = bm.cs
         ar = bm.ar
+        od = bm.od
         diff = bm.diff
         bpm = bm.bpm
         length = bm.length
@@ -207,7 +212,7 @@ def addBeatmap(beatmap, mode):
         try:
             lock.acquire()
             new_map = Beatmaps.create(avg_acc=beatmap['avg_acc'],score=beatmap['score'],avg_pos = beatmap['avg_pos'],pop_mod=pop_mod,avg_pp=beatmap['avg_pp'],avg_rank=beatmap['avg_rank'],num_scores=beatmap['num_scores'],mode=mode,bid = beatmap['bid'], \
-             name = title, artist=artist,mapper=creator,cs=cs,ar=ar, \
+             name = title, artist=artist,mapper=creator,cs=cs,ar=ar,od=od, \
              length=length,bpm=bpm,diff=diff,version=version,sid=sid)
             lock.release()
             break

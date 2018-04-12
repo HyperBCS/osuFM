@@ -16,6 +16,7 @@ module.exports = function(sequelize, DataTypes) {
     mode: DataTypes.INTEGER,
     cs: DataTypes.FLOAT,
     ar: DataTypes.FLOAT,
+    od: DataTypes.FLOAT,
     length: DataTypes.INTEGER,
     bpm: DataTypes.FLOAT,
     diff: DataTypes.FLOAT,

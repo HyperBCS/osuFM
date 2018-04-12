@@ -70,12 +70,6 @@ block content
           .col-sm-2
             label Max PP
             input.form-control(type='text', name='xpp', placeholder='Max PP', value=response.params.xpp)
-          .col-sm-2.col-sm-offset-2
-            label Min Rank
-            input.form-control(type='text', name='mr', placeholder='Min Rank', value=response.params.mr)
-          .col-sm-2
-            label Max Rank
-            input.form-control(type='text', name='xr', placeholder='Max Rank', value=response.params.xr)
       .container#options
         h4 Map Options
         hr
@@ -133,7 +127,6 @@ block content
           th Freshness
           th Average PP
           th Average Acc
-          th Average Rank
           th Popular Mods
           th Length
           th BPM
@@ -151,15 +144,13 @@ block content
               if map.mode == 3
                 p.text-muted.small= "Keys: " + map.cs
               else if map.mode == 0 || map.mode == 2
-                p.text-muted.small= "AR: " + (map.ar).toFixed(1) + " CS: " + (map.cs).toFixed(2)
+                p.text-muted.small= "AR: " + (map.ar).toFixed(1) + " CS: " + (map.cs).toFixed(2)+ " OD: " + (map.od).toFixed(2)
             td
               p= (100*map.score).toFixed(2) + "%"
             td
               p= (map.avg_pp).toFixed(2)
             td
               p= (map.avg_acc).toFixed(2) + "%"
-            td
-                p= "#"+map.avg_rank
             td
               p= map.pop_mod
             td
