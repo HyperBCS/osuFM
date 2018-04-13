@@ -8,6 +8,8 @@ import json
 import requests
 import logging
 import threading
+import traceback
+import sys, traceback
 from requests.adapters import HTTPAdapter 
 from requests.packages.urllib3.util.retry import Retry
 from requests_futures.sessions import FuturesSession
@@ -99,12 +101,16 @@ class User:
         self.scores = scores
 
 def Acc(json):
-    a50 = int(json['count50'])
-    a100 = int(json['count100'])
-    a300 = int(json['count300'])
-    amiss = int(json['countmiss'])
-    acc = str(round(100*(a50/6 + a100*2/6 + a300)/(a50+a100+a300+amiss),2))
-    return acc
+    try:
+        a50 = int(json['count50'])
+        a100 = int(json['count100'])
+        a300 = int(json['count300'])
+        amiss = int(json['countmiss'])
+        acc = str(round(100*(a50/6 + a100*2/6 + a300)/(a50+a100+a300+amiss),2))
+        return acc
+    except:
+        print("DIVIDE 0")
+        return 0
 
 # Attempt to import API key from config
 try:
@@ -116,7 +122,8 @@ try:
     threads = int(config._sections["crawler"]['threads'])
     limit = int(config._sections["crawler"]['limit'])
     start_page = int(config._sections["crawler"]['start_page'])
-    country = config._sections["crawler"]['country']
+    # country = config._sections["crawler"]['country']
+    country = None
     # Need to make this auto get every mode soon. 
     mode = int(config._sections["crawler"]['mode'])
 except:
@@ -320,9 +327,7 @@ def fetchMode(info):
             print("[" + str(i) + "/" + str(pages-1) + "]")
             getPage(i,mode)
     except Exception as e:
-        exc_type, exc_obj, exc_tb = sys.exc_info()
-        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-        print(str(e), fname, exc_tb.tb_lineno)
+        traceback.print_exc(file=sys.stdout)
         lock.release()
         score_lock.release()
 
