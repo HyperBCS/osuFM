@@ -1,0 +1,3 @@
+[submodule "crawler/calc"]
+	path = crawler/calc
+	url = https://github.com/HyperBCS/osu-calc.git

@@ -7,3 +7,4 @@ country = US
 threads = 4
 mode = 0
 limit = 20
+page_user_limit = 50

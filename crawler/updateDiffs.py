@@ -8,8 +8,8 @@ import json
 import requests
 import logging
 import threading
-from beatmap import Beatmap
-import diff_calc
+from calc.beatmap import Beatmap
+import calc.diff_calc
 from time import sleep
 from multiprocessing.dummy import Pool as ThreadPool 
 from threading import Lock
@@ -157,7 +157,7 @@ def calcDiff(m):
     map.bpm = m.bpm
     map.length = m.length
     map.apply_mods(mod)
-    diff = diff_calc.main(map)[2]
+    diff = calc.diff_calc.main(map)[2]
     m.cs = map.cs
     m.ar = map.ar
     m.od = map.od

@@ -74,8 +74,10 @@ class Scores(BaseModel):
 class Beatmap(object):
     bid = 0
     scores = []
+    mode = 0
     def __init__(self, bid, acc, mods,uid,pp,raw_pp,rank, pos, mode):
         self.bid = bid
+        self.mode = mode
         self.scores = [{'bid': bid,'acc': acc,'mods': mods,'uid': uid,'map_pp': pp, 'user_pp': raw_pp, 'rank': rank, 'pos': pos, 'mode': mode}]
     def __eq__(self, other):
         if isinstance(other, Beatmap):
@@ -115,6 +117,8 @@ def Acc(json):
 # Attempt to import API key from config
 try:
     f = open('keys.cfg');
+    with open('countries.json') as g:
+        countries = json.load(g)['countries']
     config = configparser.ConfigParser()
     config.readfp(f)
     key = config._sections["osu"]['api_key']
@@ -122,24 +126,33 @@ try:
     threads = int(config._sections["crawler"]['threads'])
     limit = int(config._sections["crawler"]['limit'])
     start_page = int(config._sections["crawler"]['start_page'])
-    # country = config._sections["crawler"]['country']
-    country = None
+    country = config._sections["crawler"]['country']
+    page_limit = int(config._sections["crawler"]['page_user_limit'])
+    if country.lower() == 'all':
+        country = countries
+    else:
+        country = [country]
+    # country = None
     # Need to make this auto get every mode soon. 
-    mode = int(config._sections["crawler"]['mode'])
+    f_mode = config._sections["crawler"]['mode']
+    if f_mode.lower() == 'all':
+        f_mode = range(4)
+    else:
+        f_mode = [int(f_mode)]
 except:
     raise Exception("Invalid config")
 
-def urlBuilder(page, mode, type,uid=0):
+def urlBuilder(page, mode, type,uid=0, c = None):
     if type == 0:
         baseURL = "https://osu.ppy.sh/p/pp/"
         if (page > 0 and page <= 200) and (mode >= 0 and mode < 4):
-            if country == None or country == "":
+            if c == None or c == "":
                 return baseURL+"?m="+str(mode)+"&page="+str(page)
             else:
-                return baseURL+"?m="+str(mode)+"&page="+str(page) + "&c="+country
+                return baseURL+"?m="+str(mode)+"&page="+str(page) + "&c="+c
         else:
             print("Page or mode out of range")
-            exit()
+            raise()
     elif type == 1:
         baseURL = "https://osu.ppy.sh/api/get_user_best"
         return baseURL + "?k="+key+"&u="+str(uid)+"&m="+str(mode)+"&limit="+str(limit)
@@ -268,9 +281,9 @@ def updateMap(beatmap, mode):
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print(str(e), fname, exc_tb.tb_lineno)
 
-def getPage(page, mode):
+def getPage(page, mode, c):
     global map_set
-    url = urlBuilder(page,mode,0)
+    url = urlBuilder(page,mode,0, c=c)
     page = fetchURL(url)
     page = BeautifulSoup(page,"html.parser")
     table = page.find('table', attrs={'class':'beatmapListing'})
@@ -279,6 +292,7 @@ def getPage(page, mode):
     data = []
     users = []
     count = 1
+    done = False
     for row in rows:
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
@@ -290,6 +304,9 @@ def getPage(page, mode):
             rank = re.findall('\d+', data[count][0])
             pp_raw = data[count][4].replace(",","")
             pp_raw = re.findall('\d+', pp_raw)
+            if int(pp_raw[0]) < 1000 or count > page_limit:
+                done = True
+                break
             # print("Rank "+str(rank))
             count += 1
             user_data.append({'uid': uid[0], 'rank': rank[0], 'pp_raw': pp_raw[0]})
@@ -313,23 +330,30 @@ def getPage(page, mode):
                     if beatmap == m:
                         m.addScore(top['beatmap_id'],float(acc),int(mods), user.uid, float(top['pp']),float(user.pp),int(user.rank), count, mode)
         lock.release()
-
+    return done
 
 def fetchMode(info):
     start = info['start']
+    cs = info['countries']
     pages = start + info['pages']
     if pages > 201:
         pages = 201
-    mode = info['mode']
     map_set = set()
     try:
-        for i in range(start,pages):
-            print("[" + str(i) + "/" + str(pages-1) + "]")
-            getPage(i,mode)
+        for m in f_mode:
+            for j in cs:
+                print("Fetching for ", j,", ",m)
+                for i in range(start,pages):
+                    print("[" + str(i) + "/" + str(pages-1) + "]")
+                    done = getPage(i,m, j)
+                    if done:
+                        break
     except Exception as e:
         traceback.print_exc(file=sys.stdout)
-        lock.release()
-        score_lock.release()
+        if lock.locked():
+            lock.release()
+        if score_lock.locked():
+            score_lock.release()
 
 def updateDB(info, mode):
     db_map = None
@@ -344,66 +368,69 @@ def updateDB(info, mode):
         updateMap(info, mode)
 
 def processMaps(args):
-    n = 0
-    mode = args['mode']
-    count = args['size']
-    print("STARTING" + str(len(args['maps'])))
-    for m in args['maps']:
-        n +=1 
-        print("["+str(n)+"/"+str(count) + "]")
-        modl = []
-        top_mods = []
-        scores = m.scores
-        for item in scores:
-            modl.append(item['mods'])
-        modl = Counter(modl).most_common()
-        if len(modl) == 0:
-            continue
-        for ppm in modl:
-            pop_mod = ppm[0]
-            avg_pp = 0
-            avg_rank = 0
-            avg_pos = 0
-            avg_acc = 0
-            count_mod = 0
-            count_pos = 0
-            num_scores = len(scores)
+    try:
+        n = 0
+        count = args['size']
+        print("STARTING" + str(len(args['maps'])))
+        for m in args['maps']:
+            mode = m.mode
+            n +=1 
+            print("["+str(n)+"/"+str(count) + "]")
+            modl = []
+            top_mods = []
+            scores = m.scores
             for item in scores:
-                threshhold = 33
-                if ppm[0] == item['mods']:
-                    count_mod += 1
-                    if item['pos'] < threshhold:
-                        count_pos += 1
-            if count_pos < 50:
+                modl.append(item['mods'])
+            modl = Counter(modl).most_common()
+            if len(modl) == 0:
                 continue
-            top_mods = count_pos / count_mod
-            for item in scores:
-                if pop_mod == item['mods']:
-                    avg_pp += item['map_pp']
-                    avg_pos += item['pos']
-                    avg_rank += item['rank']
-                    avg_acc += item['acc']
-            # Avg pp and rank are for specific mod, but num scores are for everything
-            avg_pp /= count_mod
-            avg_rank /= count_mod
-            avg_pos /= count_mod
-            avg_acc /= count_mod
-            # scaled_pos = num_scores * (count_pos / count_mod)
-            scaled_pos = num_scores * top_mods
-            ci_score = ci(scaled_pos, num_scores)
-            # print("SCORE: " + str(ci_score) + " FOR " + m.artist + " - " + m.name)
-            info = {'bid': m.bid,'avg_pp': avg_pp, 'avg_rank': avg_rank, 'avg_pos': avg_pos, 'avg_acc': avg_acc, 'num_scores': count_mod, 'score': ci_score, 'pop_mod': pop_mod}
-            tries = 20
-            # while tries > 0:
-            #     try:
-                    # query = Beatmaps.update(avg_pp = avg_pp,avg_rank = avg_rank,avg_pos = avg_pos,avg_acc = avg_acc,num_scores = len(scores),score=ci_score,pop_mod = mods.main(pop_mod)).where(Beatmaps.bid == m.bid, Beatmaps.mode == m.mode)
-            updateDB(info,mode)
-                #     break
-                # except Exception as e:
-                #     tries -= 1
-                #     exc_type, exc_obj, exc_tb = sys.exc_info()
-                #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-                #     print(str(e), fname, exc_tb.tb_lineno)
+            for ppm in modl:
+                pop_mod = ppm[0]
+                avg_pp = 0
+                avg_rank = 0
+                avg_pos = 0
+                avg_acc = 0
+                count_mod = 0
+                count_pos = 0
+                num_scores = len(scores)
+                for item in scores:
+                    threshhold = 33
+                    if ppm[0] == item['mods']:
+                        count_mod += 1
+                        if item['pos'] < threshhold:
+                            count_pos += 1
+                if count_pos < 50:
+                    continue
+                top_mods = count_pos / count_mod
+                for item in scores:
+                    if pop_mod == item['mods']:
+                        avg_pp += item['map_pp']
+                        avg_pos += item['pos']
+                        avg_rank += item['rank']
+                        avg_acc += item['acc']
+                # Avg pp and rank are for specific mod, but num scores are for everything
+                avg_pp /= count_mod
+                avg_rank /= count_mod
+                avg_pos /= count_mod
+                avg_acc /= count_mod
+                # scaled_pos = num_scores * (count_pos / count_mod)
+                scaled_pos = num_scores * top_mods
+                ci_score = ci(scaled_pos, num_scores)
+                # print("SCORE: " + str(ci_score) + " FOR " + m.artist + " - " + m.name)
+                info = {'bid': m.bid,'avg_pp': avg_pp, 'avg_rank': avg_rank, 'avg_pos': avg_pos, 'avg_acc': avg_acc, 'num_scores': count_mod, 'score': ci_score, 'pop_mod': pop_mod}
+                tries = 20
+                # while tries > 0:
+                #     try:
+                        # query = Beatmaps.update(avg_pp = avg_pp,avg_rank = avg_rank,avg_pos = avg_pos,avg_acc = avg_acc,num_scores = len(scores),score=ci_score,pop_mod = mods.main(pop_mod)).where(Beatmaps.bid == m.bid, Beatmaps.mode == m.mode)
+                updateDB(info,mode)
+                    #     break
+                    # except Exception as e:
+                    #     tries -= 1
+                    #     exc_type, exc_obj, exc_tb = sys.exc_info()
+                    #     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    #     print(str(e), fname, exc_tb.tb_lineno)
+    except:
+        traceback.print_exc(file=sys.stdout)
 
 def ci(pos, n):
     z = 3.5
@@ -413,6 +440,12 @@ def ci(pos, n):
 
 def getKey(item):
     return item[0]
+
+def countScores(maps):
+    sc = 0
+    for mm in maps:
+        sc += len(mm.scores)
+    print("SCORES ",sc)
 
 
 try:
@@ -433,10 +466,10 @@ pool = ThreadPool(threads)
 arg = []
 for i in range(0,threads): 
     if i == 0:
-        arg.append({'start': current,'pages': offset + size,'mode': mode})
+        arg.append({'start': current,'pages': offset + size, 'countries': country})
         current += offset + size
     else:
-        arg.append({'start': current,'pages': size,'mode': mode})
+        arg.append({'start': current,'pages': size, 'countries': country})
         current += size 
 results = pool.map(fetchMode, arg)
 print("Beginning score processing...")
@@ -449,11 +482,12 @@ current = 0
 size = math.floor(count / threads)
 for m in map_set:
     maps.append(m)
+countScores(maps)
 for i in range(0,threads): 
     if i == 0:
-        arg.append({'start': current,'size': offset + size,'mode': mode, 'count': count, 'maps': maps[current:current+size]})
+        arg.append({'start': current,'size': offset + size,'count': count, 'maps': maps[current:current+size]})
         current += offset + size
     else:
-        arg.append({'start': current,'size': size,'mode': mode, 'count': count, 'maps': maps[current:current+size]})
+        arg.append({'start': current,'size': size, 'count': count, 'maps': maps[current:current+size]})
         current += size 
 pool.map(processMaps,arg)
