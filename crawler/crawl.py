@@ -22,7 +22,7 @@ from dateutil import parser
 from peewee import *
 from bs4 import BeautifulSoup
 
-db = SqliteDatabase('../osuFM/osuFM.db',threadlocals=True,pragmas=[('journal_mode', 'wal')])
+db = SqliteDatabase('../osuFM/osuFM.db',pragmas=[('journal_mode', 'wal')])
 # logger = logging.getLogger('peewee')
 # logger.setLevel(logging.DEBUG)
 # logger.addHandler(logging.StreamHandler())
@@ -211,7 +211,7 @@ def addBeatmap(beatmap, mode):
     title = None
     artist = None
     creator = None
-    if bm == None:
+    if len(bm) == 0:
         url = urlBuilder(0,mode,3,beatmap['bid'])
         page = fetchURL(url)
         pop_mod = mods.main(beatmap['pop_mod'])
