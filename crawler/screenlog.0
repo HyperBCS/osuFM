@@ -1,0 +1,24 @@
+Initialized DB tables
+Fetching for  US ,  0
+[1/25]
+Fetching for  US ,  0
+[26/50]
+Fetching for  US ,  0
+Fetching for  US ,  0
+Fetching for  US ,  0
+Fetching for  US ,  0
+Fetching for  US ,  0
+[101/125]
+[151/175]
+[76/100]
+Fetching for  US ,  0
+[176/200]
+[126/150]
+[51/75]
+[1/20] HTTPSConnectionPool(host='osu.ppy.sh', port=443): Read timed out. (read timeout=2) crawl.py 172
+[1/20] HTTPSConnectionPool(host='osu.ppy.sh', port=443): Read timed out. (read timeout=2) crawl.py 172
+[1/20] HTTPSConnectionPool(host='osu.ppy.sh', port=443): Read timed out. (read timeout=2) crawl.py 172
+[102/125]
+[152/175]
+[127/150]
+[177/200]
