@@ -8,3 +8,5 @@ osuFM/node_modules
 *.log
 *.gz
 *.db*
+
+*.0
