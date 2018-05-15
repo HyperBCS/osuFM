@@ -4,7 +4,7 @@ class Mods(IntEnum):
     NoMod           = 0,
     NF         = 1,
     EZ           = 2,
-    NoVideo        = 4,
+    TD        = 4,
     HD         = 8,
     HR       = 16,
     SD    = 32,

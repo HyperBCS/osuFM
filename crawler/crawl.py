@@ -188,7 +188,7 @@ def fetchTop(uids, mode):
     urls = [urlBuilder(0,mode,1,uid) for uid in uids]
     # page = fetchURL(url)
     ss = Session()
-    retries = Retry(total=5, raise_on_redirect=True,
+    retries = Retry(total=20, raise_on_redirect=True,
                     raise_on_status=True)
     ss.mount('http://', HTTPAdapter(max_retries=retries))
     ss.mount('https://', HTTPAdapter(max_retries=retries))
@@ -324,6 +324,12 @@ def getPage(page, mode, c):
             mods = int(top['enabled_mods'])
             if mods & 512 != 0:
                 mods = mods ^ 512
+            if mods & 32 != 0:
+                mods = mods ^ 32
+            if mods & 1 != 0:
+                mods = mods ^ 1
+            if mods & 16384 != 0:
+                mods = mods ^ 16384
             beatmap = Beatmap(top['beatmap_id'],float(acc),mods, user.uid, float(top['pp']),float(user.pp),int(user.rank), count, mode)
             if beatmap not in map_set:
                 map_set.add(beatmap)
@@ -331,7 +337,8 @@ def getPage(page, mode, c):
                 for m in map_set:
                     if beatmap == m:
                         m.addScore(top['beatmap_id'],float(acc),int(mods), user.uid, float(top['pp']),float(user.pp),int(user.rank), count, mode)
-        lock.release()
+        if lock.locked():
+            lock.release()
     return done
 
 def fetchMode(info):
