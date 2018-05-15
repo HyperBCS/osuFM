@@ -293,6 +293,8 @@ def getPage(page, mode, c):
     users = []
     count = 1
     done = False
+    if len(raw_user) == 0:
+    	return True
     for row in rows:
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
