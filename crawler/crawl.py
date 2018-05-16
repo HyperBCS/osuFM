@@ -185,17 +185,32 @@ def fetchURL(url):
 
 # Need to detect except httplib.IncompleteRead
 def fetchTop(uids, mode):
-    urls = [urlBuilder(0,mode,1,uid) for uid in uids]
-    # page = fetchURL(url)
-    ss = Session()
-    retries = Retry(total=20, raise_on_redirect=True,
-                    raise_on_status=True)
-    ss.mount('http://', HTTPAdapter(max_retries=retries))
-    ss.mount('https://', HTTPAdapter(max_retries=retries))
-    s = FuturesSession(max_workers=50, session=ss)
-    cookies = dict(osu_site_v='old')
-    rs = (s.get(u,cookies=cookies, timeout=2) for u in urls)
-    pages = [json.loads(pg.result().text) for pg in rs]
+    count = 5
+    while count > 0:
+        try:
+            count -= 1
+            urls = [urlBuilder(0,mode,1,uid) for uid in uids]
+            # page = fetchURL(url)
+            ss = Session()
+            retries = Retry(total=20, raise_on_redirect=True,
+                            raise_on_status=True)
+            ss.mount('http://', HTTPAdapter(max_retries=retries))
+            ss.mount('https://', HTTPAdapter(max_retries=retries))
+            s = FuturesSession(max_workers=50, session=ss)
+            cookies = dict(osu_site_v='old')
+            rs = (s.get(u,cookies=cookies, timeout=2) for u in urls)
+            pages = [json.loads(pg.result().text) for pg in rs]
+            break
+        except Exception as e:
+            sleep(1)
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print("[" + str(30 - count) + "/20" + "]",str(e), fname, exc_tb.tb_lineno)
+            if count == 1:
+                exit()
+    if count == 0:
+        print("Network timeout")
+        exit()
     return pages
 
 def addBeatmap(beatmap, mode):
@@ -403,10 +418,10 @@ def processMaps(args):
                 count_pos = 0
                 num_scores = len(scores)
                 for item in scores:
-                    threshhold = 33
+                    threshhold = 0.66
                     if ppm[0] == item['mods']:
                         count_mod += 1
-                        if item['pos'] < threshhold:
+                        if item['pos'] / limit > threshhold:
                             count_pos += 1
                 if count_pos < 50:
                     continue
