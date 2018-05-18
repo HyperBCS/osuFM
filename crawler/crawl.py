@@ -421,7 +421,7 @@ def processMaps(args):
                     threshhold = 0.66
                     if ppm[0] == item['mods']:
                         count_mod += 1
-                        if item['pos'] / limit > threshhold:
+                        if item['pos'] / limit < threshhold:
                             count_pos += 1
                 if count_pos < 50:
                     continue
