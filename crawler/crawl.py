@@ -311,6 +311,8 @@ def getPage(page, mode, c):
     if len(raw_user) == 0:
     	return True
     for row in rows:
+        if row is None:
+            continue
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
         data.append([ele for ele in cols if ele]) # Get rid of empty values
