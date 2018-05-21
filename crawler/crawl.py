@@ -81,7 +81,7 @@ class Beatmap(object):
         self.scores = [{'bid': bid,'acc': acc,'mods': mods,'uid': uid,'map_pp': pp, 'user_pp': raw_pp, 'rank': rank, 'pos': pos, 'mode': mode}]
     def __eq__(self, other):
         if isinstance(other, Beatmap):
-            return ((self.bid == other.bid and self.mode = other.mode))
+            return ((self.bid == other.bid and self.mode == other.mode))
         else:
             return False
     def __ne__(self, other):
