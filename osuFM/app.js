@@ -10,6 +10,20 @@ var index = require('./routes/index');
 
 var app = express();
 
+app.all('*', ensureSecure); // at top of routing calls
+
+/**
+ * Redirect http to https
+ */
+function ensureSecure(req, res, next){
+  if(req.secure){
+    // OK, continue
+    return next();
+  };
+  // handle port numbers if you need non defaults
+  // res.redirect('https://' + req.host + req.url); // express 3.x
+  res.redirect('https://' + req.hostname + req.url); // express 4.x
+}
 
 
 // view engine setup
