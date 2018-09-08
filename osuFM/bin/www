@@ -6,12 +6,18 @@
 
 var app = require('../app');
 var debug = require('debug')('osufm:server');
-var http = require('http');
+var https = require('https');
 var models = require('../models');
+var fs = require('fs');
 
 /**
  * Get port from environment and store in Express.
  */
+
+const options = {
+    cert: fs.readFileSync('./sslcerts/fullchain.pem'),
+    key: fs.readFileSync('./sslcerts/privkey.pem')
+};
 
 var port = normalizePort(process.env.PORT || '5000');
 app.set('port', port);
@@ -20,7 +26,7 @@ app.set('port', port);
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+var server = https.createServer(options, app);
 
 models.sequelize.sync().then(function() {
   /**

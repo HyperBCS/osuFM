@@ -10,3 +10,6 @@ osuFM/node_modules
 *.db*
 
 *.0
+
+# ssl certs
+sslcerts/
