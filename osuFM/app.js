@@ -5,26 +5,9 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
-
 var index = require('./routes/index');
 
 var app = express();
-
-app.all('*', ensureSecure); // at top of routing calls
-
-/**
- * Redirect http to https
- */
-function ensureSecure(req, res, next){
-  if(req.secure){
-    // OK, continue
-    return next();
-  };
-  // handle port numbers if you need non defaults
-  // res.redirect('https://' + req.host + req.url); // express 3.x
-  res.redirect('https://' + req.hostname + req.url); // express 4.x
-}
-
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,7 +15,6 @@ app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(require('helmet')());
 app.use(logger('short'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
