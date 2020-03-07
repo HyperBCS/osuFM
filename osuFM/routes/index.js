@@ -1,7 +1,7 @@
 var express = require('express');
 var models  = require('../models');
 var router = express.Router();
-
+const { Op } = require("sequelize");
 // /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'osuFM' });
@@ -111,7 +111,7 @@ router.get('/', function(req, res, next) {
 	mode = 0
 	}
 	mode = get_mode(mode)
-  models.Beatmap.findAndCountAll({order: [['score', 'DESC']], where: {diff: {$gte: diff_range[0], $lte: diff_range[1]}, bpm: {$gte: bpm_range[0], $lte: bpm_range[1]}, length: {$gte: time_range[0], $lte: time_range[1]}, avg_pp: {$gte: pp_range[0], $lte: pp_range[1]}, cs: {$gte: cs_range[0], $lte: cs_range[1]},ar: {$gte: ar_range[0], $lte: ar_range[1]} ,pop_mod: {$like: mods},$and: [{$or: [{name: {$like: name}}, {artist: {$like: name}}, {mapper: {$like: name}}, {version: {$like: name}}]},{$or: mode} ]}, limit: limit, offset: offset}).then(function(maps) {
+  models.Beatmap.findAndCountAll({order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,pop_mod: {[Op.like]: mods},[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}).then(function(maps) {
     for(m in maps.rows){
     	maps.rows[m].length = str_time(maps.rows[m].length)
     	if(maps.rows[m].pop_mod == ''){
