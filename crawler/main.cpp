@@ -604,10 +604,8 @@ static int callbackPopulate(void *no_maps, int argc, char **argv, char **azColNa
         }else if(col == "calculated"){
             m->calculated = std::atoi(argv[i]);
         }
-        printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
     }
     map_obj->push_back(m);
-    printf("\n");
     return 0;
 }
 
@@ -698,7 +696,7 @@ int main(int argc, char** argv) {
 
     std::string access_token = auth["access_token"];
     std::string auth_string = "Bearer " + access_token;
-    int max_pages = 2;
+    int max_pages = j["max_pages"];
     for(auto mode : modes){
     std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/country";
     json countries = json::parse(getURL(url, auth_string, true))["ranking"];
