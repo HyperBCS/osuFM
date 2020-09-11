@@ -21,19 +21,19 @@ block content
                 ul.navbar-nav.mr-auto
                   li.nav-item.dropdown
                     a#navbarDropdown.nav-link.dropdown-toggle(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                      | Game Mode
+                      =mode_map[response.params.m  == '' || response.params.m  == null ? 0 : response.params.m ]
                     .dropdown-menu(aria-labelledby='navbarDropdown',name='mode')
                       a.dropdown-item(onclick="$('#mode').val(0)") Standard
                       a.dropdown-item(onclick="$('#mode').val(1)") Taiko
-                      a.dropdown-item(onclick="$('#mode').val(2)") Catch The Beat
+                      a.dropdown-item(onclick="$('#mode').val(2)") Catch the Beat
                       a.dropdown-item(onclick="$('#mode').val(3)") Mania
                       .dropdown-divider
                       a.dropdown-item(onclick="$('#mode').val(-1)") All
-                  li.nav-item
-                    a.nav-link.dropdown-toggle(type="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
+                  li.nav-item.dropdown
+                    a.nav-link.dropdown-toggle(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
               .col
                   .my-lg-0.d-flex
-                    input.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' value = response.n)
+                    input.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' value = response.n name='n')
                     button.btn.btn-outline-success(type='submit') Search
 
         //- .input-group
@@ -66,28 +66,28 @@ block content
       .container#mods
         .checkbox
           h4 Mods
-            hr
-            .row.col-xs-offset-2
-              label.checkbox-inline.col
-                input(type='checkbox', value=64, id='DT', checked= response.DT)
-                | Double Time
-              label.checkbox-inline.col
-                input(type='checkbox', value=8, id='HD', checked= response.HD)
-                | Hidden
-              label.checkbox-inline.col
-                input(type='checkbox', value=16, id='HR', checked= response.HR)
-                | Hard Rock
-              label.checkbox-inline.col
-                input(type='checkbox', value=2, id='EZ', checked= response.EZ)
-                | Easy
-              label.checkbox-inline.col
-                input(type='checkbox', value=1024, id='FL', checked= response.FL)
-                | Flashlight
-              label.checkbox-inline.col
-                input(type='checkbox', value=-1, id='NO', checked= response.NO)
-                | No Mod
+          hr
+          row
+            label.form-check.form-check-inline.col.col-6.col-md-auto
+              input.form-check-input(type='checkbox', value=64, id='DT', checked= response.DT)
+              label.form-check-label(for='DT') Double Time
+            label.form-check.form-check-inline.col.col-6.col-md-auto
+              input.form-check-input(type='checkbox', value=8, id='HD', checked= response.HD)
+              label.form-check-label(for='HD') Hidden
+            label.form-check.form-check-inline.col.col-6.col-md-auto
+              input.form-check-input(type='checkbox', value=16, id='HR', checked= response.HR)
+              label.form-check-label(for='HR') Hard Rock
+            label.form-check.form-check-inline.col.col-6.col-md-auto
+              input.form-check-input(type='checkbox', value=2, id='EZ', checked= response.EZ)
+              label.form-check-label(for='EZ') Easy
+            label.form-check.form-check-inline.col.col-6.col-md-auto
+              input.form-check-input(type='checkbox', value=1024, id='FL', checked= response.FL)
+              label.form-check-label(for='FL') Flashlight
+            label.form-check.form-check-inline.col.col-6.col-md-auto
+              input.form-check-input(type='checkbox', value=-1, id='NO', checked= response.NO)
+              label.form-check-label(for='NO') Double Time
       .container#performance
-        h4 Performance options
+        h4 PP options
         hr
         .form-group.row
           .col-sm-2
@@ -106,42 +106,61 @@ block content
           .col-sm-2
             label Max Length(secs)
             input.form-control(type='text', name='xl', placeholder='Max Length', value=response.params.xl)
-
           .col-sm-2
             label Min BPM
             input.form-control(type='text', name='mb', placeholder='Min BPM',value=response.params.mb)
           .col-sm-2
             label Max BPM
             input.form-control(type='text', name='xb', placeholder='Max BPM', value=response.params.xb)
-          .col-sm-2
-            label Min Difficulty
-            input.form-control(type='text', name='md', placeholder='Min Diff', value=response.params.md)
-          .col-sm-2
-            label Max Difficulty
-            input.form-control(type='text', name='xd', placeholder='Max Diff', value=response.params.xd)
+      .container#perfOptions
+        h4 Map Difficulty Options
+        hr
         .form-group.row
-          .col-sm-2
-            label Min AR
-            input.form-control(type='text', name='mar', placeholder='Min AR', value=response.params.mar)
-          .col-sm-2
-            label Max AR
-            input.form-control(type='text', name='xar', placeholder='Max AR', value=response.params.xar)
-          .col-sm-2.col-sm-offset-2
-            label  Min&nbsp
-            if response.params.m == 3
-              label Keys
-              input.form-control(type='text', name='mcs', placeholder='Min Keys', value=response.params.mcs)
-            else 
-              label CS
-              input.form-control(type='text', name='mcs', placeholder='Min CS', value=response.params.mcs)
-          .col-sm-2
-            label  Max&nbsp
-            if response.params.m == 3
-              label Keys
-              input.form-control(type='text', name='xcs', placeholder='Max Keys', value=response.params.xcs)
-            else 
-              label CS
-              input.form-control(type='text', name='xcs', placeholder='Max CS', value=response.params.xcs)
+          .col
+            .row
+              .col.text-center
+                input#len_diff(type='text')
+            .row
+              .col
+                label Min Stars
+                input.form-control(type='text', name='md', placeholder='Min Stars', value=response.params.ml)
+              .col
+                label Max Stars
+                input.form-control(type='text', name='xd', placeholder='Max Stars', value=response.params.xl)
+          .col
+            .row
+              .col.text-center
+                input#len_ar(type='text')
+            .row
+              .col
+                label Min AR
+                input.form-control(type='text', name='mar', placeholder='Min AR', value=response.params.mar)
+              .col
+                label Max AR
+                input.form-control(type='text', name='xar', placeholder='Max AR', value=response.params.xar)
+          .col
+            .row
+              .col.text-center
+                input#len_cs(type='text')
+            .row
+              .col
+                label  Min&nbsp
+                if response.params.m == 3
+                  label Keys
+                  input.form-control(type='text', name='mcs', placeholder='Min Keys', mode = response.params.m, value=response.params.mcs)
+                else 
+                  label CS
+                  input.form-control(type='text', name='mcs', placeholder='Min CS',  mode = response.params.m, value=response.params.mcs)
+              .col
+                label  Max&nbsp
+                if response.params.m == 3
+                  label Keys
+                  input.form-control(type='text', name='xcs', placeholder='Max Keys', mode = response.params.m, value=response.params.xcs)
+                else 
+                  label CS
+                  input.form-control(type='text', name='xcs', placeholder='Max CS', mode = response.params.m, value=response.params.xcs)
+
+
 
   div.table-responsive#table
     table.table
@@ -157,7 +176,7 @@ block content
           th Length
           th BPM
           th Stars
-      tbody
+      tbody#data_body
         each map, i in maps
           tr
             td
@@ -212,7 +231,86 @@ block content
     var y = document.getElementById('modes');
     $("#navbarDropdown").text(mode);
     });
+    $("#len_diff").slider({ min: 0, max: 15, step: 0.1, value: [0, 15], focus: true,formatter: function(value) {
+    return value[0] + '★' + '  -  ' + value[1] + '★';} });
+    $("#len_ar").slider({ min: 0, max: 11, step: 0.1, value: [0, 11], focus: true,formatter: function(value) {
+    return "AR " +value[0] + '  -  ' + "AR " + value[1] ;} });
+    if($("[name='mcs']").attr("mode") == 3){
 
+      $("#len_cs").slider({ min: 0, max: 10, step: 1, value: [0, 10], focus: true,formatter: function(value) {
+      return value[0] + ' Key' + '  -  ' + value[1] + ' Key';} });
+    } else{
+      $("#len_cs").slider({ min: 0, max: 10, step: 0.1, value: [0, 10], focus: true,formatter: function(value) {
+      return "CS " +value[0] + '  -  ' + "CS " + value[1];} });
+    }
 
+    $('#len_diff').slider()
+    .on('slide', function(script) {
+      $("[name='md']").val(script.value[0])
+      $("[name='xd']").val(script.value[1])
+    });
+
+    $('#len_ar').slider()
+    .on('slide', function(script) {
+      $("[name='mar']").val(script.value[0])
+      $("[name='xar']").val(script.value[1])
+    });
+
+    $('#len_cs').slider()
+    .on('slide', function(script) {
+      $("[name='mcs']").val(script.value[0])
+      $("[name='xcs']").val(script.value[1])
+    });
+
+    $("[name='md']").change(function(){
+      if(parseInt($("[name='md']").val()) > parseInt($("[name='xd']").val())){
+        var tmp = $("[name='xd']").val()
+        $("[name='xd']").val($("[name='md']").val())
+        $("[name='md']").val(tmp)
+      }
+      $("#len_diff").slider('setValue', [parseInt($(this).val()),parseInt($("[name='xd']").val())] )
+    });
+    $("[name='xd']").change(function(){
+      if(parseInt($("[name='md']").val()) > parseInt($("[name='xd']").val())){
+        var tmp = $("[name='xd']").val()
+        $("[name='xd']").val($("[name='md']").val())
+        $("[name='md']").val(tmp)
+      }
+      $("#len_diff").slider('setValue', [parseInt($("[name='md']").val()),parseInt($(this).val())] )
+    });
+
+    $("[name='mar']").change(function(){
+      if(parseInt($("[name='mar']").val()) > parseInt($("[name='xar']").val())){
+        var tmp = $("[name='xar']").val()
+        $("[name='xar']").val($("[name='mar']").val())
+        $("[name='mar']").val(tmp)
+      }
+      $("#len_ar").slider('setValue', [parseInt($(this).val()),parseInt($("[name='xar']").val())] )
+    });
+    $("[name='xar']").change(function(){
+      if(parseInt($("[name='mar']").val()) > parseInt($("[name='xar']").val())){
+        var tmp = $("[name='xar']").val()
+        $("[name='xar']").val($("[name='mar']").val())
+        $("[name='mar']").val(tmp)
+      }
+      $("#len_ar").slider('setValue', [parseInt($("[name='mar']").val()),parseInt($(this).val())] )
+    });
+
+    $("[name='mcs']").change(function(){
+      if(parseInt($("[name='mcs']").val()) > parseInt($("[name='xcs']").val())){
+        var tmp = $("[name='xcs']").val()
+        $("[name='xcs']").val($("[name='mcs']").val())
+        $("[name='mcs']").val(tmp)
+      }
+      $("#len_cs").slider('setValue', [parseInt($(this).val()),parseInt($("[name='xcs']").val())] )
+    });
+    $("[name='xcs']").change(function(){
+      if(parseInt($("[name='mcs']").val()) > parseInt($("[name='xcs']").val())){
+        var tmp = $("[name='xcs']").val()
+        $("[name='xcs']").val($("[name='mcs']").val())
+        $("[name='mcs']").val(tmp)
+      $("#len_cs").slider('setValue', [parseInt($("[name='mcs']").val()),parseInt($(this).val())] )
+      }
+    });
 
 

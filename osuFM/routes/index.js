@@ -2,6 +2,7 @@ var express = require('express');
 var models  = require('../models');
 var router = express.Router();
 const { Op } = require("sequelize");
+var Sequelize = require('sequelize');
 // /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'osuFM' });
@@ -209,7 +210,7 @@ router.get('/', function(req, res, next) {
         } else if(query_mod % 2 != 0){
             query_mod += 1
         }
-        query =  {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,pop_mod: {[Op.eq]: query_mod},[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}
+        query =  {order: [['score', 'DESC']], where: {diff2: {[Op.and]: [Sequelize.literal("pop_mod == " + query_mod)]}, diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}
     }
   models.Beatmap.findAndCountAll(query).then(function(maps) {
     for(m in maps.rows){
@@ -225,6 +226,7 @@ router.get('/', function(req, res, next) {
       offset: offset,
       current_page: page,
       maps: maps.rows,
+      mode_map: ["Standard", "Taiko", "Catch the Beat", "Mania"],
       response: response
     });
   }).catch(function (err) {

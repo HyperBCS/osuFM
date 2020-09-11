@@ -13,7 +13,8 @@
 		".git",
 		".vscode",
 		"vcpkg",
-		"osuFM.db"
+		"osuFM.db",
+		"node_modules"
 	]
 
 
