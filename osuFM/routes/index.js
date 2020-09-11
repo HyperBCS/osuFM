@@ -8,31 +8,118 @@ const { Op } = require("sequelize");
 // });
 
 var mod_conv = function(mods, response){
-	mod_nums = {"NoMod": 0, "NF": 1, "EZ": 2, "NoVideo": 4, "HD": 8, "HR": 16, "SD": 32, "DT": 64, "Relax": 128, "HT": 256, "NC": 512, "FL": 1024, "Autoplay": 2048, "SO": 4096, "Relax2": 8192, "PF": 16384, "Key4": 32768, "Key5": 65536, "Key6": 131072, "Key7": 262144, "Key8": 524288, "FadeIn": 1048576, "Random": 2097152, "LastMod": 4194304, "Key9": 16777216, "Key10": 33554432, "Key1": 67108864, "Key3": 134217728, "Key2": 268435456}
-	strict = 0;
-	if(mods == -1){
-		response.params.mods = null
-		return "%"
-	} else if(mods == 0){
+	mod_nums = {"NF": 1, "EZ": 2, "NoVideo": 4, "HD": 8, "HR": 16, "SD": 32, "DT": 64, "Relax": 128, "HT": 256, "NC": 512, "FL": 1024, "Autoplay": 2048, "SO": 4096, "Relax2": 8192, "PF": 16384, "Key4": 32768, "Key5": 65536, "Key6": 131072, "Key7": 262144, "Key8": 524288, "FadeIn": 1048576, "Random": 2097152, "LastMod": 4194304, "Key9": 16777216, "Key10": 33554432, "Key1": 67108864, "Key3": 134217728, "Key2": 268435456}
+    console.log("MOD HERE" + mods)
+    if(mods < 0){
 		response['NO'] = true
-		return ''
-	} else if(mods < 0){
-		response['NO'] = true
-		strict = 1;
-		mods *= -1
+        return
 	}
-	string = ""
+    if(mods % 2 != 0){
+        mods += 1
+    }
 	for(mod in mod_nums){
 		if((mod_nums[mod] & mods) != 0){
 			response[mod] = true
-			if(strict){
-				string += mod
-			}else{
-				string += "%"+mod+"%"
-			}
 		}
 	}
-	return string
+}
+
+var intToMods = function(mod_int){
+    var mod_string = "";
+        if(mod_int == -1){
+            mod_string += "NO";
+        }
+        if(mod_int & 1<<0){
+            mod_string += "NF";
+        }
+        if(mod_int & 1<<1){
+            mod_string += "EZ";
+        }
+        if(mod_int & 1<<2){
+            mod_string += "TD";
+        }
+        if(mod_int & 1<<3){
+            mod_string += "HD";
+        }
+        if(mod_int & 1<<4){
+            mod_string += "HR";
+        }
+        if(mod_int & 1<<6 && !(mod_int & 1<<9)){
+            mod_string += "DT";
+        }
+        if(mod_int & 1<<7){
+            mod_string += "RX";
+        }
+        if(mod_int & 1<<8){
+            mod_string += "HT";
+        }
+        if(mod_int & 1<<9){
+            mod_string += "NC";
+        }
+        if(mod_int & 1<<10){
+            mod_string += "FL";
+        }
+        if(mod_int & 1<<5){
+            mod_string += "SD";
+        }
+        if(mod_int & 1<<11){
+            mod_string += "AP";
+        }
+        if(mod_int & 1<<12){
+            mod_string += "SO";
+        }
+        if(mod_int & 1<<13){
+            mod_string += "RX";
+        }
+        if(mod_int & 1<<14){
+            mod_string += "PF";
+        }
+        if(mod_int & 1<<15){
+            mod_string += "4K";
+        }
+        if(mod_int & 1<<16){
+            mod_string += "5K";
+        }
+        if(mod_int & 1<<17){
+            mod_string += "6K";
+        }
+        if(mod_int & 1<<18){
+            mod_string += "7K";
+        }
+        if(mod_int & 1<<19){
+            mod_string += "8K";
+        }
+        if(mod_int & 1<<20){
+            mod_string += "FI";
+        }
+        if(mod_int & 1<<21){
+            mod_string += "RD";
+        }
+        if(mod_int & 1<<22){
+            mod_string += "CM";
+        }
+        if(mod_int & 1<<23){
+            mod_string += "TP";
+        }
+        if(mod_int & 1<<24){
+            mod_string += "9K";
+        }
+        if(mod_int & 1<<25){
+            mod_string += "CP";
+        }
+        if(mod_int & 1<<26){
+            mod_string += "1K";
+        }
+        if(mod_int & 1<<27){
+            mod_string += "3K";
+        }
+        if(mod_int & 1<<28){
+            mod_string += "2K";
+        }
+        if(mod_int & 1<<30){
+            mod_string += "MR";
+        }
+    return mod_string;
 }
 
 var format_min_max = function(min,max){
@@ -70,10 +157,12 @@ var str_time = function(length){
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	mods = req.query.mods
+    console.log("MODS2 " + mods)
 	mods_o = mods
 	if(mods == null || mods == ''){
-		mods = -1
+		mods = 0
 	}
+    mods = parseInt(mods)
 	if(req.query.n == null){
 		req.query.n = ''
 	}
@@ -104,21 +193,32 @@ router.get('/', function(req, res, next) {
 	offset = (page-1) * limit
 	response = {n: name.replace(/%/g,''), 'DT': false, 'HD': false, 'HR': false, 'EZ': false, 'FL': false, 'NO': false, params: req.query}
 	name = name.replace(/ /g,'%')
-	mods = mod_conv(mods ,response)
 	map_name = req.query.n
 	mode = req.query.m
 	if(mode == null || mode == ''){
 	mode = 0
 	}
 	mode = get_mode(mode)
-  models.Beatmap.findAndCountAll({order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,pop_mod: {[Op.like]: mods},[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}).then(function(maps) {
+    mod_conv(mods,response)
+    if(mods == null || mods == 0){
+        query = {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}
+    } else{
+        query_mod = mods
+        if(query_mod == -1){
+            query_mod = 0;
+        } else if(query_mod % 2 != 0){
+            query_mod += 1
+        }
+        query =  {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,pop_mod: {[Op.eq]: query_mod},[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}
+    }
+  models.Beatmap.findAndCountAll(query).then(function(maps) {
     for(m in maps.rows){
-    	maps.rows[m].length = str_time(maps.rows[m].length)
+		maps.rows[m].length = str_time(maps.rows[m].length)
+		maps.rows[m].mod = intToMods(maps.rows[m].pop_mod)
     	if(maps.rows[m].pop_mod == ''){
-    		maps.rows[m].pop_mod = 'No Mod'
+    		maps.rows[m].mod = 'No Mod'
     	}
     }
-
     res.render('index', {
       title: 'osuFM',
       pages:  Math.ceil(maps.count / 10),

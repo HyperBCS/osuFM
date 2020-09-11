@@ -2,18 +2,18 @@
 
 module.exports = function(sequelize, DataTypes) {
   var Beatmap = sequelize.define("Beatmap", {
-    bid: DataTypes.INTEGER,
+    bid: { type: DataTypes.INTEGER, primaryKey: true },
     sid: DataTypes.INTEGER,
     name: DataTypes.STRING,
     artist: DataTypes.STRING,
     mapper: DataTypes.STRING,
     num_scores: DataTypes.INTEGER,
-    pop_mod: DataTypes.STRING,
+    pop_mod: { type: DataTypes.INTEGER, primaryKey: true },
     avg_pp: DataTypes.FLOAT,
     avg_rank: DataTypes.INTEGER,
     avg_acc: DataTypes.FLOAT,
     avg_pos: DataTypes.INTEGER,
-    mode: DataTypes.INTEGER,
+    mode: { type: DataTypes.INTEGER, primaryKey: true },
     cs: DataTypes.FLOAT,
     ar: DataTypes.FLOAT,
     od: DataTypes.FLOAT,
@@ -23,7 +23,6 @@ module.exports = function(sequelize, DataTypes) {
     version: DataTypes.STRING,
     calculated: DataTypes.BOOLEAN,
     score: DataTypes.FLOAT
-
 
   });
 

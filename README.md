@@ -16,6 +16,10 @@ This is an all in one way to find the most farmable maps on osu!. The program su
 - npm
 - Python 3.5+
 
+CMake projects should use: "-DCMAKE_TOOLCHAIN_FILE=/home/brandon/vcpkg/scripts/buildsystems/vcpkg.cmake"
+CMake projects should use: "-DCMAKE_TOOLCHAIN_FILE=/home/brandon/osuFM/crawler/vcpkg/scripts/buildsystems/vcpkg.cmake"
+
+
 **Step 1: Installing requirements**
 
 Clone the repository onto your local machine
