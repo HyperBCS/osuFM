@@ -15,6 +15,7 @@ var Sequelize = require('sequelize');
 
 
 function getMapCache(){
+    console.log("Loading cache")
     query = {order: [['score', 'DESC']]}
     map_ret = []
     models.Beatmap.findAndCountAll(query).then(function(maps) {
@@ -29,6 +30,7 @@ function getMapCache(){
             map_ret.push(m_json)
         }
     });
+    console.log("Done loading cache")
     return map_ret;
 
 }
@@ -38,7 +40,7 @@ var mapCache = getMapCache();
 
 
 var mod_conv = function(mods, response){
-    console.log("Loading cache")
+
 	mod_nums = {"NF": 1, "EZ": 2, "NoVideo": 4, "HD": 8, "HR": 16, "SD": 32, "DT": 64, "Relax": 128, "HT": 256, "NC": 512, "FL": 1024, "Autoplay": 2048, "SO": 4096, "Relax2": 8192, "PF": 16384, "Key4": 32768, "Key5": 65536, "Key6": 131072, "Key7": 262144, "Key8": 524288, "FadeIn": 1048576, "Random": 2097152, "LastMod": 4194304, "Key9": 16777216, "Key10": 33554432, "Key1": 67108864, "Key3": 134217728, "Key2": 268435456}
     if(mods < 0){
 		response['NO'] = true
@@ -52,7 +54,7 @@ var mod_conv = function(mods, response){
 			response[mod] = true
 		}
     }
-    console.log("Done loading cache")
+
 }
 
 var intToMods = function(mod_int){
@@ -238,10 +240,8 @@ router.get('/filter', function(req, res, next) {
 	mode = get_mode(mode)
     mod_conv(mods,response)
     if(mods == null || mods == 0){
-        res.json({
-            maps: mapCache,
-          });
-        return
+        query = {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: mode} ]}}
+
      } else{
         query_mod = mods
         if(query_mod == -1){
