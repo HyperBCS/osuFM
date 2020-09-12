@@ -37,6 +37,23 @@ function getMapCache(){
 
 var mapCache = getMapCache();
 
+var defaults = { mods: '0',
+page: '1',
+ml: '0',
+xl: '9007199254740991',
+m: '0',
+n1: '',
+n2: '',
+mpp: '',
+xpp: '',
+mb: '',
+xb: '',
+md: '0',
+xd: '15',
+mar: '0',
+xar: '11',
+mcs: '0',
+xcs: '10' }
 
 
 var mod_conv = function(mods, response){
@@ -202,9 +219,6 @@ router.get('/filter', function(req, res, next) {
 		mods = 0
 	}
     mods = parseInt(mods)
-	if(req.query.n == null){
-		req.query.n = ''
-	}
 	name = "%" + req.query.n + "%"
 	ranges = {}
 	try{
@@ -236,10 +250,22 @@ router.get('/filter', function(req, res, next) {
 	mode = req.query.m
 	if(mode == null || mode == ''){
 	mode = 0
-	}
+    }
 	mode = get_mode(mode)
     mod_conv(mods,response)
-    if(mods == null || mods == 0){
+    default_params = true
+    for(query in req.query){
+        if(req.query[query] == defaults[query]){
+        } else{
+            default_params = false
+        }
+    }
+    if(default_params){
+        res.json({
+            maps: mapCache,
+          });
+          return
+    } else if(mods == null || mods == 0){
         query = {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: mode} ]}}
 
      } else{
