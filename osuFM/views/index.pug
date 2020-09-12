@@ -6,10 +6,10 @@ block content
       span.h6 armers
       span.h1 M
       span.h6 arket
-  form(action='/',method='get')
-    input#mods(type='hidden', name='mods', value=response.params.mods)
+  form#filterForm(onsubmit="applyFilter()")
+    input#mods(type='hidden', name='mods', value=0)
     input#page(type='hidden', name='page', value=1)
-    input#mode(type='hidden', name='m', value=response.params.m)
+    input#mode(type='hidden', name='m', value=0)
     .container
     .row
       .col
@@ -21,46 +21,20 @@ block content
                 ul.navbar-nav.mr-auto
                   li.nav-item.dropdown
                     a#navbarDropdown.nav-link.dropdown-toggle(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                      =mode_map[response.params.m  == '' || response.params.m  == null ? 0 : response.params.m ]
+                      | Standard
                     .dropdown-menu(aria-labelledby='navbarDropdown',name='mode')
-                      a.dropdown-item(onclick="$('#mode').val(0)") Standard
-                      a.dropdown-item(onclick="$('#mode').val(1)") Taiko
-                      a.dropdown-item(onclick="$('#mode').val(2)") Catch the Beat
-                      a.dropdown-item(onclick="$('#mode').val(3)") Mania
+                      a.dropdown-item(onclick="$('#mode').val(0)" value=0) Standard
+                      a.dropdown-item(onclick="$('#mode').val(1)" value=1) Taiko
+                      a.dropdown-item(onclick="$('#mode').val(2)" value=2) Catch the Beat
+                      a.dropdown-item(onclick="$('#mode').val(3)" value=3) Mania
                       .dropdown-divider
                       a.dropdown-item(onclick="$('#mode').val(-1)") All
                   li.nav-item.dropdown
                     a.nav-link.dropdown-toggle(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
               .col
                   .my-lg-0.d-flex
-                    input.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' value = response.n name='n')
-                    button.btn.btn-outline-success(type='submit') Search
-
-        //- .input-group
-        //-   .input-group-btn.form-inline.d-flex.justify-content-center.md-form.form-sm.mt-0
-        //-     button.btn.btn-default.dropdown-toggle(type='button', data-toggle='dropdown', id="modes")
-        //-       span#search_concept Game Mode 
-        //-       span.caret
-        //-     ul.dropdown-menu(role='menu',name='mode')
-        //-       li(onclick="$('#mode').val(0)")
-        //-         a Standard
-        //-       li(onclick="$('#mode').val(1)")
-        //-         a Taiko
-        //-       li(onclick="$('#mode').val(2)")
-        //-         a Catch the Beat
-        //-       li(onclick="$('#mode').val(3)")
-        //-         a Mania
-        //-       li.divider
-        //-       li(onclick="$('#mode').val(-1)")
-        //-         a All
-        //-     button(type="button",data-toggle="collapse", data-target="#filters", id='filter').btn.btn-default Filters
-        //-   input#mods(type='hidden', name='mods', value=response.params.mods)
-        //-   input#page(type='hidden', name='page', value=1)
-        //-   input#mode(type='hidden', name='m', value=response.params.m)
-        //-   input.form-control(type='text', name='n', placeholder='Search Beatmaps...', value = response.n)
-        //-   span.input-group-btn
-        //-     button.btn.btn-default(type="submit")
-        //-       span.glyphicon.glyphicon-search
+                    input#searchBox.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' name='n')
+                    button#searchBtn.btn.btn-outline-success(type='submit') Search
     br
     .collapse#filters
       .container#mods
@@ -69,22 +43,22 @@ block content
           hr
           row
             label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=64, id='DT', checked= response.DT)
+              input.form-check-input(type='checkbox', value=64, id='DT')
               label.form-check-label(for='DT') Double Time
             label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=8, id='HD', checked= response.HD)
+              input.form-check-input(type='checkbox', value=8, id='HD')
               label.form-check-label(for='HD') Hidden
             label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=16, id='HR', checked= response.HR)
+              input.form-check-input(type='checkbox', value=16, id='HR')
               label.form-check-label(for='HR') Hard Rock
             label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=2, id='EZ', checked= response.EZ)
+              input.form-check-input(type='checkbox', value=2, id='EZ')
               label.form-check-label(for='EZ') Easy
             label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=1024, id='FL', checked= response.FL)
+              input.form-check-input(type='checkbox', value=1024, id='FL')
               label.form-check-label(for='FL') Flashlight
             label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=-1, id='NO', checked= response.NO)
+              input.form-check-input(type='checkbox', value=-1, id='NO')
               label.form-check-label(for='NO') Double Time
       .container#performance
         h4 PP options
@@ -92,26 +66,26 @@ block content
         .form-group.row
           .col-sm-2
             label Min PP
-            input.form-control(type='text', name='mpp', placeholder='Min PP', value=response.params.mpp)
+            input.form-control(type='text', name='mpp', placeholder='Min PP')
           .col-sm-2
             label Max PP
-            input.form-control(type='text', name='xpp', placeholder='Max PP', value=response.params.xpp)
+            input.form-control(type='text', name='xpp', placeholder='Max PP', value=MAX_SAFE_INTEGER)
       .container#options
         h4 Map Options
         hr
         .form-group.row
           .col-sm-2
             label Min Length(secs)
-            input.form-control(type='text', name='ml', placeholder='Min Length', value=response.params.ml)
+            input.form-control(type='text', name='ml', placeholder='Min Length')
           .col-sm-2
             label Max Length(secs)
-            input.form-control(type='text', name='xl', placeholder='Max Length', value=response.params.xl)
+            input.form-control(type='text', name='xl', placeholder='Max Length', value=MAX_SAFE_INTEGER)
           .col-sm-2
             label Min BPM
-            input.form-control(type='text', name='mb', placeholder='Min BPM',value=response.params.mb)
+            input.form-control(type='text', name='mb', placeholder='Min BPM')
           .col-sm-2
             label Max BPM
-            input.form-control(type='text', name='xb', placeholder='Max BPM', value=response.params.xb)
+            input.form-control(type='text', name='xb', placeholder='Max BPM', value=MAX_SAFE_INTEGER)
       .container#perfOptions
         h4 Map Difficulty Options
         hr
@@ -123,10 +97,10 @@ block content
             .row
               .col
                 label Min Stars
-                input.form-control(type='text', name='md', placeholder='Min Stars', value=response.params.ml)
+                input.form-control(type='text', name='md', placeholder='Min Stars', value=0)
               .col
                 label Max Stars
-                input.form-control(type='text', name='xd', placeholder='Max Stars', value=response.params.xl)
+                input.form-control(type='text', name='xd', placeholder='Max Stars', value=15)
           .col
             .row
               .col.text-center
@@ -134,32 +108,24 @@ block content
             .row
               .col
                 label Min AR
-                input.form-control(type='text', name='mar', placeholder='Min AR', value=response.params.mar)
+                input.form-control(type='text', name='mar', placeholder='Min AR', value=0)
               .col
                 label Max AR
-                input.form-control(type='text', name='xar', placeholder='Max AR', value=response.params.xar)
+                input.form-control(type='text', name='xar', placeholder='Max AR', value=11)
           .col
             .row
               .col.text-center
                 input#len_cs(type='text')
             .row
               .col
-                label  Min&nbsp
-                if response.params.m == 3
-                  label Keys
-                  input.form-control(type='text', name='mcs', placeholder='Min Keys', mode = response.params.m, value=response.params.mcs)
-                else 
-                  label CS
-                  input.form-control(type='text', name='mcs', placeholder='Min CS',  mode = response.params.m, value=response.params.mcs)
+                label#csLabelMin Min CS
+                input.form-control(type='text', name='mcs', placeholder='Min CS',  mode = 0, value=0)
               .col
-                label  Max&nbsp
-                if response.params.m == 3
-                  label Keys
-                  input.form-control(type='text', name='xcs', placeholder='Max Keys', mode = response.params.m, value=response.params.xcs)
-                else 
-                  label CS
-                  input.form-control(type='text', name='xcs', placeholder='Max CS', mode = response.params.m, value=response.params.xcs)
-
+                label#csLabelMax Max CS
+                input.form-control(type='text', name='xcs', placeholder='Max CS', mode = 0, value=10)
+      .container
+        .col.text-center
+          button#filterBtn.btn.btn-success(type='submit') Apply Filter
 
 
   div.table-responsive#table
@@ -177,33 +143,6 @@ block content
           th BPM
           th Stars
       tbody#data_body
-        each map, i in maps
-          tr
-            td
-              p= offset + i + 1
-            td
-              a(href='https://osu.ppy.sh/b/'+map.bid)
-                img(src= 'https://b.ppy.sh/thumb/' + map.sid + ".jpg")
-            td 
-              a(href='https://osu.ppy.sh/b/'+map.bid) #{map.artist} - #{map.name} [#{map.version}]
-              if map.mode == 3
-                p.text-muted.small= "Keys: " + map.cs
-              else if map.mode == 0 || map.mode == 2
-                p.text-muted.small= "AR: " + (map.ar).toFixed(1) + " CS: " + (map.cs).toFixed(2)+ " OD: " + (map.od).toFixed(2)
-            td
-              b= (100*map.score).toFixed(2)
-            td
-              p= (map.avg_pp).toFixed(2)
-            td
-              p= (100*map.avg_acc).toFixed(2) + "%"
-            td
-              p= map.mod
-            td
-              p= map.length
-            td
-              p= (map.bpm).toFixed(2)
-            td
-              p= (map.diff).toFixed(2)
   div.text-center#pages
   script.
     $(':checkbox').change(function () {
@@ -217,20 +156,120 @@ block content
       $('#mods').val(value)
    });
 
-    $('#pages').bootpag({
-   total: #{pages},
-   page: #{current_page},
-   maxVisible: 10
-    }).on('page', function(event, num){
-        $('#page').val(num)
-        $('form').submit();
+    $('#pages').bootpag().on('page', function(event, num){
+          if(filter_on){
+            fillTable(map_data_filter, num)
+          } else{
+            fillTable(map_data, num)
+          }
+
+          $('#page').val(num)
+      });
+
+   var max_per_page = 10
+   var map_data = null
+   var map_data_filter = null
+   var filter_on = false
+
+   function getTableData(num){
+     filter_on = false
+      $.get( "filter?" + $('#filterForm').serialize(), function(data, status) {
+        map_data = data.maps
+      fillTable(data.maps, num)
+
+    })
+      .fail(function(data, status) {
+        console.log(data.responseText)
+      })
+   }
+
+
+
+    document.getElementById("filterBtn").addEventListener("click", function(event){
+      event.preventDefault()
+    });
+    document.getElementById("searchBtn").addEventListener("click", function(event){
+      event.preventDefault()
+    });
+    
+    $('#searchBox').on('input', function(data) {
+      
+      map_data_filter = []
+      if($('#searchBox').val() == ''){
+        filter_on = false
+      } else{
+        filter_on = true
+      }
+        for(m_id in map_data){
+          if($('#searchBox').val() == '' || (map_data[m_id].all_title).includes($('#searchBox').val().toLowerCase())){
+            map_data_filter.push(map_data[m_id])
+          }
+        }
+
+      var map_slice = (map_data_filter).slice(0, max_per_page )
+      var tableData = ""
+      for(m in map_slice){
+        var pos = parseInt(m)+1
+        tableData += '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice[m].sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '">' + map_slice[m].artist  + ' - ' +  map_slice[m].name +  ' [' + map_slice[m].version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice[m].ar).toFixed(1) + ' CS: ' + (map_slice[m].cs).toFixed(2) +  ' OD: ' + (map_slice[m].od).toFixed(2) + '</p></td><td><b>' + (map_slice[m].score*100).toFixed(2) + '</b></td><td><p>' + (map_slice[m].avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice[m].avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice[m].pop_mod + '</p></td><td><p>' + map_slice[m].length + '</p></td><td><p>' + (map_slice[m].bpm).toFixed(2) + '</p></td><td><p>' + (map_slice[m].diff).toFixed(2) + '</p></td></tr>';
+      }
+
+
+      $("#data_body").empty()
+      $('#data_body').append(tableData)
+      $('#pages').bootpag({
+    total: Math.ceil(map_data_filter.length / max_per_page),
+    page: 1,
+    maxVisible: 10
+      });
+
+    });
+    
+
+    function fillTable(data, page){
+      page -= 1
+      $("#data_body").empty()
+      var map_slice = (data).slice(page*max_per_page, (page+1)*max_per_page )
+      console.log(map_slice)
+      var tableData = ""
+      for(m in map_slice){
+        var pos = page*max_per_page + parseInt(m)+1
+        tableData += '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice[m].sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '">' + map_slice[m].artist  + ' - ' +  map_slice[m].name +  ' [' + map_slice[m].version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice[m].ar).toFixed(1) + ' CS: ' + (map_slice[m].cs).toFixed(2) +  ' OD: ' + (map_slice[m].od).toFixed(2) + '</p></td><td><b>' + (map_slice[m].score*100).toFixed(2) + '</b></td><td><p>' + (map_slice[m].avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice[m].avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice[m].pop_mod + '</p></td><td><p>' + map_slice[m].length + '</p></td><td><p>' + (map_slice[m].bpm).toFixed(2) + '</p></td><td><p>' + (map_slice[m].diff).toFixed(2) + '</p></td></tr>';
+      }
+      $('#data_body').append(tableData)
+      console.log("TOTAL PAGES " + (data).length / max_per_page)
+      $('#pages').bootpag({
+    total: Math.ceil((data).length / max_per_page),
+    page: page+1,
+    maxVisible: 10
+      });
+
+    }
+
+    $( "#filterBtn" ).click(function() {
+      getTableData(1)
     });
 
     $("[name='mode'] a.dropdown-item").click( function() {
     mode = $(this).text();
     var y = document.getElementById('modes');
     $("#navbarDropdown").text(mode);
+    if($(this).val() == 3){
+      $("#csLabelMin").text("Min Keys")
+      $("#csLabelMax").text("Max Keys")
+      $("#len_cs").slider({ min: 0, max: 10, step: 1, focus: true, formatter: function(value) {
+      return value[0] + ' Key' + '  -  ' + value[1] + ' Key';} });
+      $("#len_cs").slider('refresh', { useCurrentValue: true });
+    } else{
+      $("#csLabelMin").text("Min CS")
+      $("#csLabelMax").text("Max CS")
+      $("#len_cs").slider({ min: 0, max: 10, step: 0.1, value: [0, 10], focus: true, formatter: function(value) {
+      return "CS " +value[0] + '  -  ' + "CS " + value[1];} });
+      $("#len_cs").slider('refresh', { useCurrentValue: true });
+    }
+    getTableData(1)
     });
+
+
     $("#len_diff").slider({ min: 0, max: 15, step: 0.1, value: [0, 15], focus: true,formatter: function(value) {
     return value[0] + '★' + '  -  ' + value[1] + '★';} });
     $("#len_ar").slider({ min: 0, max: 11, step: 0.1, value: [0, 11], focus: true,formatter: function(value) {

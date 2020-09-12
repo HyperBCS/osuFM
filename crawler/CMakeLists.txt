@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(test)
 
 set(CMAKE_BUILD_TYPE Debug)
+add_compile_options(-Wall -Wextra -pedantic)
 
 find_package(cpr CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)

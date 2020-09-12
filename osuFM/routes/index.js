@@ -157,6 +157,13 @@ var str_time = function(length){
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
+    res.render('index', {
+      title: 'osuFM'
+    });
+});
+
+/* GET filter page. */
+router.get('/filter', function(req, res, next) {
 	mods = req.query.mods
     console.log("MODS2 " + mods)
 	mods_o = mods
@@ -202,7 +209,7 @@ router.get('/', function(req, res, next) {
 	mode = get_mode(mode)
     mod_conv(mods,response)
     if(mods == null || mods == 0){
-        query = {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}
+        query = {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}}
     } else{
         query_mod = mods
         if(query_mod == -1){
@@ -210,24 +217,23 @@ router.get('/', function(req, res, next) {
         } else if(query_mod % 2 != 0){
             query_mod += 1
         }
-        query =  {order: [['score', 'DESC']], where: {diff2: {[Op.and]: [Sequelize.literal("pop_mod == " + query_mod)]}, diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}, limit: limit, offset: offset}
+        query =  {order: [['score', 'DESC']], where: {diff2: {[Op.and]: [Sequelize.literal("pop_mod == " + query_mod)]}, diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}}
     }
-  models.Beatmap.findAndCountAll(query).then(function(maps) {
-    for(m in maps.rows){
-		maps.rows[m].length = str_time(maps.rows[m].length)
-		maps.rows[m].mod = intToMods(maps.rows[m].pop_mod)
-    	if(maps.rows[m].pop_mod == ''){
-    		maps.rows[m].mod = 'No Mod'
-    	}
-    }
-    res.render('index', {
-      title: 'osuFM',
-      pages:  Math.ceil(maps.count / 10),
-      offset: offset,
-      current_page: page,
-      maps: maps.rows,
-      mode_map: ["Standard", "Taiko", "Catch the Beat", "Mania"],
-      response: response
+    map_ret = []
+    models.Beatmap.findAndCountAll(query).then(function(maps) {
+        for(m in maps.rows){
+            m_json = maps.rows[m].toJSON()
+            m_json.all_title = (maps.rows[m].artist + " " + maps.rows[m].name + " " + maps.rows[m].version + " " + maps.rows[m].mapper).toLowerCase()
+            m_json.length = str_time(maps.rows[m].length)
+            m_json.pop_mod = intToMods(maps.rows[m].pop_mod)
+            if(m_json.pop_mod == ''){
+                m_json.pop_mod = 'No Mod'
+            }
+            map_ret.push(m_json)
+        }
+
+    res.json({
+      maps: map_ret,
     });
   }).catch(function (err) {
   		  console.error(err.stack)

@@ -317,7 +317,7 @@ std::string getURL(std::string url, std::string auth_string, bool checkJson){
             tries--;
             unsigned int microseconds = rand() % 1000000;
             usleep(microseconds);
-            std::cout << "Retry...\n";
+            std::cout << "[" << r.status_code << "]" << "[" << (100 - tries) << "]" <<"Retry... " << url << std::endl;
             if(tries == 0){
                 std::cout << "BAD DATA\n";
                 exit(-1);
@@ -343,7 +343,6 @@ void processMaps(std::vector<Beatmap *> &processed_maps){
     // key is map id
     std::unordered_map<int, std::unordered_map<int, std::vector<Score>>> map_map_scores;
     std::unordered_map<int, int> map_score_num;
-    int map_scores = 0;
     for(auto score : scores){
         if(map_map_scores.count(score.map_id) == 0){
             std::unordered_map<int, std::vector<Score>> map_scores;
@@ -475,10 +474,6 @@ void createInsert(Beatmap * map,sqlite3_stmt ** stmt, sqlite3 *db, char * title,
     bzero(sql,1000);
     snprintf(sql, 1000,"REPLACE INTO 'main'.'beatmaps'('bid','sid','name','artist','mapper','num_scores','pop_mod','avg_pp','avg_acc','avg_rank','avg_pos','mode','cs','ar','od','length','bpm','diff','version','score','calculated') VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);");
     int rc = sqlite3_prepare_v2(db, sql, -1, stmt, 0);
-    // std::string query = "REPLACE INTO 'main'.'beatmaps'('bid','sid','name','artist','mapper','num_scores','pop_mod','avg_pp','avg_acc','avg_rank','avg_pos','mode','cs','ar','od','length','bpm','diff','version','score','calculated')" \
-    //  "VALUES ('" +  std::to_string(map.id) + "','" + std::to_string(map.set_id) + "','" +map.title + "','" +map.artist + "','" +map.mapper + "','" + std::to_string(map.num_scores) + "','" + std::to_string(map.pop_mod) + "','" + std::to_string(map.avg_pp) + "','" + std::to_string(map.avg_acc) \
-    //  + "','" + std::to_string(map.avg_rank) + "','" + std::to_string(map.avg_pos) + "','" + std::to_string(map.mode) + "','" + std::to_string(map.cs) + "','" + std::to_string(map.ar) + "','" + std::to_string(map.od) + "','" + std::to_string(map.length) + "','" + std::to_string(map.bpm) + "','" \
-    //  + std::to_string(map.diff) + "','" + map.version + "','"+ std::to_string(map.score) + "','" + "1" + "'" + ");";
 
     sqlite3_bind_int(*stmt, 1, map->id);
     sqlite3_bind_int(*stmt, 2, map->set_id);
@@ -510,7 +505,6 @@ void createInsert(Beatmap * map,sqlite3_stmt ** stmt, sqlite3 *db, char * title,
 
 void updateDB(std::vector<Beatmap *> &maps){
    sqlite3 *db;
-   char *zErrMsg = 0;
    int rc;
 
    rc = sqlite3_open("osuFM.db", &db);
@@ -677,7 +671,7 @@ void getUserData(json * j, std::string auth_string, int user_id, std::string mod
 
 }
 
-int main(int argc, char** argv) {
+int main() {
     srand (time(NULL));
     std::vector<Beatmap *> new_maps;
     populateFromDB(new_maps);
@@ -688,10 +682,7 @@ int main(int argc, char** argv) {
 
     cpr::Response r = cpr::Post(cpr::Url{"https://osu.ppy.sh/oauth/token"},
                       cpr::Header{{"Content-Type", "application/json"}},
-                      cpr::Body{j.dump()});
-    r.status_code;                  // 200
-    r.header["content-type"];       // application/json; charset=utf-8
-    r.text;                         // JSON text string
+                      cpr::Body{j.dump()});                     // JSON text string
     json auth = json::parse(r.text);
 
     std::string access_token = auth["access_token"];
@@ -707,9 +698,6 @@ int main(int argc, char** argv) {
         for(int i = 1;i <= max_pages;i++){
         std::cout << "Starting page [" << i << "/" << max_pages << "]\n";
 
-
-
-        int tries = 100;
         std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + std::to_string(i) + "&country=" + country;
         json users = json::parse(getURL(url, auth_string, true))["ranking"];
 
