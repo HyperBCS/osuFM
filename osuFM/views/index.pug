@@ -167,6 +167,7 @@ block content
         a.dropdown-item(num=25) 25
         a.dropdown-item(num=50) 50
         a.dropdown-item(num=100) 100
+        a.dropdown-item(num=250) 250
   script.
     $(':checkbox').change(function () {
       var DT = parseInt($('#DT').is(':checked') ? $('#DT').val() : 0);
@@ -279,7 +280,7 @@ block content
       $('#pages').bootpag({
     total: Math.ceil(map_data_filter.length / max_per_page),
     page: 1,
-    maxVisible: 10
+    maxVisible: 5
       });
 
     });
@@ -298,7 +299,7 @@ block content
       $('#pages').bootpag({
     total: Math.ceil((data).length / max_per_page),
     page: page+1,
-    maxVisible: 10
+    maxVisible: 5
       });
 
     }
