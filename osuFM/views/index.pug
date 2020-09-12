@@ -7,13 +7,17 @@ block content
       span.h1 M
       span.h6 arket
   form#filterForm(onsubmit="applyFilter()")
-    input#mods(type='hidden', name='mods', value=0)
-    input#page(type='hidden', name='page', value=1)
-    input#mode(type='hidden', name='m', value=0)
+    input#mods(style="display:none", name='mods', value=0)
+    input#page(style="display:none", name='page', value=1)
+    input#ml(style="display:none", name='ml', value=0)
+    input#xl(style="display:none", name='xl', value=Number.MAX_SAFE_INTEGER)
+    input#mode(style="display:none", name='m', value=0)
     .container
     .row
       .col
         nav.navbar.navbar-expand-lg.navbar-light.bg-light
+            .col.d-flex.d-none.d-md-block.d-lg-none
+                  input#searchBox1.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' name='n')
             button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
               span.navbar-toggler-icon
             #navbarSupportedContent.collapse.navbar-collapse
@@ -23,18 +27,17 @@ block content
                     a#navbarDropdown.nav-link.dropdown-toggle(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
                       | Standard
                     .dropdown-menu(aria-labelledby='navbarDropdown',name='mode')
-                      a.dropdown-item(onclick="$('#mode').val(0)" value=0) Standard
-                      a.dropdown-item(onclick="$('#mode').val(1)" value=1) Taiko
-                      a.dropdown-item(onclick="$('#mode').val(2)" value=2) Catch the Beat
-                      a.dropdown-item(onclick="$('#mode').val(3)" value=3) Mania
+                      a.dropdown-item(onclick="$('#mode').val(0)" mode=0) Standard
+                      a.dropdown-item(onclick="$('#mode').val(1)" mode=1) Taiko
+                      a.dropdown-item(onclick="$('#mode').val(2)" mode=2) Catch the Beat
+                      a.dropdown-item(onclick="$('#mode').val(3)" mode=3) Mania
                       .dropdown-divider
                       a.dropdown-item(onclick="$('#mode').val(-1)") All
                   li.nav-item.dropdown
                     a.nav-link.dropdown-toggle(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
-              .col
+              .col.d-none.d-lg-block
                   .my-lg-0.d-flex
-                    input#searchBox.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' name='n')
-                    button#searchBtn.btn.btn-outline-success(type='submit') Search
+                    input#searchBox2.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' name='n')
     br
     .collapse#filters
       .container#mods
@@ -64,26 +67,34 @@ block content
         h4 PP options
         hr
         .form-group.row
-          .col-sm-2
+          .col
             label Min PP
             input.form-control(type='text', name='mpp', placeholder='Min PP')
-          .col-sm-2
+          .col
             label Max PP
             input.form-control(type='text', name='xpp', placeholder='Max PP', value=MAX_SAFE_INTEGER)
       .container#options
         h4 Map Options
         hr
         .form-group.row
-          .col-sm-2
-            label Min Length(secs)
-            input.form-control(type='text', name='ml', placeholder='Min Length')
-          .col-sm-2
-            label Max Length(secs)
-            input.form-control(type='text', name='xl', placeholder='Max Length', value=MAX_SAFE_INTEGER)
-          .col-sm-2
+          .col-12.col-lg-3
+            label Min Length
+            #min_len.input-group.date(data-target-input='nearest')
+              input.form-control.datetimepicker-input(type='text' data-target='#min_len')
+              .input-group-append(data-target='#min_len' data-toggle='datetimepicker' )
+                .input-group-text
+                  i.fa.fa-clock
+          .col-12.col-lg-3
+            label Max Length
+            #max_len.input-group.date(data-target-input='nearest')
+              input.form-control.datetimepicker-input(type='text' data-target='#max_len')
+              .input-group-append(data-target='#max_len' data-toggle='datetimepicker' )
+                .input-group-text
+                  i.fa.fa-clock
+          .col-6.col-lg-3
             label Min BPM
             input.form-control(type='text', name='mb', placeholder='Min BPM')
-          .col-sm-2
+          .col-6.col-lg-3
             label Max BPM
             input.form-control(type='text', name='xb', placeholder='Max BPM', value=MAX_SAFE_INTEGER)
       .container#perfOptions
@@ -125,7 +136,8 @@ block content
                 input.form-control(type='text', name='xcs', placeholder='Max CS', mode = 0, value=10)
       .container
         .col.text-center
-          button#filterBtn.btn.btn-success(type='submit') Apply Filter
+          button#filterBtn.btn.btn-success.mr-sm-2(type='submit') Apply Filter
+          button#resetBtn.btn.btn-warning(type='submit') Reset Filter
 
 
   div.table-responsive#table
@@ -143,7 +155,18 @@ block content
           th BPM
           th Stars
       tbody#data_body
-  div.text-center#pages
+  .row
+    .col-auto
+      div.text-center#pages
+    .col
+      .dropdown
+      button#pageNum.btn.btn-secondary.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+        | Maps Per Page
+      .dropdown-menu#dropdownMenuButton(aria-labelledby='dropdownMenuButton')
+        a.dropdown-item(num=10) 10
+        a.dropdown-item(num=25) 25
+        a.dropdown-item(num=50) 50
+        a.dropdown-item(num=100) 100
   script.
     $(':checkbox').change(function () {
       var DT = parseInt($('#DT').is(':checked') ? $('#DT').val() : 0);
@@ -188,20 +211,57 @@ block content
     document.getElementById("filterBtn").addEventListener("click", function(event){
       event.preventDefault()
     });
-    document.getElementById("searchBtn").addEventListener("click", function(event){
+    document.getElementById("resetBtn").addEventListener("click", function(event){
       event.preventDefault()
     });
+
+    $(function () {
+        $('#min_len').datetimepicker({
+            defaultDate: new Date(0, 0, 0, 0, 0, 0, 0),
+            format: 'HH:mm:ss'
+        });
+    });
+
+    $(function () {
+        $('#max_len').datetimepicker({
+            defaultDate: new Date(0, 0, 0, 0, 0, 0, 0),
+            format: 'HH:mm:ss'
+        });
+
+    $("#min_len").on("change.datetimepicker", (e) => {
+                var time = $('#min_len').datetimepicker('viewDate')
+                var secs = time.hour() * 3600 + time.minute() * 60 + time.seconds()
+                $("#ml").val(secs)
+            });
+
+    $("#max_len").on("change.datetimepicker", (e) => {
+                var time = $('#max_len').datetimepicker('viewDate')
+                var secs = time.hour() * 3600 + time.minute() * 60 + time.seconds()
+                $("#xl").val(secs)
+            });
+
+
+    });
+
+    function genTableHTML(pos, map_slice){
+      if(map_slice.mode == 3){
+        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' Key: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><b>' + (map_slice.score*100).toFixed(2) + '</b></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+    } else{
+       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><b>' + (map_slice.score*100).toFixed(2) + '</b></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+
+    }
+    }
     
-    $('#searchBox').on('input', function(data) {
-      
+    $('#searchBox1, #searchBox2').on('input', function(data) {
+      var searchBox = data.target
       map_data_filter = []
-      if($('#searchBox').val() == ''){
+      if($(searchBox).val() == ''){
         filter_on = false
       } else{
         filter_on = true
       }
         for(m_id in map_data){
-          if($('#searchBox').val() == '' || (map_data[m_id].all_title).includes($('#searchBox').val().toLowerCase())){
+          if($(searchBox).val() == '' || (map_data[m_id].all_title).includes($(searchBox).val().toLowerCase())){
             map_data_filter.push(map_data[m_id])
           }
         }
@@ -210,7 +270,7 @@ block content
       var tableData = ""
       for(m in map_slice){
         var pos = parseInt(m)+1
-        tableData += '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice[m].sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '">' + map_slice[m].artist  + ' - ' +  map_slice[m].name +  ' [' + map_slice[m].version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice[m].ar).toFixed(1) + ' CS: ' + (map_slice[m].cs).toFixed(2) +  ' OD: ' + (map_slice[m].od).toFixed(2) + '</p></td><td><b>' + (map_slice[m].score*100).toFixed(2) + '</b></td><td><p>' + (map_slice[m].avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice[m].avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice[m].pop_mod + '</p></td><td><p>' + map_slice[m].length + '</p></td><td><p>' + (map_slice[m].bpm).toFixed(2) + '</p></td><td><p>' + (map_slice[m].diff).toFixed(2) + '</p></td></tr>';
+        tableData += genTableHTML(pos, map_slice[m])
       }
 
 
@@ -229,14 +289,12 @@ block content
       page -= 1
       $("#data_body").empty()
       var map_slice = (data).slice(page*max_per_page, (page+1)*max_per_page )
-      console.log(map_slice)
       var tableData = ""
       for(m in map_slice){
         var pos = page*max_per_page + parseInt(m)+1
-        tableData += '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice[m].sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice[m].bid + '">' + map_slice[m].artist  + ' - ' +  map_slice[m].name +  ' [' + map_slice[m].version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice[m].ar).toFixed(1) + ' CS: ' + (map_slice[m].cs).toFixed(2) +  ' OD: ' + (map_slice[m].od).toFixed(2) + '</p></td><td><b>' + (map_slice[m].score*100).toFixed(2) + '</b></td><td><p>' + (map_slice[m].avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice[m].avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice[m].pop_mod + '</p></td><td><p>' + map_slice[m].length + '</p></td><td><p>' + (map_slice[m].bpm).toFixed(2) + '</p></td><td><p>' + (map_slice[m].diff).toFixed(2) + '</p></td></tr>';
+        tableData += genTableHTML(pos, map_slice[m])
       }
       $('#data_body').append(tableData)
-      console.log("TOTAL PAGES " + (data).length / max_per_page)
       $('#pages').bootpag({
     total: Math.ceil((data).length / max_per_page),
     page: page+1,
@@ -249,11 +307,35 @@ block content
       getTableData(1)
     });
 
+    $( "#resetBtn" ).click(function() {
+      filter_on = false
+      var curr_mod = $("[name='m']").val()
+       $("#len_diff").slider('setValue', [0,15] )
+       $("#len_ar").slider('setValue', [0,11] )
+      $("#len_cs").slider('setValue', [0,10] )
+      $('#filterForm').trigger("reset");
+      $("[name='m']").val(curr_mod)
+        $('#min_len').datetimepicker('date',new Date(0, 0, 0, 0, 0, 0, 0));
+        $('#max_len').datetimepicker('date',new Date(0, 0, 0, 0, 0, 0, 0));
+      $("#xl").val(Number.MAX_SAFE_INTEGER)
+      getTableData(1)
+    });
+
+    $("#dropdownMenuButton a.dropdown-item").click( function() {
+      max_per_page = $(this).attr("num")
+      $("#pageNum").text(max_per_page)
+      if(filter_on){
+        fillTable(map_data_filter, 1)
+      } else{
+        fillTable(map_data, 1)
+      }
+    });
+
     $("[name='mode'] a.dropdown-item").click( function() {
     mode = $(this).text();
     var y = document.getElementById('modes');
     $("#navbarDropdown").text(mode);
-    if($(this).val() == 3){
+    if($(this).attr("mode") == 3){
       $("#csLabelMin").text("Min Keys")
       $("#csLabelMax").text("Max Keys")
       $("#len_cs").slider({ min: 0, max: 10, step: 1, focus: true, formatter: function(value) {

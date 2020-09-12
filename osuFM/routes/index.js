@@ -8,9 +8,38 @@ var Sequelize = require('sequelize');
 //   res.render('index', { title: 'osuFM' });
 // });
 
+
+
+
+
+
+
+function getMapCache(){
+    query = {order: [['score', 'DESC']]}
+    map_ret = []
+    models.Beatmap.findAndCountAll(query).then(function(maps) {
+        for(m in maps.rows){
+            m_json = maps.rows[m].toJSON()
+            m_json.all_title = (maps.rows[m].artist + " " + maps.rows[m].name + " " + maps.rows[m].version + " " + maps.rows[m].mapper).toLowerCase()
+            m_json.length = str_time(maps.rows[m].length)
+            m_json.pop_mod = intToMods(maps.rows[m].pop_mod)
+            if(m_json.pop_mod == ''){
+                m_json.pop_mod = 'None'
+            }
+            map_ret.push(m_json)
+        }
+    });
+    return map_ret;
+
+}
+
+var mapCache = getMapCache();
+
+
+
 var mod_conv = function(mods, response){
+    console.log("Loading cache")
 	mod_nums = {"NF": 1, "EZ": 2, "NoVideo": 4, "HD": 8, "HR": 16, "SD": 32, "DT": 64, "Relax": 128, "HT": 256, "NC": 512, "FL": 1024, "Autoplay": 2048, "SO": 4096, "Relax2": 8192, "PF": 16384, "Key4": 32768, "Key5": 65536, "Key6": 131072, "Key7": 262144, "Key8": 524288, "FadeIn": 1048576, "Random": 2097152, "LastMod": 4194304, "Key9": 16777216, "Key10": 33554432, "Key1": 67108864, "Key3": 134217728, "Key2": 268435456}
-    console.log("MOD HERE" + mods)
     if(mods < 0){
 		response['NO'] = true
         return
@@ -22,7 +51,8 @@ var mod_conv = function(mods, response){
 		if((mod_nums[mod] & mods) != 0){
 			response[mod] = true
 		}
-	}
+    }
+    console.log("Done loading cache")
 }
 
 var intToMods = function(mod_int){
@@ -165,7 +195,6 @@ router.get('/', function(req, res, next) {
 /* GET filter page. */
 router.get('/filter', function(req, res, next) {
 	mods = req.query.mods
-    console.log("MODS2 " + mods)
 	mods_o = mods
 	if(mods == null || mods == ''){
 		mods = 0
@@ -209,15 +238,18 @@ router.get('/filter', function(req, res, next) {
 	mode = get_mode(mode)
     mod_conv(mods,response)
     if(mods == null || mods == 0){
-        query = {order: [['score', 'DESC']], where: {diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}}
-    } else{
+        res.json({
+            maps: mapCache,
+          });
+        return
+     } else{
         query_mod = mods
         if(query_mod == -1){
             query_mod = 0;
         } else if(query_mod % 2 != 0){
             query_mod += 1
         }
-        query =  {order: [['score', 'DESC']], where: {diff2: {[Op.and]: [Sequelize.literal("pop_mod == " + query_mod)]}, diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: [{name: {[Op.like]: name}}, {artist: {[Op.like]: name}}, {mapper: {[Op.like]: name}}, {version: {[Op.like]: name}}]},{[Op.or]: mode} ]}}
+        query =  {order: [['score', 'DESC']], where: {diff2: {[Op.and]: [Sequelize.literal("pop_mod == " + query_mod)]}, diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: mode} ]}}
     }
     map_ret = []
     models.Beatmap.findAndCountAll(query).then(function(maps) {
@@ -227,11 +259,10 @@ router.get('/filter', function(req, res, next) {
             m_json.length = str_time(maps.rows[m].length)
             m_json.pop_mod = intToMods(maps.rows[m].pop_mod)
             if(m_json.pop_mod == ''){
-                m_json.pop_mod = 'No Mod'
+                m_json.pop_mod = 'None'
             }
             map_ret.push(m_json)
         }
-
     res.json({
       maps: map_ret,
     });

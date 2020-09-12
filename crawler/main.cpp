@@ -390,11 +390,12 @@ void processMaps(std::vector<Beatmap *> &processed_maps){
                 continue;
             }
             float top_mods = 1.0 * count_pos / count_mod;
+            float mod_scale = log(count_mod) / log(num_scores);
             avg_pp /= count_mod;
             avg_rank /= count_mod;
             avg_pos /= count_mod;
             avg_acc /= count_mod;
-            float scaled_pos = num_scores * top_mods;
+            float scaled_pos = num_scores * top_mods * mod_scale;
             float ci_score = ci(scaled_pos, num_scores);
             Beatmap * new_map = new Beatmap;
             *new_map = *map.second;
