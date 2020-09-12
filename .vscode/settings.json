@@ -15,7 +15,8 @@
 		"vcpkg",
 		"osuFM.db",
 		"node_modules"
-	]
+	],
+	"python.pythonPath": "C:\\Users\\BCS14\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
 
 
 }

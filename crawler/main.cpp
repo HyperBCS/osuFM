@@ -300,7 +300,7 @@ void parseScore(json score, json user, int pos){
 }
 
 float ci(float pos,int n){
-    float z = 3.5;
+    float z = 1.96;
     float phat = 1.0* pos / n;
     return (phat + z*z/(2*n) - z * sqrt((phat*(1-phat)+z*z/(4*n))/n))/(1+z*z/n);
 }
@@ -339,7 +339,7 @@ std::string getURL(std::string url, std::string auth_string, bool checkJson){
 
 
 void processMaps(std::vector<Beatmap *> &processed_maps){
-    float threshold = 0.66;
+    float threshold = 0.75;
     // key is map id
     std::unordered_map<int, std::unordered_map<int, std::vector<Score>>> map_map_scores;
     std::unordered_map<int, int> map_score_num;
@@ -377,24 +377,26 @@ void processMaps(std::vector<Beatmap *> &processed_maps){
             float avg_rank = 0;
             float avg_pos = 0;
             float avg_acc = 0;
+            long pos_sum = 0;
             int count_mod = mod_list.second.size();
             float count_pos = 0;
             for(auto score : mod_list.second){
                 count_pos += 1 - (score.pos / 100.0);
-                avg_pp += score.map_pp;
-                avg_pos += score.pos;
-                avg_rank += score.rank;
-                avg_acc += score.acc;
+                pos_sum += (101 - score.pos);
+                avg_pp += score.map_pp * (101 - score.pos);
+                avg_pos += score.pos * (101 - score.pos);
+                avg_rank += score.rank * (101 - score.pos);
+                avg_acc += score.acc * (101 - score.pos);
             }
             if(count_pos < 50 || (count_pos / count_mod < threshold)){
                 continue;
             }
             float top_mods = 1.0 * count_pos / count_mod;
             float mod_scale = log(count_mod) / log(num_scores);
-            avg_pp /= count_mod;
-            avg_rank /= count_mod;
-            avg_pos /= count_mod;
-            avg_acc /= count_mod;
+            avg_pp /= pos_sum;
+            avg_rank /= pos_sum;
+            avg_pos /= pos_sum;
+            avg_acc /= pos_sum;
             float scaled_pos = num_scores * top_mods * mod_scale;
             float ci_score = ci(scaled_pos, num_scores);
             Beatmap * new_map = new Beatmap;
@@ -407,7 +409,7 @@ void processMaps(std::vector<Beatmap *> &processed_maps){
                 }
             }
             new_map->pop_mod = mod_list.first;
-            new_map->num_scores = num_scores;
+            new_map->num_scores = count_mod;
             new_map->avg_pp = avg_pp;
             new_map->avg_acc = avg_acc;
             new_map->avg_rank = avg_rank;
@@ -692,11 +694,12 @@ int main() {
     for(auto mode : modes){
     std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/country";
     json countries = json::parse(getURL(url, auth_string, true))["ranking"];
-
     for(auto country_obj : countries){
+        bool reached100k = false;
         std::string country = country_obj["code"];
         std::cout << "Starting country [" << country << "]\n";
         for(int i = 1;i <= max_pages;i++){
+        if(reached100k){ break;}
         std::cout << "Starting page [" << i << "/" << max_pages << "]\n";
 
         std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + std::to_string(i) + "&country=" + country;
@@ -707,8 +710,16 @@ int main() {
         std::vector<std::thread> thread_list;
         for (json::iterator it = users.begin(); it != users.end(); ++it) {
             json * j = new json;
-            
             int user_id = (*it)["user"]["id"];
+            try{
+                if((*it)["pp_rank"] > 100000){
+                    reached100k = true;
+                    break;
+                }
+            } catch(std::exception &e){
+                std::cout << "Null values for " << (*it)["user"]["username"] << std::endl;
+                continue;
+            }
             user_score_map[user_id] = j;
             user_map[user_id] = (*it);
             std::thread cpr_thread (getUserData,j, auth_string,user_id, mode );

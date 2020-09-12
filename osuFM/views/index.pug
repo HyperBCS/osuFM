@@ -199,6 +199,9 @@ block content
      filter_on = false
       $.get( "filter?" + $('#filterForm').serialize(), function(data, status) {
         map_data = data.maps
+          for(m in map_data){
+          map_data[m].all_title = (map_data[m].artist + " " + map_data[m].name + " " + map_data[m].version + " " + map_data[m].mapper).toLowerCase()
+        }
       fillTable(data.maps, num)
 
     })

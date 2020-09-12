@@ -16,12 +16,12 @@ var Sequelize = require('sequelize');
 
 function getMapCache(){
     console.log("Loading cache")
-    query = {order: [['score', 'DESC']]}
+    query = {order: [['score', 'DESC']], where: {mode: {[Op.eq]: 0}}}
     map_ret = []
     models.Beatmap.findAndCountAll(query).then(function(maps) {
         for(m in maps.rows){
             m_json = maps.rows[m].toJSON()
-            m_json.all_title = (maps.rows[m].artist + " " + maps.rows[m].name + " " + maps.rows[m].version + " " + maps.rows[m].mapper).toLowerCase()
+            
             m_json.length = str_time(maps.rows[m].length)
             m_json.pop_mod = intToMods(maps.rows[m].pop_mod)
             if(m_json.pop_mod == ''){
