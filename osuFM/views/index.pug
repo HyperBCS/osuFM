@@ -9,6 +9,7 @@ block content
         span.h6 arket
     form#filterForm(onsubmit="applyFilter()")
       input#mods(style="display:none", name='mods', value=0)
+      input#modsMaybe(style="display:none", name='modsMaybe', value=0)
       input#page(style="display:none", name='page', value=1)
       input#ml(style="display:none", name='ml', value=0)
       input#xl(style="display:none", name='xl', value=Number.MAX_SAFE_INTEGER)
@@ -69,11 +70,11 @@ block content
           .form-group.row
             .col
               .md-form
-                input.form-control(type='text', name='mpp', id="mpp")
+                input.form-control(type='number', name='mpp', id="mpp" min=0)
                 label(for="mpp") Min PP
             .col
               .md-form
-                input.form-control(type='text', name='xpp', value=MAX_SAFE_INTEGER, id="xpp")
+                input.form-control(type='number', name='xpp', value=MAX_SAFE_INTEGER, id="xpp" min=0)
                 label(for="xpp") Max PP
         .container#options
           h4 Map Options
@@ -94,11 +95,11 @@ block content
                     i.fa.fa-clock
             .col-6.col-lg-3
               .md-form
-                input.form-control(type='text', name='mb', id="mb")
+                input.form-control(type='number', name='mb', id="mb" min=0)
                 label(for="mb") Min BPM
             .col-6.col-lg-3
               .md-form
-                input.form-control(type='text', name='xb', value=MAX_SAFE_INTEGER, id="xb")
+                input.form-control(type='number', name='xb', value=MAX_SAFE_INTEGER, id="xb" min=0)
                 label(for="xb") Max BPM
         .container#perfOptions
           h4 Map Difficulty Options
@@ -110,11 +111,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='text', name='md', value=0, id="md")
+                    input.form-control(type='number', name='md', value=0, id="md" min=0)
                     label(for="md") Max Stars
                 .col
                   .md-form
-                    input.form-control(type='text', name='xd', value=15, id="xd")
+                    input.form-control(type='number', name='xd', value=15, id="xd" min=0)
                     label(for="xd") Max Stars
             .col
               .row
@@ -123,11 +124,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='text', name='mar', value=0, id="mar")
+                    input.form-control(type='number', name='mar', value=0, id="mar" min=0)
                     label(for="mar") Max AR
                 .col
                   .md-form
-                    input.form-control(type='text', name='xar', value=11, id="xar")
+                    input.form-control(type='number', name='xar', value=11, id="xar" min=0)
                     label(for="xar") Max AR
             .col
               .row
@@ -136,11 +137,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='text', name='mcs', placeholder='Min CS',  mode = 0, value=0, id="mcs")
+                    input.form-control(type='number', name='mcs', placeholder='Min CS',  mode = 0, value=0, id="mcs" min=0)
                     label#csLabelMin(for="mcs") Max CS
                 .col
                   .md-form
-                    input.form-control(type='text', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs")
+                    input.form-control(type='number', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs" min=0)
                     label#csLabelMax(for="xcs") Max CS
         .container
           .col.text-center
@@ -189,6 +190,7 @@ block content
         } else{
           $(this).attr("lastVal", 0)
           $(this).prop("checked", false)
+          $(this).prop("indeterminate", false)
         }
        console.log($(this).attr("lastVal"))
       var DT = parseInt($('#DT').is(':checked') ? $('#DT').val() : 0);
@@ -198,7 +200,17 @@ block content
       var FL = parseInt($('#FL').is(':checked') ? $('#FL').val() : 0);
       var NO = parseInt($('#NO').is(':checked') ? $('#NO').val() : 0);
       var value = DT + HD + HR + EZ + FL + NO
+
+      var DTM = parseInt($('#DT').prop("indeterminate") ? $('#DT').val() : 0);
+      var HDM = parseInt($('#HD').prop("indeterminate") ? $('#HD').val() : 0);
+      var HRM = parseInt($('#HR').prop("indeterminate") ? $('#HR').val() : 0);
+      var EZM = parseInt($('#EZ').prop("indeterminate") ? $('#EZ').val() : 0);
+      var FLM = parseInt($('#FL').prop("indeterminate") ? $('#FL').val() : 0);
+      var NOM = parseInt($('#NO').prop("indeterminate") ? $('#NO').val() : 0);
+      var valueM = DTM + HDM + HRM + EZM + FLM + NOM
+
       $('#mods').val(value)
+      $('#modsMaybe').val(valueM)
    });
 
    var max_per_page = 10
@@ -312,7 +324,6 @@ block content
     
 
     function fillTable(data, page){
-
       page -= 1
       $("#data_body").empty()
       var map_slice = (data).slice(page*max_per_page, (page+1)*max_per_page )
@@ -327,7 +338,7 @@ block content
       $("#numEntries").text("Showing " + (page*max_per_page+1) + " to " + upper + " of " + data.length + " entries")
       $('#data_body').append(tableData)
       $('#pages').bootpag({
-    total: Math.ceil((data).length / max_per_page),
+    total: Math.max(1,Math.ceil((data).length / max_per_page)),
     firstLastUse: true,
     page: page+1,
     maxVisible: 7

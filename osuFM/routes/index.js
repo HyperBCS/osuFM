@@ -53,7 +53,8 @@ xd: '15',
 mar: '0',
 xar: '11',
 mcs: '0',
-xcs: '10' }
+xcs: '10',
+modsMaybe: '0' }
 
 
 var mod_conv = function(mods, response){
@@ -213,12 +214,17 @@ router.get('/', function(req, res, next) {
 
 /* GET filter page. */
 router.get('/filter', function(req, res, next) {
-	mods = req.query.mods
+    mods = req.query.mods
+    mods_m = req.query.modsMaybe
 	mods_o = mods
 	if(mods == null || mods == ''){
 		mods = 0
+    }
+	if(mods_m == null || mods_m == ''){
+		mods_m = 0
 	}
     mods = parseInt(mods)
+    mods_m = parseInt(mods_m)
 	name = "%" + req.query.n + "%"
 	ranges = {}
 	try{
@@ -252,7 +258,6 @@ router.get('/filter', function(req, res, next) {
 	mode = 0
     }
 	mode = get_mode(mode)
-    mod_conv(mods,response)
     default_params = true
     for(query in req.query){
         if(req.query[query] == defaults[query]){
@@ -275,7 +280,13 @@ router.get('/filter', function(req, res, next) {
         } else if(query_mod % 2 != 0){
             query_mod += 1
         }
-        query =  {order: [['score', 'DESC']], where: {diff2: {[Op.and]: [Sequelize.literal("pop_mod == " + query_mod)]}, diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: mode} ]}}
+        query_mod_m = mods_m
+        if(query_mod_m == -1){
+            query_mod_m = 0;
+        } else if(query_mod_m % 2 != 0){
+            query_mod_m += 1
+        }
+        query =  {order: [['score', 'DESC']], where: {diff2: {[Op.or]: [Sequelize.literal("pop_mod == " + query_mod),Sequelize.literal("pop_mod & " + query_mod_m) ]}, diff: {[Op.gte]: diff_range[0], [Op.lte]: diff_range[1]}, bpm: {[Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1]}, length: {[Op.gte]: time_range[0], [Op.lte]: time_range[1]}, avg_pp: {[Op.gte]: pp_range[0], [Op.lte]: pp_range[1]}, cs: {[Op.gte]: cs_range[0], [Op.lte]: cs_range[1]},ar: {[Op.gte]: ar_range[0], [Op.lte]: ar_range[1]} ,[Op.and]: [{[Op.or]: mode} ]}}
     }
     map_ret = []
     models.Beatmap.findAndCountAll(query).then(function(maps) {

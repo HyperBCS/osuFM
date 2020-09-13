@@ -45,3 +45,7 @@ hr {
 .container {
   position: relative;
 }
+
+input[type=text] {
+  color: white !important;
+}
