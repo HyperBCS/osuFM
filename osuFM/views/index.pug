@@ -215,6 +215,7 @@ block content
           }
           current_page = num
           $('#page').val(num)
+          window.scrollTo(0,document.body.scrollHeight);
       });
 
    function getTableData(num){
@@ -331,7 +332,6 @@ block content
     page: page+1,
     maxVisible: 7
       });
-      window.scrollTo(0,document.body.scrollHeight);
     }
 
     $( "#filterBtn" ).click(function() {
@@ -373,6 +373,7 @@ block content
       } else{
         fillTable(map_data, 1)
       }
+      window.scrollTo(0,document.body.scrollHeight);
     });
 
     $("[name='mode'] a.dropdown-item").click( function() {
