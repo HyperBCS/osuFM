@@ -14,6 +14,10 @@ h1,h2,h3,h4,h5,h6,th,p,a,b,table.table a,.pagination .page-item .page-link,label
   color: #dcddde !important;
 }
 
+.footer-text{
+  color:  #9e9e9e !important;
+}
+
 .dropButton:Hover{
   color: white !important;
 }

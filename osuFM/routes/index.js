@@ -3,18 +3,24 @@ var models  = require('../models');
 var router = express.Router();
 const { Op } = require("sequelize");
 var Sequelize = require('sequelize');
+const fs = require('fs')
 // /* GET home page. */
 // router.get('/', function(req, res, next) {
 //   res.render('index', { title: 'osuFM' });
 // });
 
 
+const getFileUpdatedDate = (path) => {
+    const stats = fs.statSync(path)
+    return stats.mtime
+  }
 
 
-
-
+var dbUpdateDate = ""
 
 function getMapCache(){
+    dbUpdateDate = getFileUpdatedDate("osuFM.db").toUTCString()
+    console.log(dbUpdateDate)
     console.log("Loading cache")
     query = {order: [['score', 'DESC']], where: {mode: {[Op.eq]: 0}}}
     map_ret = []
@@ -207,8 +213,9 @@ var str_time = function(length){
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    res.render('index', {
-      title: 'osuFM'
+    res.render('footer', {
+      title: 'osuFM',
+      date: dbUpdateDate
     });
 });
 
