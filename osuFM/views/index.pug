@@ -47,59 +47,57 @@ block content
           .checkbox
             h4 Mods
             .col
-              label.form-check.form-check-inline.col.col-6.col-md-auto
-                input.form-check-input(type='checkbox', value=64, id='DT')
-                label.form-check-label(for='DT') Double Time
-              label.form-check.form-check-inline.col.col-6.col-md-auto
-                input.form-check-input(type='checkbox', value=8, id='HD')
-                label.form-check-label(for='HD') Hidden
-              label.form-check.form-check-inline.col.col-6.col-md-auto
-                input.form-check-input(type='checkbox', value=16, id='HR')
-                label.form-check-label(for='HR') Hard Rock
-              label.form-check.form-check-inline.col.col-6.col-md-auto
-                input.form-check-input(type='checkbox', value=2, id='EZ')
-                label.form-check-label(for='EZ') Easy
-              label.form-check.form-check-inline.col.col-6.col-md-auto
-                input.form-check-input(type='checkbox', value=1024, id='FL')
-                label.form-check-label(for='FL') Flashlight
-              label.form-check.form-check-inline.col.col-6.col-md-auto
-                input.form-check-input(type='checkbox', value=-1, id='NO')
-                label.form-check-label(for='NO') No Mod
+              .row
+                label.form-check.form-check-inline.col.col-6.col-md-auto
+                  input.form-check-input(type='checkbox', value=64, id='DT')
+                  label.form-check-label(for='DT') Double Time
+                label.form-check.form-check-inline.col.col-6.col-md-auto
+                  input.form-check-input(type='checkbox', value=8, id='HD')
+                  label.form-check-label(for='HD') Hidden
+                label.form-check.form-check-inline.col.col-6.col-md-auto
+                  input.form-check-input(type='checkbox', value=16, id='HR')
+                  label.form-check-label(for='HR') Hard Rock
+                label.form-check.form-check-inline.col.col-6.col-md-auto
+                  input.form-check-input(type='checkbox', value=2, id='EZ')
+                  label.form-check-label(for='EZ') Easy
+                label.form-check.form-check-inline.col.col-6.col-md-auto
+                  input.form-check-input(type='checkbox', value=1024, id='FL')
+                  label.form-check-label(for='FL') Flashlight
+                label.form-check.form-check-inline.col.col-6.col-md-auto
+                  input.form-check-input(type='checkbox', value=-1, id='NO')
+                  label.form-check-label(for='NO') No Mod
+        br
         .container#performance
           h4 PP options
           .form-group.row
             .col
               .md-form
-                input.form-control(type='number', name='mpp', id="mpp" min=0)
+                input.form-control(type='number', name='mpp', id="mpp" min=0 inputmode="decimal")
                 label(for="mpp") Min PP
             .col
               .md-form
-                input.form-control(type='number', name='xpp', value=MAX_SAFE_INTEGER, id="xpp" min=0)
+                input.form-control(type='number', name='xpp', value=MAX_SAFE_INTEGER, id="xpp" min=0 inputmode="decimal")
                 label(for="xpp") Max PP
         .container#options
           h4 Map Options
           .form-group.row
             .col-12.col-lg-3
               #min_len.input-group.date.md-form(data-target-input='nearest')
-                input.form-control.datetimepicker-input(type='text' data-target='#min_len', id="min_len_inp" placeholder="00:00:00")
+                input.form-control.datetimepicker-input(type='text' data-target='#min_len', data-toggle='datetimepicker' id="min_len_inp" placeholder="00:00:00" inputmode="none")
                 label(for="min_len_inp") Min Length
                 .input-group-append(data-target='#min_len' data-toggle='datetimepicker' )
-                  .input-group-text
-                    i.fa.fa-clock
             .col-12.col-lg-3
               #max_len.input-group.date.md-form(data-target-input='nearest')
-                input.form-control.datetimepicker-input(type='text' data-target='#max_len', id="max_len_inp" placeholder="00:00:00")
+                input.form-control.datetimepicker-input(type='text' data-target='#max_len', data-toggle='datetimepicker' id="max_len_inp" placeholder="00:00:00" inputmode="none")
                 label(for="max_len_inp") Max Length
                 .input-group-append(data-target='#max_len' data-toggle='datetimepicker' )
-                  .input-group-text
-                    i.fa.fa-clock
             .col-6.col-lg-3
               .md-form
-                input.form-control(type='number', name='mb', id="mb" min=0)
+                input.form-control(type='number', name='mb', id="mb" min=0 inputmode="decimal")
                 label(for="mb") Min BPM
             .col-6.col-lg-3
               .md-form
-                input.form-control(type='number', name='xb', value=MAX_SAFE_INTEGER, id="xb" min=0)
+                input.form-control(type='number', name='xb', value=MAX_SAFE_INTEGER, id="xb" min=0 inputmode="decimal")
                 label(for="xb") Max BPM
         .container.perfOption#perfOptions
           h4 Map Difficulty Options
@@ -111,11 +109,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='number', name='md', value=0, id="md" min=0)
+                    input.form-control(type='number', name='md', value=0, id="md" min=0 step="0.01" inputmode="decimal")
                     label(for="md") Max Stars
                 .col
                   .md-form
-                    input.form-control(type='number', name='xd', value=15, id="xd" min=0)
+                    input.form-control(type='number', name='xd', value=15, id="xd" min=0 step="0.01" inputmode="decimal")
                     label(for="xd") Max Stars
             .col
               .row
@@ -124,11 +122,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='number', name='mar', value=0, id="mar" min=0)
+                    input.form-control(type='number', name='mar', value=0, id="mar" min=0 step="0.1" inputmode="decimal")
                     label(for="mar") Max AR
                 .col
                   .md-form
-                    input.form-control(type='number', name='xar', value=11, id="xar" min=0)
+                    input.form-control(type='number', name='xar', value=11, id="xar" min=0 step="0.1" inputmode="decimal")
                     label(for="xar") Max AR
             .col
               .row
@@ -137,18 +135,18 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='number', name='mcs', placeholder='Min CS',  mode = 0, value=0, id="mcs" min=0)
+                    input.form-control(type='number', name='mcs', placeholder='Min CS',  mode = 0, value=0, id="mcs" min=0 step="0.1" inputmode="decimal")
                     label#csLabelMin(for="mcs") Max CS
                 .col
                   .md-form
-                    input.form-control(type='number', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs" min=0)
+                    input.form-control(type='number', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs" min=0 step="0.1" inputmode="decimal")
                     label#csLabelMax(for="xcs") Max CS
         .container
           .row
             .col.d-flex.justify-content-center
-              button#filterBtn.btn.btn-outline-success(type='submit') Apply Filter
-            .col.d-flex.justify-content-center
               button#resetBtn.btn.btn-outline-warning(type='submit') Reset Filter
+            .col.d-flex.justify-content-center
+              button#filterBtn.btn.btn-outline-success(type='submit') Apply Filter
 
 
     div.table-responsive#table
@@ -167,9 +165,9 @@ block content
             th Stars
         tbody#data_body
     .row
-      .col-12.col-md-4.d-flex.justify-content-center
+      .col-12.col-md-4.d-flex.justify-content-center.mt-3
         div#pages
-      .col-12.col-md-4.d-flex.justify-content-center
+      .col-12.col-md-4.d-flex.justify-content-center.mb-4
         .dropdown
           button#pageNum.dropButton.btn.dropdown-toggle.custom-grey.navbar-custom(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
             | Maps Per Page
@@ -179,7 +177,7 @@ block content
             a.dropdown-item(num=50) 50
             a.dropdown-item(num=100) 100
             a.dropdown-item(num=250) 250
-      .col-12.col-md-4.d-flex.justify-content-center
+      .col-12.col-md-4.d-flex.justify-content-center.mt-3
         p#numEntries showing 10 of 10
   script.
     $(':checkbox').change(function () {
@@ -285,9 +283,10 @@ block content
     function genTableHTML(pos, map_slice){
       if(map_slice.mode == 3){
         return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' Key: ' + (map_slice.cs).toFixed(1) +  ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+    } else if (map_slice.mode == 1){
+       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else{
        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) +  ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
-
     }
     }
     
