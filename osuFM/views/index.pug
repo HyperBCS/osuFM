@@ -343,7 +343,7 @@ block content
       for(m in map_slice){
         pos = page*max_per_page + parseInt(m)+1
         tableData += genTableHTML(pos, map_slice[m])
-        table_dummy_data += "<tr><td><p>21</p></td><td><div class='ph-item ph-picture img-placeholder'></td><td><p class='text-muted small'<td></p></td><td></td><td></td><td><td></td><td></td><td></td><td></td></tr>"
+        table_dummy_data += "<tr><td><p>" + pos + "</p></td><td><div class='ph-item ph-picture img-placeholder'></td><td><p class='text-muted small'<td></p></td><td></td><td></td><td><td></td><td></td><td></td><td></td></tr>"
       }
       num_show = pos < max_per_page ?  pos : max_per_page
       var upper = page*max_per_page+num_show
