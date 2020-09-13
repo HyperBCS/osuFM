@@ -1,7 +1,7 @@
 extends head
 
 block content
-  .container
+  .container#main
     a(href='/' style="color:black;text-decoration : none")
       h1.h1 osuF
         span.h6 armers
@@ -164,7 +164,7 @@ block content
             th BPM
             th Stars
         tbody#data_body
-        tbody#data_body_dummy
+        tbody#data_body_dummy(style="display:none")
     .row
       .col-12.col-md-4.d-flex.justify-content-center.mt-3
         div#pages
@@ -180,6 +180,10 @@ block content
             a.dropdown-item(num=250) 250
       .col-12.col-md-4.d-flex.justify-content-center.mt-3
         p#numEntries showing 10 of 10
+  #btnTop.fixed-action-btn.smooth-scroll(style='bottom: 1vh; right: 1vh;display: none;')
+    a.btn-floating.btn-large.blue(href='#filterForm')
+      i.fa.fa-arrow-up
+
   script.
     $(':checkbox').change(function () {
      
@@ -221,8 +225,26 @@ block content
    var current_page = 1
    var num_show = 0
    var img_loaded = 0
+   var anchor = 0
+
+
+    $(function() {
+      
+      var $btn = $('#btnTop');
+      var $home = $('#filterForm');
+      var startpoint = $home.scrollTop() + $home.height();
+      
+      $(window).on('scroll', function() {
+        if($(window).scrollTop() > startpoint) {
+          $btn.show();
+        } else {
+          $btn.hide();
+        }
+      });
+    });
 
     $('#pages').bootpag().on('page', function(event, num){
+          anchor = 1
           if(filter_on){
             fillTable(map_data_filter, num)
           } else{
@@ -239,9 +261,9 @@ block content
       for(i = 0;i < max_per_page;i++){
         table_dummy_data += "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div></td><td><div class='ph-item ph-picture img-placeholder'></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>"
       }
-      $('#data_body_dummy').html(table_dummy_data)
-      $('#data_body_dummy').show()
-      $('#data_body').hide()
+      //- $('#data_body_dummy').html(table_dummy_data)
+      //- $('#data_body_dummy').show()
+      $('#data_body').html(table_dummy_data)
       $.get( "filter?" + $('#filterForm').serialize(), function(data, status) {
         map_data = data.maps
           for(m in map_data){
@@ -332,6 +354,13 @@ block content
       });
 
     });
+
+    new ResizeSensor(jQuery('#main'), function(){ 
+      if(anchor > 1){
+        window.scrollTo(0,document.body.scrollHeight);
+        anchor = 0;
+      }
+    });
     
     function fillTable(data, page){
       page -= 1
@@ -349,15 +378,15 @@ block content
       var upper = page*max_per_page+num_show
       $("#numEntries").text("Showing " + (page*max_per_page+1) + " to " + upper + " of " + data.length + " entries")
       img_loaded = 0
-      $('#data_body_dummy').html(table_dummy_data)
-      $('#data_body_dummy').show()
-      $('#data_body').hide()
-      $('#data_body').html(tableData)
+      $('#data_body_dummy').html(tableData)
       $('img').on('load', function() {
                     img_loaded += 1
                     if(img_loaded == num_show){
-                      $('#data_body').show()
-                      $('#data_body_dummy').hide()
+                      $('#data_body').html($('#data_body_dummy').html())
+                    }
+                    if(anchor){
+                      console.log("anchor")
+                      anchor = 2
                     }
                 })
 
