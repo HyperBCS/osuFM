@@ -712,7 +712,7 @@ int main() {
             json * j = new json;
             int user_id = (*it)["user"]["id"];
             try{
-                if((*it)["pp_rank"] > 100000){
+                if((*it)["pp"] < 1000){
                     reached100k = true;
                     break;
                 }

@@ -1,175 +1,196 @@
 extends head
 
 block content
-  a(href='/' style="color:black;text-decoration : none")
-    h1 osuF
-      span.h6 armers
-      span.h1 M
-      span.h6 arket
-  form#filterForm(onsubmit="applyFilter()")
-    input#mods(style="display:none", name='mods', value=0)
-    input#page(style="display:none", name='page', value=1)
-    input#ml(style="display:none", name='ml', value=0)
-    input#xl(style="display:none", name='xl', value=Number.MAX_SAFE_INTEGER)
-    input#mode(style="display:none", name='m', value=0)
-    .container
-    .row
-      .col
-        nav.navbar.navbar-expand-lg.navbar-light.bg-light
-            .col.d-flex.d-none.d-md-block.d-lg-none
-                  input#searchBox1.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' name='n1')
-            button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
-              span.navbar-toggler-icon
-            #navbarSupportedContent.collapse.navbar-collapse
-              .col-auto
-                ul.navbar-nav.mr-auto
-                  li.nav-item.dropdown
-                    a#navbarDropdown.nav-link.dropdown-toggle(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                      | Standard
-                    .dropdown-menu(aria-labelledby='navbarDropdown',name='mode')
-                      a.dropdown-item(onclick="$('#mode').val(0)" mode=0) Standard
-                      a.dropdown-item(onclick="$('#mode').val(1)" mode=1) Taiko
-                      a.dropdown-item(onclick="$('#mode').val(2)" mode=2) Catch the Beat
-                      a.dropdown-item(onclick="$('#mode').val(3)" mode=3) Mania
-                      .dropdown-divider
-                      a.dropdown-item(onclick="$('#mode').val(-1)") All
-                  li.nav-item.dropdown
-                    a.nav-link.dropdown-toggle(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
-              .col.d-none.d-lg-block
-                  .my-lg-0.d-flex
-                    input#searchBox2.form-control.mr-sm-2(type='search' placeholder='Search' aria-label='Search' name='n2')
-    br
-    .collapse#filters
-      .container#mods
-        .checkbox
-          h4 Mods
-          hr
-          row
-            label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=64, id='DT')
-              label.form-check-label(for='DT') Double Time
-            label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=8, id='HD')
-              label.form-check-label(for='HD') Hidden
-            label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=16, id='HR')
-              label.form-check-label(for='HR') Hard Rock
-            label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=2, id='EZ')
-              label.form-check-label(for='EZ') Easy
-            label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=1024, id='FL')
-              label.form-check-label(for='FL') Flashlight
-            label.form-check.form-check-inline.col.col-6.col-md-auto
-              input.form-check-input(type='checkbox', value=-1, id='NO')
-              label.form-check-label(for='NO') Double Time
-      .container#performance
-        h4 PP options
-        hr
-        .form-group.row
-          .col
-            label Min PP
-            input.form-control(type='text', name='mpp', placeholder='Min PP')
-          .col
-            label Max PP
-            input.form-control(type='text', name='xpp', placeholder='Max PP', value=MAX_SAFE_INTEGER)
-      .container#options
-        h4 Map Options
-        hr
-        .form-group.row
-          .col-12.col-lg-3
-            label Min Length
-            #min_len.input-group.date(data-target-input='nearest')
-              input.form-control.datetimepicker-input(type='text' data-target='#min_len')
-              .input-group-append(data-target='#min_len' data-toggle='datetimepicker' )
-                .input-group-text
-                  i.fa.fa-clock
-          .col-12.col-lg-3
-            label Max Length
-            #max_len.input-group.date(data-target-input='nearest')
-              input.form-control.datetimepicker-input(type='text' data-target='#max_len')
-              .input-group-append(data-target='#max_len' data-toggle='datetimepicker' )
-                .input-group-text
-                  i.fa.fa-clock
-          .col-6.col-lg-3
-            label Min BPM
-            input.form-control(type='text', name='mb', placeholder='Min BPM')
-          .col-6.col-lg-3
-            label Max BPM
-            input.form-control(type='text', name='xb', placeholder='Max BPM', value=MAX_SAFE_INTEGER)
-      .container#perfOptions
-        h4 Map Difficulty Options
-        hr
-        .form-group.row
-          .col
-            .row
-              .col.text-center
-                input#len_diff(type='text')
-            .row
-              .col
-                label Min Stars
-                input.form-control(type='text', name='md', placeholder='Min Stars', value=0)
-              .col
-                label Max Stars
-                input.form-control(type='text', name='xd', placeholder='Max Stars', value=15)
-          .col
-            .row
-              .col.text-center
-                input#len_ar(type='text')
-            .row
-              .col
-                label Min AR
-                input.form-control(type='text', name='mar', placeholder='Min AR', value=0)
-              .col
-                label Max AR
-                input.form-control(type='text', name='xar', placeholder='Max AR', value=11)
-          .col
-            .row
-              .col.text-center
-                input#len_cs(type='text')
-            .row
-              .col
-                label#csLabelMin Min CS
-                input.form-control(type='text', name='mcs', placeholder='Min CS',  mode = 0, value=0)
-              .col
-                label#csLabelMax Max CS
-                input.form-control(type='text', name='xcs', placeholder='Max CS', mode = 0, value=10)
+  .container
+    a(href='/' style="color:black;text-decoration : none")
+      h1.h1 osuF
+        span.h6 armers
+        span.h1 M
+        span.h6 arket
+    form#filterForm(onsubmit="applyFilter()")
+      input#mods(style="display:none", name='mods', value=0)
+      input#page(style="display:none", name='page', value=1)
+      input#ml(style="display:none", name='ml', value=0)
+      input#xl(style="display:none", name='xl', value=Number.MAX_SAFE_INTEGER)
+      input#mode(style="display:none", name='m', value=0)
       .container
-        .col.text-center
-          button#filterBtn.btn.btn-success.mr-sm-2(type='submit') Apply Filter
-          button#resetBtn.btn.btn-warning(type='submit') Reset Filter
+      .row
+        .col
+          nav.navbar.navbar-expand-lg.navbar-dark.navbar-custom
+              .col.d-flex.d-none.d-sm-block.d-lg-none.md-form.p-0
+                  input#searchBox1.form-control(type='text' aria-label='Search' name='n1')
+                  label(for="searchBox1") Search
+              .col-auto.button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
+                span.navbar-toggler-icon
+              #navbarSupportedContent.collapse.navbar-collapse
+                .col-auto
+                  ul.navbar-nav.mr-auto
+                    li.nav-item.dropdown
+                      a#navbarDropdown.nav-link.dropdown-toggle.grey-text(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                        | Standard
+                      .dropdown-menu.navbar-custom(aria-labelledby='navbarDropdown',name='mode')
+                        a.dropdown-item.grey-text(onclick="$('#mode').val(0)" mode=0) Standard
+                        a.dropdown-item.grey-text(onclick="$('#mode').val(1)" mode=1) Taiko
+                        a.dropdown-item.grey-text(onclick="$('#mode').val(2)" mode=2) Catch the Beat
+                        a.dropdown-item.grey-text(onclick="$('#mode').val(3)" mode=3) Mania
+                        .dropdown-divider
+                        a.dropdown-item.grey-text(onclick="$('#mode').val(-1)") All
+                    li.nav-item.dropdown
+                      a.nav-link.dropdown-toggle.grey-text(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
+                .col.d-none.d-lg-block
+                    .my-lg-0.d-flex.md-form
+                      input#searchBox2.form-control.mr-sm-2(type='text' aria-label='Search' placeholder="Search" name='n2')
+      br
+      .collapse#filters
+        .container#mods
+          .checkbox
+            h4 Mods
+            row
+              label.form-check.form-check-inline.col.col-6.col-md-auto
+                input.form-check-input(type='checkbox', value=64, id='DT')
+                label.form-check-label(for='DT') Double Time
+              label.form-check.form-check-inline.col.col-6.col-md-auto
+                input.form-check-input(type='checkbox', value=8, id='HD')
+                label.form-check-label(for='HD') Hidden
+              label.form-check.form-check-inline.col.col-6.col-md-auto
+                input.form-check-input(type='checkbox', value=16, id='HR')
+                label.form-check-label(for='HR') Hard Rock
+              label.form-check.form-check-inline.col.col-6.col-md-auto
+                input.form-check-input(type='checkbox', value=2, id='EZ')
+                label.form-check-label(for='EZ') Easy
+              label.form-check.form-check-inline.col.col-6.col-md-auto
+                input.form-check-input(type='checkbox', value=1024, id='FL')
+                label.form-check-label(for='FL') Flashlight
+              label.form-check.form-check-inline.col.col-6.col-md-auto
+                input.form-check-input(type='checkbox', value=-1, id='NO')
+                label.form-check-label(for='NO') No Mod
+        .container#performance
+          h4 PP options
+          .form-group.row
+            .col
+              .md-form
+                input.form-control(type='text', name='mpp', id="mpp")
+                label(for="mpp") Min PP
+            .col
+              .md-form
+                input.form-control(type='text', name='xpp', value=MAX_SAFE_INTEGER, id="xpp")
+                label(for="xpp") Max PP
+        .container#options
+          h4 Map Options
+          .form-group.row
+            .col-12.col-lg-3
+              #min_len.input-group.date.md-form(data-target-input='nearest')
+                input.form-control.datetimepicker-input(type='text' data-target='#min_len', id="min_len_inp" placeholder="00:00:00")
+                label(for="min_len_inp") Min Length
+                .input-group-append(data-target='#min_len' data-toggle='datetimepicker' )
+                  .input-group-text
+                    i.fa.fa-clock
+            .col-12.col-lg-3
+              #max_len.input-group.date.md-form(data-target-input='nearest')
+                input.form-control.datetimepicker-input(type='text' data-target='#max_len', id="max_len_inp" placeholder="00:00:00")
+                label(for="max_len_inp") Max Length
+                .input-group-append(data-target='#max_len' data-toggle='datetimepicker' )
+                  .input-group-text
+                    i.fa.fa-clock
+            .col-6.col-lg-3
+              .md-form
+                input.form-control(type='text', name='mb', id="mb")
+                label(for="mb") Min BPM
+            .col-6.col-lg-3
+              .md-form
+                input.form-control(type='text', name='xb', value=MAX_SAFE_INTEGER, id="xb")
+                label(for="xb") Max BPM
+        .container#perfOptions
+          h4 Map Difficulty Options
+          .form-group.row
+            .col
+              .row
+                .col.text-center
+                  input#len_diff(type='text' data-slider-handle="square")
+              .row
+                .col
+                  .md-form
+                    input.form-control(type='text', name='md', value=0, id="md")
+                    label(for="md") Max Stars
+                .col
+                  .md-form
+                    input.form-control(type='text', name='xd', value=15, id="xd")
+                    label(for="xd") Max Stars
+            .col
+              .row
+                .col.text-center
+                  input#len_ar(type='text' data-slider-handle="square")
+              .row
+                .col
+                  .md-form
+                    input.form-control(type='text', name='mar', value=0, id="mar")
+                    label(for="mar") Max AR
+                .col
+                  .md-form
+                    input.form-control(type='text', name='xar', value=11, id="xar")
+                    label(for="xar") Max AR
+            .col
+              .row
+                .col.text-center
+                  input#len_cs(type='text' data-slider-handle="square")
+              .row
+                .col
+                  .md-form
+                    input.form-control(type='text', name='mcs', placeholder='Min CS',  mode = 0, value=0, id="mcs")
+                    label#csLabelMin(for="mcs") Max CS
+                .col
+                  .md-form
+                    input.form-control(type='text', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs")
+                    label#csLabelMax(for="xcs") Max CS
+        .container
+          .col.text-center
+            button#filterBtn.btn.btn-outline-success.mr-sm-2(type='submit') Apply Filter
+            button#resetBtn.btn.btn-outline-warning(type='submit') Reset Filter
 
 
-  div.table-responsive#table
-    table.table
-      thead
-        tr
-          th #
-          th
-          th Map
-          th Farm Score
-          th Average PP
-          th Average Acc
-          th Mods
-          th Length
-          th BPM
-          th Stars
-      tbody#data_body
-  .row
-    .col-auto
-      div.text-center#pages
-    .col
-      .dropdown
-      button#pageNum.btn.btn-secondary.dropdown-toggle(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-        | Maps Per Page
-      .dropdown-menu#dropdownMenuButton(aria-labelledby='dropdownMenuButton')
-        a.dropdown-item(num=10) 10
-        a.dropdown-item(num=25) 25
-        a.dropdown-item(num=50) 50
-        a.dropdown-item(num=100) 100
-        a.dropdown-item(num=250) 250
+    div.table-responsive#table
+      table#tableData.table
+        thead
+          tr
+            th #
+            th
+            th Map
+            th.font-weight-bold Farm Score
+            th Average PP
+            th Average Acc
+            th Mods
+            th Length
+            th BPM
+            th Stars
+        tbody#data_body
+    .row
+      .col-12.col-md-4.d-flex.justify-content-center
+        div#pages
+      .col-12.col-md-4.d-flex.justify-content-center
+        .dropdown
+          button#pageNum.btn.dropdown-toggle.grey-text.navbar-custom(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+            | Maps Per Page
+          .dropdown-menu.navbar-custom#dropdownMenuButton(aria-labelledby='dropdownMenuButton')
+            a.dropdown-item(num=10) 10
+            a.dropdown-item(num=25) 25
+            a.dropdown-item(num=50) 50
+            a.dropdown-item(num=100) 100
+            a.dropdown-item(num=250) 250
+      .col-12.col-md-4.d-flex.justify-content-center
+        p#numEntries showing 10 of 10
   script.
     $(':checkbox').change(function () {
+     
+        if($(this).attr("lastVal") == 0 || $(this).attr("lastVal") == null){
+          $(this).attr("lastVal", 1)
+        } else if($(this).attr("lastVal") == 1){
+          $(this).attr("lastVal", 2)
+          $(this).prop("indeterminate", true)
+        } else{
+          $(this).attr("lastVal", 0)
+          $(this).prop("checked", false)
+        }
+       console.log($(this).attr("lastVal"))
       var DT = parseInt($('#DT').is(':checked') ? $('#DT').val() : 0);
       var HD = parseInt($('#HD').is(':checked') ? $('#HD').val() : 0);
       var HR = parseInt($('#HR').is(':checked') ? $('#HR').val() : 0);
@@ -180,20 +201,21 @@ block content
       $('#mods').val(value)
    });
 
+   var max_per_page = 10
+   var map_data = null
+   var map_data_filter = null
+   var filter_on = false
+   var current_page = 1
+
     $('#pages').bootpag().on('page', function(event, num){
           if(filter_on){
             fillTable(map_data_filter, num)
           } else{
             fillTable(map_data, num)
           }
-
+          current_page = num
           $('#page').val(num)
       });
-
-   var max_per_page = 10
-   var map_data = null
-   var map_data_filter = null
-   var filter_on = false
 
    function getTableData(num){
      filter_on = false
@@ -209,8 +231,6 @@ block content
         console.log(data.responseText)
       })
    }
-
-
 
     document.getElementById("filterBtn").addEventListener("click", function(event){
       event.preventDefault()
@@ -249,9 +269,9 @@ block content
 
     function genTableHTML(pos, map_slice){
       if(map_slice.mode == 3){
-        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' Key: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><b>' + (map_slice.score*100).toFixed(2) + '</b></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' Key: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else{
-       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><b>' + (map_slice.score*100).toFixed(2) + '</b></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
 
     }
     }
@@ -282,29 +302,36 @@ block content
       $('#data_body').append(tableData)
       $('#pages').bootpag({
     total: Math.ceil(map_data_filter.length / max_per_page),
+    firstLastUse: true,
     page: 1,
-    maxVisible: 5
+    maxVisible: 7
       });
 
     });
     
 
     function fillTable(data, page){
+
       page -= 1
       $("#data_body").empty()
       var map_slice = (data).slice(page*max_per_page, (page+1)*max_per_page )
       var tableData = ""
+      var pos = 0
       for(m in map_slice){
-        var pos = page*max_per_page + parseInt(m)+1
+        pos = page*max_per_page + parseInt(m)+1
         tableData += genTableHTML(pos, map_slice[m])
       }
+      var num_show = pos < max_per_page ?  pos : max_per_page
+      var upper = page*max_per_page+num_show
+      $("#numEntries").text("Showing " + (page*max_per_page+1) + " to " + upper + " of " + data.length + " entries")
       $('#data_body').append(tableData)
       $('#pages').bootpag({
     total: Math.ceil((data).length / max_per_page),
+    firstLastUse: true,
     page: page+1,
-    maxVisible: 5
+    maxVisible: 7
       });
-
+      window.scrollTo(0,document.body.scrollHeight);
     }
 
     $( "#filterBtn" ).click(function() {
@@ -322,11 +349,24 @@ block content
         $('#min_len').datetimepicker('date',new Date(0, 0, 0, 0, 0, 0, 0));
         $('#max_len').datetimepicker('date',new Date(0, 0, 0, 0, 0, 0, 0));
       $("#xl").val(Number.MAX_SAFE_INTEGER)
+      $('#DT').attr("lastVal", 0)
+      $('#DT').prop("indeterminate", false)
+      $('#HD').attr("lastVal", 0)
+      $('#HD').prop("indeterminate", false)
+      $('#HR').attr("lastVal", 0)
+      $('#HR').prop("indeterminate", false)
+      $('#EZ').attr("lastVal", 0)
+      $('#EZ').prop("indeterminate", false)
+      $('#FL').attr("lastVal", 0)
+      $('#FL').prop("indeterminate", false)
+      $('#NO').attr("lastVal", 0)
+      $('#NO').prop("indeterminate", false)
+
       getTableData(1)
     });
 
     $("#dropdownMenuButton a.dropdown-item").click( function() {
-      max_per_page = $(this).attr("num")
+      max_per_page = parseInt($(this).attr("num"))
       $("#pageNum").text(max_per_page)
       if(filter_on){
         fillTable(map_data_filter, 1)
