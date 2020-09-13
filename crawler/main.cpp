@@ -339,7 +339,7 @@ std::string getURL(std::string url, std::string auth_string, bool checkJson){
 
 
 void processMaps(std::vector<Beatmap *> &processed_maps){
-    float threshold = 0.75;
+    float threshold = 0.66;
     // key is map id
     std::unordered_map<int, std::unordered_map<int, std::vector<Score>>> map_map_scores;
     std::unordered_map<int, int> map_score_num;
