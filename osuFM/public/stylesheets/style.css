@@ -75,5 +75,17 @@ input {
 }
 
 .perfOption {
-  overflow: hidden;
+  overflow-x: hidden;
+}
+
+.img-placeholder {
+  width: 80px;
+  height: 60px;
+}
+
+.ph-item {
+  padding: unset;
+}
+
+.table-name {
 }

@@ -155,7 +155,7 @@ block content
           tr
             th #
             th
-            th Map
+            th(style="width: 100%") Map
             th.font-weight-bold Farm Score
             th Average PP
             th Average Acc
@@ -164,6 +164,7 @@ block content
             th BPM
             th Stars
         tbody#data_body
+        tbody#data_body_dummy
     .row
       .col-12.col-md-4.d-flex.justify-content-center.mt-3
         div#pages
@@ -218,6 +219,8 @@ block content
    var map_data_filter = null
    var filter_on = false
    var current_page = 1
+   var num_show = 0
+   var img_loaded = 0
 
     $('#pages').bootpag().on('page', function(event, num){
           if(filter_on){
@@ -232,6 +235,13 @@ block content
 
    function getTableData(num){
      filter_on = false
+     table_dummy_data = ""
+      for(i = 0;i < max_per_page;i++){
+        table_dummy_data += "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div></td><td><div class='ph-item ph-picture img-placeholder'></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>"
+      }
+      $('#data_body_dummy').html(table_dummy_data)
+      $('#data_body_dummy').show()
+      $('#data_body').hide()
       $.get( "filter?" + $('#filterForm').serialize(), function(data, status) {
         map_data = data.maps
           for(m in map_data){
@@ -286,7 +296,7 @@ block content
     } else if (map_slice.mode == 1){
        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else{
-       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) +  ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a class="table-name" href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) +  ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     }
     }
     
@@ -323,21 +333,34 @@ block content
 
     });
     
-
     function fillTable(data, page){
       page -= 1
-      $("#data_body").empty()
+
       var map_slice = (data).slice(page*max_per_page, (page+1)*max_per_page )
       var tableData = ""
+      var table_dummy_data = ""
       var pos = 0
       for(m in map_slice){
         pos = page*max_per_page + parseInt(m)+1
         tableData += genTableHTML(pos, map_slice[m])
+        table_dummy_data += "<tr><td><p>21</p></td><td><div class='ph-item ph-picture img-placeholder'></td><td><p class='text-muted small'<td></p></td><td></td><td></td><td><td></td><td></td><td></td><td></td></tr>"
       }
-      var num_show = pos < max_per_page ?  pos : max_per_page
+      num_show = pos < max_per_page ?  pos : max_per_page
       var upper = page*max_per_page+num_show
       $("#numEntries").text("Showing " + (page*max_per_page+1) + " to " + upper + " of " + data.length + " entries")
-      $('#data_body').append(tableData)
+      img_loaded = 0
+      $('#data_body_dummy').html(table_dummy_data)
+      $('#data_body_dummy').show()
+      $('#data_body').hide()
+      $('#data_body').html(tableData)
+      $('img').on('load', function() {
+                    img_loaded += 1
+                    if(img_loaded == num_show){
+                      $('#data_body').show()
+                      $('#data_body_dummy').hide()
+                    }
+                })
+
       $('#pages').bootpag({
     total: Math.max(1,Math.ceil((data).length / max_per_page)),
     firstLastUse: true,
