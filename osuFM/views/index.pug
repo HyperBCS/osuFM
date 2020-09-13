@@ -27,17 +27,17 @@ block content
                 .col-auto
                   ul.navbar-nav.mr-auto
                     li.nav-item.dropdown
-                      a#navbarDropdown.nav-link.dropdown-toggle.grey-text(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                      a#navbarDropdown.nav-link.dropdown-toggle.custom-grey.dropButton(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
                         | Standard
                       .dropdown-menu.navbar-custom(aria-labelledby='navbarDropdown',name='mode')
-                        a.dropdown-item.grey-text(onclick="$('#mode').val(0)" mode=0) Standard
-                        a.dropdown-item.grey-text(onclick="$('#mode').val(1)" mode=1) Taiko
-                        a.dropdown-item.grey-text(onclick="$('#mode').val(2)" mode=2) Catch the Beat
-                        a.dropdown-item.grey-text(onclick="$('#mode').val(3)" mode=3) Mania
+                        a.dropdown-item.custom-grey(onclick="$('#mode').val(0)" mode=0) Standard
+                        a.dropdown-item.custom-grey(onclick="$('#mode').val(1)" mode=1) Taiko
+                        a.dropdown-item.custom-grey(onclick="$('#mode').val(2)" mode=2) Catch the Beat
+                        a.dropdown-item.custom-grey(onclick="$('#mode').val(3)" mode=3) Mania
                         .dropdown-divider
-                        a.dropdown-item.grey-text(onclick="$('#mode').val(-1)") All
+                        a.dropdown-item.custom-grey(onclick="$('#mode').val(-1)") All
                     li.nav-item.dropdown
-                      a.nav-link.dropdown-toggle.grey-text(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
+                      a.nav-link.dropdown-toggle.custom-grey.dropButton(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
                 .col.d-none.d-lg-block
                     .my-lg-0.d-flex.md-form
                       input#searchBox2.form-control.mr-sm-2(type='text' aria-label='Search' placeholder="Search" name='n2')
@@ -46,7 +46,7 @@ block content
         .container#mods
           .checkbox
             h4 Mods
-            row
+            .col
               label.form-check.form-check-inline.col.col-6.col-md-auto
                 input.form-check-input(type='checkbox', value=64, id='DT')
                 label.form-check-label(for='DT') Double Time
@@ -101,7 +101,7 @@ block content
               .md-form
                 input.form-control(type='number', name='xb', value=MAX_SAFE_INTEGER, id="xb" min=0)
                 label(for="xb") Max BPM
-        .container#perfOptions
+        .container.perfOption#perfOptions
           h4 Map Difficulty Options
           .form-group.row
             .col
@@ -144,9 +144,11 @@ block content
                     input.form-control(type='number', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs" min=0)
                     label#csLabelMax(for="xcs") Max CS
         .container
-          .col.text-center
-            button#filterBtn.btn.btn-outline-success.mr-sm-2(type='submit') Apply Filter
-            button#resetBtn.btn.btn-outline-warning(type='submit') Reset Filter
+          .row
+            .col.d-flex.justify-content-center
+              button#filterBtn.btn.btn-outline-success(type='submit') Apply Filter
+            .col.d-flex.justify-content-center
+              button#resetBtn.btn.btn-outline-warning(type='submit') Reset Filter
 
 
     div.table-responsive#table
@@ -169,7 +171,7 @@ block content
         div#pages
       .col-12.col-md-4.d-flex.justify-content-center
         .dropdown
-          button#pageNum.btn.dropdown-toggle.grey-text.navbar-custom(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+          button#pageNum.dropButton.btn.dropdown-toggle.custom-grey.navbar-custom(type='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
             | Maps Per Page
           .dropdown-menu.navbar-custom#dropdownMenuButton(aria-labelledby='dropdownMenuButton')
             a.dropdown-item(num=10) 10
@@ -282,9 +284,9 @@ block content
 
     function genTableHTML(pos, map_slice){
       if(map_slice.mode == 3){
-        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' Key: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' Key: ' + (map_slice.cs).toFixed(1) +  ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else{
-       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(2) +  ' OD: ' + (map_slice.od).toFixed(2) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+       return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist  + ' - ' +  map_slice.name +  ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' +  (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) +  ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score*100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc*100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
 
     }
     }

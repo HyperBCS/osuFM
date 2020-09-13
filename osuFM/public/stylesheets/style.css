@@ -3,7 +3,19 @@ body {
 }
 
 h1,h2,h3,h4,h5,h6,th,p,a,b,table.table a,.pagination .page-item .page-link,label{
-  color: #9e9e9e;
+  color: #dcddde;
+}
+
+.custom-grey {
+  color: #dcddde;
+}
+
+.dropButton{
+  color: #dcddde !important;
+}
+
+.dropButton:Hover{
+  color: white !important;
 }
 
 .table th, .table td{
@@ -20,7 +32,7 @@ hr {
 
 .navbar-custom,.dropdown-item a {
   background-color: #2E2E2E;
-  color: #9e9e9e;
+  color: #dcddde;
 }
 
 .slider-handle {
@@ -34,7 +46,7 @@ hr {
 }
 
 .slider-track-low, .slider-track-high {
-	background: #9e9e9e;
+	background: #dcddde;
 }
 
 .bottom {
@@ -46,6 +58,18 @@ hr {
   position: relative;
 }
 
-input[type=text] {
-  color: white !important;
+input {
+  color :#dcddde !important;
+}
+
+.input-group-text {
+  border: unset;
+}
+
+.md-form.input-group .input-group-text {
+  background-color:unset;
+}
+
+.perfOption {
+  overflow: hidden;
 }
