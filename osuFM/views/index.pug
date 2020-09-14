@@ -224,7 +224,6 @@ block content
    var current_page = 1
    var num_show = 0
    var img_loaded = 0
-   var anchor = 0
 
 
     $(function() {
@@ -243,7 +242,6 @@ block content
     });
 
     $('#pages').bootpag().on('page', function(event, num){
-          anchor = 1
           if(filter_on){
             fillTable(map_data_filter, num)
           } else{
@@ -251,7 +249,6 @@ block content
           }
           current_page = num
           $('#page').val(num)
-          window.scrollTo(0,document.body.scrollHeight);
       });
 
    function getTableData(num){
@@ -353,13 +350,6 @@ block content
       });
 
     });
-
-    new ResizeSensor(jQuery('#main'), function(){ 
-      if(anchor > 1){
-        window.scrollTo(0,document.body.scrollHeight);
-        anchor = 0;
-      }
-    });
     
     function fillTable(data, page){
       page -= 1
@@ -382,9 +372,6 @@ block content
                     img_loaded += 1
                     if(img_loaded == num_show){
                       $('#data_body').html($('#data_body_dummy').html())
-                    }
-                    if(anchor){
-                      anchor = 2
                     }
                 })
 
@@ -435,7 +422,6 @@ block content
       } else{
         fillTable(map_data, 1)
       }
-      window.scrollTo(0,document.body.scrollHeight);
     });
 
     $("[name='mode'] a.dropdown-item").click( function() {

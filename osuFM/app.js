@@ -4,10 +4,14 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var util = require('./util/helper.js')
 
 var index = require('./routes/index');
 
 var app = express();
+
+app.locals.mapCache = util.mapCache()
+app.locals.dbUpdateDate = util.dbUpdateDate()
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -15,7 +19,7 @@ app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('common'));
+app.use(logger(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status - :response-time ms'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
@@ -42,3 +46,4 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+
