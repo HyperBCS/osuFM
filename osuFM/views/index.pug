@@ -109,11 +109,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='number', name='md', value=0, id="md" min=0 step="0.01" inputmode="decimal")
+                    input.form-control(type='number', name='md', value=0, id="md" min=0 max=15 step="0.01" inputmode="decimal")
                     label(for="md") Max Stars
                 .col
                   .md-form
-                    input.form-control(type='number', name='xd', value=15, id="xd" min=0 step="0.01" inputmode="decimal")
+                    input.form-control(type='number', name='xd', value=15, id="xd" min=0 max=15 step="0.01" inputmode="decimal")
                     label(for="xd") Max Stars
             .col
               .row
@@ -122,11 +122,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='number', name='mar', value=0, id="mar" min=0 step="0.1" inputmode="decimal")
+                    input.form-control(type='number', name='mar', value=0, id="mar" min=0 max=11 step="0.1" inputmode="decimal")
                     label(for="mar") Max AR
                 .col
                   .md-form
-                    input.form-control(type='number', name='xar', value=11, id="xar" min=0 step="0.1" inputmode="decimal")
+                    input.form-control(type='number', name='xar', value=11, id="xar" min=0 max=11 step="0.1" inputmode="decimal")
                     label(for="xar") Max AR
             .col
               .row
@@ -135,11 +135,11 @@ block content
               .row
                 .col
                   .md-form
-                    input.form-control(type='number', name='mcs', placeholder='Min CS',  mode = 0, value=0, id="mcs" min=0 step="0.1" inputmode="decimal")
+                    input.form-control(type='number', name='mcs', placeholder='Min CS',  mode = 0, value=0, id="mcs" min=0 max=10 step="0.1" inputmode="decimal")
                     label#csLabelMin(for="mcs") Max CS
                 .col
                   .md-form
-                    input.form-control(type='number', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs" min=0 step="0.1" inputmode="decimal")
+                    input.form-control(type='number', name='xcs', placeholder='Max CS', mode = 0, value=10, id="xcs" min=0 max=10 step="0.1" inputmode="decimal")
                     label#csLabelMax(for="xcs") Max CS
         .container
           .row
@@ -257,8 +257,6 @@ block content
       for(i = 0;i < max_per_page;i++){
         table_dummy_data += "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div></td><td><div class='ph-item ph-picture img-placeholder'></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>"
       }
-      //- $('#data_body_dummy').html(table_dummy_data)
-      //- $('#data_body_dummy').show()
       $('#data_body').html(table_dummy_data)
       $.get( "filter?" + $('#filterForm').serialize(), function(data, status) {
         map_data = data.maps
@@ -338,12 +336,16 @@ block content
         var pos = parseInt(m)+1
         tableData += genTableHTML(pos, map_slice[m])
       }
-
-
+      if(map_data_filter.length){
+      var upper = map_data_filter.length < max_per_page ? map_data_filter.length : max_per_page
+        $("#numEntries").text("Showing 1 to " + upper + " of " + map_data_filter.length + " entries")
+      } else{
+        $("#numEntries").text("Showing 0 entries")
+      }
       $("#data_body").empty()
       $('#data_body').append(tableData)
       $('#pages').bootpag({
-    total: Math.ceil(map_data_filter.length / max_per_page),
+    total: Math.max(1,Math.ceil(map_data_filter.length / max_per_page)),
     firstLastUse: true,
     page: 1,
     maxVisible: 7
@@ -352,8 +354,8 @@ block content
     });
     
     function fillTable(data, page){
+      console.log("here")
       page -= 1
-
       var map_slice = (data).slice(page*max_per_page, (page+1)*max_per_page )
       var tableData = ""
       var table_dummy_data = ""
@@ -363,18 +365,23 @@ block content
         tableData += genTableHTML(pos, map_slice[m])
         table_dummy_data += "<tr><td><p>" + pos + "</p></td><td><div class='ph-item ph-picture img-placeholder'></td><td><p class='text-muted small'<td></p></td><td></td><td></td><td><td></td><td></td><td></td><td></td></tr>"
       }
-      num_show = pos < max_per_page ?  pos : max_per_page
+      num_show = (pos % max_per_page != 0) ?  pos % max_per_page : max_per_page
       var upper = page*max_per_page+num_show
-      $("#numEntries").text("Showing " + (page*max_per_page+1) + " to " + upper + " of " + data.length + " entries")
+      
       img_loaded = 0
       $('#data_body_dummy').html(tableData)
+      if(pos){
+        $("#numEntries").text("Showing " + (page*max_per_page+1) + " to " + upper + " of " + data.length + " entries")
       $('img').on('load', function() {
                     img_loaded += 1
                     if(img_loaded == num_show){
                       $('#data_body').html($('#data_body_dummy').html())
                     }
                 })
-
+      } else{
+        $("#numEntries").text("Showing 0 entries")
+        $('#data_body').html($('#data_body_dummy').html())
+      }
       $('#pages').bootpag({
     total: Math.max(1,Math.ceil((data).length / max_per_page)),
     firstLastUse: true,
