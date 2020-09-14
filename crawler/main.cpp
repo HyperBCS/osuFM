@@ -571,7 +571,7 @@ static int callbackPopulate(void *no_maps, int argc, char **argv, char **azColNa
         }else if(col == "num_scores"){
             m->num_scores = std::atoi(argv[i]);
         }else if(col == "pop_mod"){
-            m->pop_mod = std::stof(argv[i]);
+            m->pop_mod = std::atoi(argv[i]);
         }else if(col == "avg_pp"){
             m->avg_pp = std::stof(argv[i]);
         }else if(col == "avg_acc"){
@@ -597,7 +597,7 @@ static int callbackPopulate(void *no_maps, int argc, char **argv, char **azColNa
         }else if(col == "version"){
             m->version = std::string(argv[i]);
         }else if(col == "score"){
-            m->mode = std::atoi(argv[i]);
+            m->score = std::stof(argv[i]);
         }else if(col == "calculated"){
             m->calculated = std::atoi(argv[i]);
         }
@@ -756,4 +756,5 @@ int main() {
     for(auto map_pt : new_maps){
         delete map_pt;
     }
+    return 0;
 }

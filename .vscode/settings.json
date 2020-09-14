@@ -14,7 +14,8 @@
 		".vscode",
 		"vcpkg",
 		"osuFM.db",
-		"node_modules"
+		"node_modules",
+		"build"
 	],
 	"python.pythonPath": "C:\\Users\\BCS14\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
 
