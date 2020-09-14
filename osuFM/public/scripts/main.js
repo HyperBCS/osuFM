@@ -166,6 +166,11 @@ function genTableMobileHTML(pos, map_slice) {
 }
 
 $('#searchBox1, #searchBox2').on('input', function (data) {
+    if($(this).attr('id') == "searchBox1"){
+        $("#searchBox2").val($("#searchBox1").val())
+    } else{
+        $("#searchBox1").val($("#searchBox2").val())
+    }
     var searchBox = data.target
     map_data_filter = []
     if ($(searchBox).val() == '') {
@@ -181,9 +186,11 @@ $('#searchBox1, #searchBox2').on('input', function (data) {
 
     var map_slice = (map_data_filter).slice(0, max_per_page)
     var tableData = ""
+    var tableData_mobile = ""
     for (m in map_slice) {
         var pos = parseInt(m) + 1
         tableData += genTableHTML(pos, map_slice[m])
+        tableData_mobile += genTableMobileHTML(pos, map_slice[m])
     }
     if (map_data_filter.length) {
         var upper = map_data_filter.length < max_per_page ? map_data_filter.length : max_per_page
@@ -192,7 +199,8 @@ $('#searchBox1, #searchBox2').on('input', function (data) {
         $("#numEntries").text("Showing 0 entries")
     }
     $("#data_body").empty()
-    $('#data_body').append(tableData)
+    $('#data_body').html(tableData)
+    $('#tableMobile').html(tableData_mobile)
     $('#pages').bootpag({
         total: Math.max(1, Math.ceil(map_data_filter.length / max_per_page)),
         firstLastUse: true,
@@ -207,7 +215,6 @@ function fillTable(data, page) {
     var map_slice = (data).slice(page * max_per_page, (page + 1) * max_per_page)
     var tableData = ""
     var tableData_mobile = ""
-    var table_dummy_data = ""
     var pos = 0
     for (m in map_slice) {
         pos = page * max_per_page + parseInt(m) + 1
@@ -282,6 +289,8 @@ $("#dropdownMenuButton a.dropdown-item").click(function () {
 
 $("[name='mode'] a.dropdown-item").click(function () {
     mode = $(this).text();
+    $("#searchBox1").val("")
+    $("#searchBox2").val("")
     var y = document.getElementById('modes');
     $("#navbarDropdown").text(mode);
     if ($(this).attr("mode") == 3) {
