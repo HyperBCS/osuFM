@@ -68,7 +68,7 @@ function getTableData(num) {
     filter_on = false
     table_dummy_data = ""
     for (i = 0; i < max_per_page; i++) {
-        table_dummy_data += "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div></td><td><div class='ph-item ph-picture img-placeholder'></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>"
+        table_dummy_data += "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div></td><td><div class='ph-item ph-picture img-placeholder my-0'></td><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6 my-0'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>"
     }
     $('#data_body').html(table_dummy_data)
     $.get("filter?" + $('#filterForm').serialize(), function (data, status) {
@@ -175,7 +175,6 @@ function fillTable(data, page) {
     for (m in map_slice) {
         pos = page * max_per_page + parseInt(m) + 1
         tableData += genTableHTML(pos, map_slice[m])
-        table_dummy_data += "<tr><td><p>" + pos + "</p></td><td><div class='ph-item ph-picture img-placeholder'></td><td><p class='text-muted small'<td></p></td><td></td><td></td><td><td></td><td></td><td></td><td></td></tr>"
     }
     num_show = (pos % max_per_page != 0) ? pos % max_per_page : max_per_page
     var upper = page * max_per_page + num_show
