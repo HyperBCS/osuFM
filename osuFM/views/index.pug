@@ -197,7 +197,6 @@ block content
           $(this).prop("checked", false)
           $(this).prop("indeterminate", false)
         }
-       console.log($(this).attr("lastVal"))
       var DT = parseInt($('#DT').is(':checked') ? $('#DT').val() : 0);
       var HD = parseInt($('#HD').is(':checked') ? $('#HD').val() : 0);
       var HR = parseInt($('#HR').is(':checked') ? $('#HR').val() : 0);
@@ -385,7 +384,6 @@ block content
                       $('#data_body').html($('#data_body_dummy').html())
                     }
                     if(anchor){
-                      console.log("anchor")
                       anchor = 2
                     }
                 })
