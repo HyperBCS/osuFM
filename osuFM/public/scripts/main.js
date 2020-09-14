@@ -67,10 +67,25 @@ $('#pages').bootpag().on('page', function (event, num) {
 function getTableData(num) {
     filter_on = false
     table_dummy_data = ""
+    table_dummy_mobile_data = ""
     for (i = 0; i < max_per_page; i++) {
         table_dummy_data += "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div></td><td><div class='ph-item ph-picture img-placeholder my-0'></td><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6 my-0'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>"
+        table_dummy_mobile_data += '<div class="col">' + 
+        `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><div class='ph-item ph-picture img-placeholder my-0'></div></div></div>
+        <div class="col"><div class="row"><div class='ph-item ph-col-12 ph-row'> <div class='my-0'></div></div></div>
+
+        <div class="row"><p class="text-muted small"><div class='ph-item ph-col-6 ph-row'> <div class='my-0'></div></div></p></div></div></div>
+        <div class="row"><div class="col"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
+        <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>PP</p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
+        <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>Acc</p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
+        <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>Mods</p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
+        <div class="col-auto"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-clock"></i></p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
+        <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>BPM</p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
+        <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-star"></i></p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div></div></div><hr>`
+    
     }
     $('#data_body').html(table_dummy_data)
+    $('#tableMobile').html(table_dummy_mobile_data)
     $.get("filter?" + $('#filterForm').serialize(), function (data, status) {
         map_data = data.maps
         for (m in map_data) {
@@ -121,12 +136,33 @@ $(function () {
 
 function genTableHTML(pos, map_slice) {
     if (map_slice.mode == 3) {
-        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">Key: ' + map_slice.cs + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">Keys: ' + map_slice.cs + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else if (map_slice.mode == 1) {
         return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else {
         return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a class="table-name" href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' + (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     }
+}
+
+function genTableMobileHTML(pos, map_slice) {
+    if(map_slice.mode == 0 || map_slice.mode == 2){
+        diff_str = 'AR: ' + (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) + ' OD: ' + (map_slice.od).toFixed(1)
+    } else if(map_slice.mode == 1){
+        diff_str = 'OD: ' + (map_slice.od).toFixed(1)
+    } else if (map_slice.mode == 3){
+        diff_str = 'Keys: ' + (map_slice.cs).toFixed(1) + ' OD: ' + (map_slice.od).toFixed(1)
+    }
+    return '<div class="col">' + 
+    `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><a href="https://osu.ppy.sh/b/` + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + `.jpg"></a></div> </div>
+    <div class="col"><div class="row"><a class="table-name" href="https://osu.ppy.sh/b/` + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + `</div></a>
+    <div class="row"><p class="text-muted small">`+ diff_str + `</p></div></div></div>
+    <div class="row"><div class="col"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><p class="font-weight-bold my-0">` + (map_slice.score * 100).toFixed(2) +`</p></div></div>
+    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>PP</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_pp).toFixed(2) + `</p></div></div>
+    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>Acc</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_acc * 100).toFixed(2) + `%</p></div></div>
+    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>Mods</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.pop_mod + `</p></div></div>
+    <div class="col-1"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-clock"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.length + `</p></div></div>
+    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>BPM</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.bpm).toFixed(2) + `</p></div></div>
+    <div class="col-1"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-star"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.diff).toFixed(2) + '</p></div></div></div></div><hr>'
 }
 
 $('#searchBox1, #searchBox2').on('input', function (data) {
@@ -170,15 +206,16 @@ function fillTable(data, page) {
     page -= 1
     var map_slice = (data).slice(page * max_per_page, (page + 1) * max_per_page)
     var tableData = ""
+    var tableData_mobile = ""
     var table_dummy_data = ""
     var pos = 0
     for (m in map_slice) {
         pos = page * max_per_page + parseInt(m) + 1
         tableData += genTableHTML(pos, map_slice[m])
+        tableData_mobile += genTableMobileHTML(pos, map_slice[m])
     }
     num_show = (pos % max_per_page != 0) ? pos % max_per_page : max_per_page
     var upper = page * max_per_page + num_show
-
     img_loaded = 0
     $('#data_body_dummy').html(tableData)
     if (pos) {
@@ -187,6 +224,7 @@ function fillTable(data, page) {
             img_loaded += 1
             if (img_loaded == num_show) {
                 $('#data_body').html($('#data_body_dummy').html())
+                $('#tableMobile').html(tableData_mobile)
             }
         })
     } else {

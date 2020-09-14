@@ -18,26 +18,27 @@ block content
       .row
         .col
           nav.navbar.navbar-expand-lg.navbar-dark.navbar-custom
-              .col.d-flex.d-none.d-sm-block.d-lg-none.md-form.p-0
+              .col.d-flex.d-none.d-sm-block.d-lg-none.md-form.p-0.my-0
                   input#searchBox1.form-control(type='text' aria-label='Search' name='n1')
                   label(for="searchBox1") Search
               .col-auto.button.navbar-toggler(type='button' data-toggle='collapse' data-target='#navbarSupportedContent' aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation')
                 span.navbar-toggler-icon
               #navbarSupportedContent.collapse.navbar-collapse
                 .col-auto
-                  ul.navbar-nav.mr-auto
-                    li.nav-item.dropdown
-                      a#navbarDropdown.nav-link.dropdown-toggle.custom-grey.dropButton(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
-                        | Standard
-                      .dropdown-menu.navbar-custom(aria-labelledby='navbarDropdown',name='mode')
-                        a.dropdown-item.custom-grey(onclick="$('#mode').val(0)" mode=0) Standard
-                        a.dropdown-item.custom-grey(onclick="$('#mode').val(1)" mode=1) Taiko
-                        a.dropdown-item.custom-grey(onclick="$('#mode').val(2)" mode=2) Catch the Beat
-                        a.dropdown-item.custom-grey(onclick="$('#mode').val(3)" mode=3) Mania
-                        .dropdown-divider
-                        a.dropdown-item.custom-grey(onclick="$('#mode').val(-1)") All
-                    li.nav-item.dropdown
-                      a.nav-link.dropdown-toggle.custom-grey.dropButton(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
+                  .row
+                    ul.navbar-nav.mr-auto
+                      li.nav-item.dropdown
+                        a#navbarDropdown.nav-link.dropdown-toggle.custom-grey.dropButton(href='#' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false')
+                          | Standard
+                        .dropdown-menu.navbar-custom(aria-labelledby='navbarDropdown',name='mode')
+                          a.dropdown-item.custom-grey(onclick="$('#mode').val(0)" mode=0) Standard
+                          a.dropdown-item.custom-grey(onclick="$('#mode').val(1)" mode=1) Taiko
+                          a.dropdown-item.custom-grey(onclick="$('#mode').val(2)" mode=2) Catch the Beat
+                          a.dropdown-item.custom-grey(onclick="$('#mode').val(3)" mode=3) Mania
+                          .dropdown-divider
+                          a.dropdown-item.custom-grey(onclick="$('#mode').val(-1)") All
+                      li.nav-item.dropdown
+                        a.nav-link.dropdown-toggle.custom-grey.dropButton(role="button",data-toggle="collapse", data-target="#filters", id='filter') Map Filters
                 .col.d-none.d-lg-block
                     .my-lg-0.d-flex.md-form
                       input#searchBox2.form-control.mr-sm-2(type='text' aria-label='Search' placeholder="Search" name='n2')
@@ -149,7 +150,7 @@ block content
               button#filterBtn.btn.btn-outline-success(type='submit') Apply Filter
 
 
-    div.table-responsive#table
+    div.table-responsive.d-none.d-lg-block#table
       table#tableData.table
         thead
           tr
@@ -165,6 +166,7 @@ block content
             th Stars
         tbody#data_body
         tbody#data_body_dummy(style="display:none")
+    div.d-block.d-lg-none#tableMobile
     .row
       .col-12.col-md-4.d-flex.justify-content-center.mt-3
         div#pages
