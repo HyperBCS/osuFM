@@ -47,6 +47,10 @@ table.table a, .table, th, th p, table td{
   white-space: nowrap;
 }
 
+th {
+  text-align: center;
+}
+
 /* table.table a, .table, th, th p, table td{
   font-size: 1.3rem !important;
   color: #dcddde;
