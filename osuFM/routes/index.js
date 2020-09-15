@@ -96,7 +96,7 @@ router.get('/filter', function (req, res, next) {
         } else if (query_mod_m % 2 != 0) {
             query_mod_m += 1
         }
-        query = { order: [['score', 'DESC']], where: { mods: { [Op.or]: [Sequelize.literal("pop_mod == " + query_mod), Sequelize.literal("pop_mod & " + query_mod_m)] }, diff: { [Op.gte]: diff_range[0], [Op.lte]: diff_range[1] }, bpm: { [Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1] }, length: { [Op.gte]: time_range[0], [Op.lte]: time_range[1] }, avg_pp: { [Op.gte]: pp_range[0], [Op.lte]: pp_range[1] }, cs: { [Op.gte]: cs_range[0], [Op.lte]: cs_range[1] }, ar: { [Op.gte]: ar_range[0], [Op.lte]: ar_range[1] }, [Op.and]: [{ [Op.or]: mode }] } }
+        query = { order: [['score', 'DESC']], where: { mods: { [Op.or]: [{[Op.and]: [Sequelize.literal("pop_mod & " + query_mod), Sequelize.literal("pop_mod & " + query_mod_m)] }, Sequelize.literal("pop_mod == " + query_mod)] }, diff: { [Op.gte]: diff_range[0], [Op.lte]: diff_range[1] }, bpm: { [Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1] }, length: { [Op.gte]: time_range[0], [Op.lte]: time_range[1] }, avg_pp: { [Op.gte]: pp_range[0], [Op.lte]: pp_range[1] }, cs: { [Op.gte]: cs_range[0], [Op.lte]: cs_range[1] }, ar: { [Op.gte]: ar_range[0], [Op.lte]: ar_range[1] }, [Op.and]: [{ [Op.or]: mode }] } }
     }
     map_ret = []
     models.Beatmap.findAndCountAll(query).then(function (maps) {

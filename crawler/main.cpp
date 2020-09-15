@@ -533,15 +533,15 @@ void processMaps(std::vector<Beatmap *> &processed_maps)
             }
         }
     }
-    float max_score = 0;
+    std::vector<float>max_score(4,0);
     for (auto m : processed_maps)
     {
-        if (m->score > max_score)
+        if (m->score > max_score[m->mode])
         {
-            max_score = m->score;
+            max_score[m->mode] = m->score;
         }
     }
-    for (auto m : processed_maps){m->score /= max_score;}
+    for (auto m : processed_maps){m->score /= max_score[m->mode];}
 
     std::cout << "Calculating diffs for " << processed_maps.size() << std::endl;
     int count = 0;
