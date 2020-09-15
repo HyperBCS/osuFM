@@ -362,9 +362,6 @@ int modsToInt(json mod_string_arr)
             mods |= 1 << 30;
         }
     }
-    // if(mod_comb_str != intToMods(mods)){
-    //     std::cout << mod_comb_str << mods << intToMods(mods) << std::endl;
-    // }
     return mods;
 }
 
@@ -392,7 +389,7 @@ void parseScore(json score, json user, int pos)
     scores.push_back(ret);
 }
 
-float ci(float pos, float n)
+float ci(float pos, int n)
 {
     float z = 1.96;
     float phat = 1.0 * pos / n;
@@ -443,7 +440,7 @@ std::string getURL(std::string url, std::string auth_string, bool checkJson)
 
 void processMaps(std::vector<Beatmap *> &processed_maps)
 {
-    float threshold = 0.66;
+    float threshold = 0.33;
     // key is map id
     std::unordered_map<int, std::unordered_map<int, std::vector<Score>>> map_map_scores;
     std::unordered_map<int, int> map_score_num;
@@ -487,31 +484,31 @@ void processMaps(std::vector<Beatmap *> &processed_maps)
             float avg_rank = 0;
             float avg_pos = 0;
             float avg_acc = 0;
-            long pos_sum = 0;
+            float pos_sum = 0;
             int count_mod = mod_list.second.size();
+            int real_count = 0;
             float count_pos = 0;
             for (auto score : mod_list.second)
             {
-                count_pos += 1 - (score.pos / 100.0);
-                pos_sum += (101 - score.pos);
-                avg_pp += score.map_pp * (101 - score.pos);
-                avg_pos += score.pos * (101 - score.pos);
-                avg_rank += score.rank * (101 - score.pos);
-                avg_acc += score.acc * (101 - score.pos);
+                
+                count_pos += pow(1-.0529652,score.pos);
+                pos_sum += pow(1-.0529652,score.pos);
+                avg_pp += score.map_pp * pow(1-.0529652,score.pos);
+                avg_pos += score.pos * pow(1-.0529652,score.pos);
+                avg_rank += score.rank * pow(1-.0529652,score.pos);
+                avg_acc += score.acc * pow(1-.0529652,score.pos);
             }
-            if (count_pos < 50 || (count_pos / count_mod < threshold))
+            if (count_mod < 50 || (count_pos / count_mod < threshold))
             {
                 continue;
             }
             float top_mods = 1.0 * count_pos / count_mod;
-            float mod_scale = log(count_mod) / log(num_scores);
             avg_pp /= pos_sum;
             avg_rank /= pos_sum;
             avg_pos /= pos_sum;
             avg_acc /= pos_sum;
-            float num_scores_float = num_scores*mod_scale;
-            float scaled_pos = num_scores_float * top_mods;
-            float ci_score = ci(scaled_pos, num_scores_float);
+            float scaled_pos = num_scores * top_mods;
+            float ci_score = ci(scaled_pos, num_scores);
             Beatmap *new_map = new Beatmap;
             *new_map = *map.second;
             bool found = false;
@@ -536,6 +533,16 @@ void processMaps(std::vector<Beatmap *> &processed_maps)
             }
         }
     }
+    float max_score = 0;
+    for (auto m : processed_maps)
+    {
+        if (m->score > max_score)
+        {
+            max_score = m->score;
+        }
+    }
+    for (auto m : processed_maps){m->score /= max_score;}
+
     std::cout << "Calculating diffs for " << processed_maps.size() << std::endl;
     int count = 0;
     for (auto p_map : processed_maps)
@@ -891,7 +898,7 @@ int main()
                 {
                     break;
                 }
-                std::cout << "Starting page [" << i << "/" << max_pages << "]\n";
+                std::cout << "[" << mode << "]" <<"[" << country << "]" << "Starting page" <<  "[" << i << "/" << max_pages << "]\n";
 
                 std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + std::to_string(i) + "&country=" + country;
                 json users = json::parse(getURL(url, auth_string, true))["ranking"];
