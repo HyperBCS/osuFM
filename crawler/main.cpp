@@ -490,13 +490,13 @@ void processMaps(std::vector<Beatmap *> &processed_maps)
             float count_pos = 0;
             for (auto score : mod_list.second)
             {
-                
-                count_pos += pow(1-.0529652,score.pos);
-                pos_sum += pow(1-.0529652,score.pos);
-                avg_pp += score.map_pp * pow(1-.0529652,score.pos);
-                avg_pos += score.pos * pow(1-.0529652,score.pos);
-                avg_rank += score.rank * pow(1-.0529652,score.pos);
-                avg_acc += score.acc * pow(1-.0529652,score.pos);
+                float pow_val = pow(1-.0529652,score.pos);
+                count_pos += pow_val;
+                pos_sum += pow_val;
+                avg_pp += score.map_pp * pow_val;
+                avg_pos += score.pos * pow_val;
+                avg_rank += score.rank * pow_val;
+                avg_acc += score.acc * pow_val;
             }
             if (count_mod < 50 || (count_pos / count_mod < threshold))
             {
