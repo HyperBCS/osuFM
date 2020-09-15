@@ -74,9 +74,13 @@ table.table a, .table, th, th p, table td{
   }
 
   .glow {
-    text-shadow: 0 0 4px white;
+    text-shadow: 0 0 3px white;
   }
 
   .fa, .timepicker-hour, .timepicker-minute, .timepicker-second, .separator {
     color: black;
+  }
+
+  .text-muted {
+    color: #9e9e9e !important;
   }

@@ -12,6 +12,13 @@ table.table a, .table, th, th p, table td{
   background: #007bff;
 }
 
+.farm-score {
+  font-size: 1.8rem !important;
+}
+
+.table th, .table td {
+  vertical-align : middle;
+}
 
 .bottom {
   position: absolute;
