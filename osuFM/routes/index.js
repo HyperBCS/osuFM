@@ -34,7 +34,7 @@ var defaults = {
 /* GET home page. */
 router.get('/', function (req, res, next) {
     res.render('footer', {
-        title: 'osuFM',
+        title: 'osuFM - Find the best osu! farm maps',
         date: req.app.locals.dbUpdateDate
     });
 });
