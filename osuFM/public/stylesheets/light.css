@@ -1,5 +1,5 @@
 .navbar-custom,.dropdown-item a {
-    background-color: #dc3545;
+    background-color: #007bff;
   }
 
   #searchBox1,#searchBox1:active,#searchBox2,#searchBox2:active {
@@ -11,14 +11,22 @@
     color: white;
   }
 
-  .btn:hover{
+  .dropButton:hover{
     color: #dcddde;
   }
 
-  .btn{
+  .dropButton{
     color: white;
   }
 
+#searchBox1:focus:not([readonly]) + label,#searchBox2:focus:not([readonly])  {
+  color: white;  !important; 
+}
+
+#searchBox1:focus:not([readonly]),#searchBox2:focus:not([readonly])  {
+  border-bottom: 1px solid white !important; 
+  box-shadow: unset !important; 
+}
 
   .form-control::-webkit-input-placeholder { color: #dcddde; }  /* WebKit, Blink, Edge */
   .form-control:-moz-placeholder { color: #dcddde; }  /* Mozilla Firefox 4 to 18 */

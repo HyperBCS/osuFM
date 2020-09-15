@@ -9,6 +9,7 @@ table.table a, .table, th, th p, table td{
 
 .slider-handle {
   box-shadow: unset;
+  background: #007bff;
 }
 
 

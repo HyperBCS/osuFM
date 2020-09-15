@@ -68,3 +68,7 @@ table.table a, .table, th, th p, table td{
   .glow {
     text-shadow: 0 0 4px white;
   }
+
+  .fa, .timepicker-hour, .timepicker-minute, .timepicker-second, .separator {
+    color: black;
+  }
