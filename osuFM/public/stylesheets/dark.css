@@ -27,6 +27,14 @@ table.table a, .table, th, th p, table td{
   .footer-text{
     color:  #9e9e9e !important;
   }
+
+  a{
+    color:  #dcddde;
+  }
+
+  a:hover{
+    color:  white !important;
+  }
   
   .dropButton:Hover{
     color: white !important;
