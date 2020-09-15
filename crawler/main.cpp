@@ -392,7 +392,7 @@ void parseScore(json score, json user, int pos)
     scores.push_back(ret);
 }
 
-float ci(float pos, int n)
+float ci(float pos, float n)
 {
     float z = 1.96;
     float phat = 1.0 * pos / n;
@@ -509,9 +509,9 @@ void processMaps(std::vector<Beatmap *> &processed_maps)
             avg_rank /= pos_sum;
             avg_pos /= pos_sum;
             avg_acc /= pos_sum;
-            num_scores *= mod_scale
-            float scaled_pos = num_scores * top_mods;
-            float ci_score = ci(scaled_pos, num_scores);
+            float num_scores_float = num_scores*mod_scale;
+            float scaled_pos = num_scores_float * top_mods;
+            float ci_score = ci(scaled_pos, num_scores_float);
             Beatmap *new_map = new Beatmap;
             *new_map = *map.second;
             bool found = false;
