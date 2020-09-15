@@ -1,12 +1,22 @@
 extends head
 
 block content
-  .container#main
-    a(href='/' style="color:black;text-decoration : none")
-      h1.h1 osuF
-        span.h6 armers
-        span.h1 M
-        span.h6 arket
+  .container-fluid.main#main
+    .row
+      .col-auto.pr-0
+        a(href='/' style="color:black;text-decoration : none")
+          h1.h1 osuF
+            span.h6 armers
+            span.h1 M
+            span.h6 arket
+      .col.d-flex.justify-content-end.my-auto.pl-0
+        .switch#themeEle.mt-auto(style="display:none")
+          label
+            i.fas.fa-moon
+            input#theme(type='checkbox')
+            span.lever
+            i.fas.fa-sun
+
     form#filterForm(onsubmit="applyFilter()")
       input#mods(style="display:none", name='mods', value=0)
       input#modsMaybe(style="display:none", name='modsMaybe', value=0)
@@ -153,13 +163,13 @@ block content
     div.table-responsive.d-none.d-lg-block#table
       table#tableData.table
         thead
-          tr
+          tr.table-text
             th #
             th
-            th(style="width: 100%") Map
-            th.font-weight-bold Farm Score
-            th Average PP
-            th Average Acc
+            th Map
+            th.font-weight-bold(style="width: auto") Farm Score
+            th PP
+            th Acc
             th Mods
             th Length
             th BPM

@@ -1,4 +1,23 @@
+// Retrieve your data from locaStorage
+var saveData = JSON.parse(localStorage.saveData || null) || {};
+if(saveData.theme == 0 || saveData.theme == null ){
+    $("head").append('<link rel="stylesheet" href="/stylesheets/dark.css" type="text/css" />')
+    $("#themeEle").show()
+} else{
+    $("#theme").prop("checked", true)
+    $("#themeEle").show()
+    $("head").append('<link rel="stylesheet" href="/stylesheets/light.css" type="text/css" />')
+}
+
+// Store your data.
+function saveTheme(themeVal) {
+  saveData.theme = themeVal;
+  localStorage.saveData = JSON.stringify(saveData);
+}
+
+
 $(':checkbox').change(function () {
+    if($(this).attr("id") == "theme"){return}
 
     if ($(this).attr("lastVal") == 0 || $(this).attr("lastVal") == null) {
         $(this).attr("lastVal", 1)
@@ -73,7 +92,6 @@ function getTableData(num) {
         table_dummy_mobile_data += '<div class="col">' + 
         `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><div class='ph-item ph-picture img-placeholder my-0'></div></div></div>
         <div class="col"><div class="row"><div class='ph-item ph-col-12 ph-row'> <div class='my-0'></div></div></div>
-
         <div class="row"><p class="text-muted small"><div class='ph-item ph-col-6 ph-row'> <div class='my-0'></div></div></p></div></div></div>
         <div class="row"><div class="col"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
         <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>PP</p></div><div class="row d-flex justify-content-center"><div class='ph-item ph-col-8 ph-row'> <div class='my-0'></div></div></div></div>
@@ -136,11 +154,11 @@ $(function () {
 
 function genTableHTML(pos, map_slice) {
     if (map_slice.mode == 3) {
-        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">Keys: ' + map_slice.cs + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">Keys: ' + map_slice.cs + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold glow">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else if (map_slice.mode == 1) {
-        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold glow">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else {
-        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a class="table-name" href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' + (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p>' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' + (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold glow">' + (map_slice.score * 100).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p>' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p>' + map_slice.pop_mod + '</p></td><td><p>' + map_slice.length + '</p></td><td><p>' + (map_slice.bpm).toFixed(2) + '</p></td><td><p>' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     }
 }
 
@@ -154,15 +172,15 @@ function genTableMobileHTML(pos, map_slice) {
     }
     return '<div class="col">' + 
     `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><a href="https://osu.ppy.sh/b/` + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + `.jpg"></a></div> </div>
-    <div class="col"><div class="row"><a class="table-name" href="https://osu.ppy.sh/b/` + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + `</div></a>
+    <div class="col"><div class="row"><p class="mb-0" href="https://osu.ppy.sh/b/` + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + `</p></div>
     <div class="row"><p class="text-muted small">`+ diff_str + `</p></div></div></div>
-    <div class="row"><div class="col"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><p class="font-weight-bold my-0">` + (map_slice.score * 100).toFixed(2) +`</p></div></div>
-    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>PP</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_pp).toFixed(2) + `</p></div></div>
-    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>Acc</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_acc * 100).toFixed(2) + `%</p></div></div>
-    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>Mods</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.pop_mod + `</p></div></div>
-    <div class="col-1"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-clock"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.length + `</p></div></div>
-    <div class="col"><div class="row d-flex justify-content-center"><p class='my-0'>BPM</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.bpm).toFixed(2) + `</p></div></div>
-    <div class="col-1"><div class="row d-flex justify-content-center"><p class='my-0'><i class="fas fa-star"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.diff).toFixed(2) + '</p></div></div></div></div><hr>'
+    <div class="row"><div class="col-auto mr-auto"><div class="row d-flex justify-content-center mx-0"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><p class="font-weight-bold my-0 glow">` + (map_slice.score * 100).toFixed(2) +`</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>PP</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_pp).toFixed(2) + `</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>Acc</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_acc * 100).toFixed(2) + `%</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>Mods</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.pop_mod + `</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'><i class="fas fa-clock"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.length + `</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>BPM</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.bpm).toFixed(2) + `</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'><i class="fas fa-star"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.diff).toFixed(2) + '</p></div></div></div></div><hr>'
 }
 
 $('#searchBox1, #searchBox2').on('input', function (data) {
@@ -409,3 +427,17 @@ $("[name='xcs']").change(function () {
         $("#len_cs").slider('setValue', [parseInt($("[name='mcs']").val()), parseInt($(this).val())])
     }
 });
+
+$('#theme').on('change', function (event, state) {
+    if($(event.target).is(':checked')){
+        $("link[href='/stylesheets/dark.css']").remove();
+        $("head").append('<link rel="stylesheet" href="/stylesheets/light.css" type="text/css" />')
+        saveTheme(1)
+    } else{
+        $("link[href='/stylesheets/light.css']").remove();
+        $("head").append('<link rel="stylesheet" href="/stylesheets/dark.css" type="text/css" />')
+        saveTheme(0)
+    }
+
+
+}); 
