@@ -25,4 +25,4 @@
   .form-control::-moz-placeholder { color: #dcddde; }  /* Mozilla Firefox 19+ */
   .form-control:-ms-input-placeholder { color: #dcddde; }  /* Internet Explorer 10-11 */
   .form-control::-ms-input-placeholder { color: #dcddde; }  /* Microsoft Edge */
-  .md-form>label { color: #dcddde; }
+  .d-flex.md-form>label { color: #dcddde; }
