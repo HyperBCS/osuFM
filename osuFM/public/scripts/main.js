@@ -123,6 +123,13 @@ document.getElementById("filterBtn").addEventListener("click", function (event) 
 document.getElementById("resetBtn").addEventListener("click", function (event) {
     event.preventDefault()
 });
+$('#filterForm').on('keyup keypress', function(e) {
+    var keyCode = e.keyCode || e.which;
+    if (keyCode === 13) { 
+      e.preventDefault();
+      return false;
+    }
+  });
 
 $(function () {
     $('#min_len').datetimepicker({

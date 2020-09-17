@@ -1,6 +1,8 @@
-
-crawler/keys.cfg
-crawler/conf.json
+*.csv
+beatmaps.csv
+*.hdf
+keys.cfg
+conf.json
 *.pyc
 .DS_Store*
 

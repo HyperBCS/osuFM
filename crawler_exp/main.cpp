@@ -15,7 +15,7 @@ extern "C"
 }
 
 using json = nlohmann::json;
-std::vector<std::string> modes{"osu", "taiko", "fruits", "mania"};
+std::vector<std::string> modes{"osu"};
 
 // move to header soon
 class Beatmap
@@ -638,6 +638,31 @@ void createInsert(Beatmap *map, sqlite3_stmt **stmt, sqlite3 *db, char *title, c
     return;
 }
 
+void createInsertScore(Score score, sqlite3_stmt **stmt, sqlite3 *db)
+{
+
+    char sql[1000];
+    bzero(sql, 1000);
+    snprintf(sql, 1000, "REPLACE INTO 'main'.'scores'('uid','map_id','rank','acc','mods','pos','mode','map_pp','user_pp') VALUES (?,?,?,?,?,?,?,?,?);");
+    int rc = sqlite3_prepare_v2(db, sql, -1, stmt, 0);
+
+    sqlite3_bind_int(*stmt, 1, score.uid);
+    sqlite3_bind_int(*stmt, 2, score.map_id);
+    sqlite3_bind_int(*stmt, 3, score.rank);
+    sqlite3_bind_double(*stmt, 4, score.acc);
+    sqlite3_bind_int(*stmt, 5, score.mods);
+    sqlite3_bind_int(*stmt, 6, score.pos);
+    sqlite3_bind_int(*stmt, 7, score.mode);
+    sqlite3_bind_double(*stmt, 8, score.map_pp);
+    sqlite3_bind_double(*stmt, 9, score.user_pp);
+    if (rc)
+    {
+        fprintf(stderr, "Can't prepare query: %s\n", sqlite3_errmsg(db));
+        std::cout << "SQL is " << sqlite3_expanded_sql(*stmt) << std::endl;
+    }
+    return;
+}
+
 void updateDB(std::vector<Beatmap *> &maps)
 {
     sqlite3 *db;
@@ -686,6 +711,78 @@ void updateDB(std::vector<Beatmap *> &maps)
         delete version;
         std::cout << "Added map [" << count << "/" << maps.size() << "] to db\n";
     }
+
+    sqlite3_close(db);
+}
+
+void updateDBTest()
+{
+    sqlite3 *db;
+    int rc;
+
+    rc = sqlite3_open("data.db", &db);
+
+    if (rc)
+    {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+    else
+    {
+        fprintf(stderr, "Opened database successfully\n");
+    }
+    std::cout << "Starting DB update\n";
+    int count = 0;
+    for (auto map : beatmaps)
+    {
+        count++;
+        sqlite3_stmt *stmt;
+        char *title = new char[map.second->title.length() + 1];
+        std::strcpy(title, map.second->title.c_str());
+        char *artist = new char[map.second->artist.length() + 1];
+        std::strcpy(artist, map.second->artist.c_str());
+        char *mapper = new char[map.second->mapper.length() + 1];
+        std::strcpy(mapper, map.second->mapper.c_str());
+        char *version = new char[map.second->version.length() + 1];
+        std::strcpy(version, map.second->version.c_str());
+        createInsert(map.second, &stmt, db, title, artist, mapper, version);
+        int rc2 = sqlite3_step(stmt);
+        if (rc2 != SQLITE_DONE)
+        {
+            printf("ERROR inserting data: %s\n", sqlite3_errmsg(db));
+            std::cout << "SQL is " << sqlite3_expanded_sql(stmt) << std::endl;
+            continue;
+        }
+        else
+        {
+            sqlite3_finalize(stmt);
+        }
+        delete title;
+        delete artist;
+        delete mapper;
+        delete version;
+        std::cout << "Added map [" << count << "/" << beatmaps.size() << "] to db\n";
+    }
+    count = 0;
+    for (auto score : scores)
+    {
+        count++;
+        sqlite3_stmt *stmt;
+        createInsertScore(score, &stmt, db);
+        int rc2 = sqlite3_step(stmt);
+        if (rc2 != SQLITE_DONE)
+        {
+            printf("ERROR inserting data: %s\n", sqlite3_errmsg(db));
+            std::cout << "SQL is " << sqlite3_expanded_sql(stmt) << std::endl;
+            continue;
+        }
+        else
+        {
+            sqlite3_finalize(stmt);
+        }
+        std::cout << "Added score [" << count << "/" << scores.size() << "] to db\n";
+    }
+
 
     sqlite3_close(db);
 }
@@ -788,6 +885,236 @@ static int callbackPopulate(void *no_maps, int argc, char **argv, char **azColNa
     return 0;
 }
 
+static int callbackPopulateMaps(void *no_maps, int argc, char **argv, char **azColName)
+{
+    int i;
+    Beatmap *m = new Beatmap;
+    for (i = 0; i < argc; i++)
+    {
+        std::string col(azColName[i]);
+        if (col == "bid")
+        {
+            m->id = std::atoi(argv[i]);
+        }
+        else if (col == "sid")
+        {
+            m->set_id = std::atoi(argv[i]);
+        }
+        else if (col == "name")
+        {
+            m->title = std::string(argv[i]);
+        }
+        else if (col == "artist")
+        {
+            m->artist = std::string(argv[i]);
+        }
+        else if (col == "mapper")
+        {
+            m->mapper = std::string(argv[i]);
+        }
+        else if (col == "mode")
+        {
+            m->mode = std::atoi(argv[i]);
+        }
+        else if (col == "cs")
+        {
+            m->cs = std::stof(argv[i]);
+        }
+        else if (col == "ar")
+        {
+            m->ar = std::stof(argv[i]);
+        }
+        else if (col == "od")
+        {
+            m->od = std::stof(argv[i]);
+        }
+        else if (col == "length")
+        {
+            m->length = std::atoi(argv[i]);
+        }
+        else if (col == "bpm")
+        {
+            m->bpm = std::stof(argv[i]);
+        }
+        else if (col == "diff")
+        {
+            m->diff = std::stof(argv[i]);
+        }
+        else if (col == "version")
+        {
+            m->version = std::string(argv[i]);
+        }
+    }
+    beatmaps.insert({m->id, m});
+    return 0;
+}
+
+static int callbackPopulateScore(void *no_maps, int argc, char **argv, char **azColName)
+{
+    int i;
+    static int count = 0;
+    for (i = 0; i < argc; i++)
+    {
+        count++;
+        Score s;
+        switch(i){
+            case(1):
+                s.uid = std::atoi(argv[i]);
+                break;
+            case(2):
+                s.map_id = std::atoi(argv[i]);
+                break;
+            case(3):
+                s.rank = std::atoi(argv[i]);
+                break;
+            case(4):
+                s.acc = std::stof(argv[i]);
+                break;
+            case(5):
+                s.mods = std::atoi(argv[i]);
+                break;
+            case(6):
+                s.pos = std::atoi(argv[i]);
+                break;
+            case(7):
+                s.mode = std::atoi(argv[i]);
+                break;
+            case(8):
+                s.map_pp = std::stof(argv[i]);
+                break;
+            case(9):
+                s.user_pp = std::stof(argv[i]);
+                break;
+        }
+        scores.push_back(s);
+        if(count % 100000 == 0){
+            std::cout << "Loaded score " <<  count << "\n";
+        }
+        
+    }
+    return 0;
+}
+
+void createTables()
+{
+    sqlite3 *db;
+    char *zErrMsg = 0;
+    int rc;
+
+    rc = sqlite3_open("data.db", &db);
+
+    if (rc)
+    {
+        fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+        return;
+    }
+    else
+    {
+        fprintf(stderr, "Opened database successfully\n");
+    }
+
+    /* Create SQL statement */
+    std::string sql1 = "CREATE TABLE IF NOT EXISTS 'beatmaps' ("
+                      "'bid'	INTEGER NOT NULL,"
+                      "'sid'	INTEGER NOT NULL,"
+                      "'name'	TEXT NOT NULL,"
+                      "'artist'	TEXT NOT NULL,"
+                      "'mapper'	TEXT NOT NULL,"
+                      "'num_scores'	INTEGER NOT NULL,"
+                      "'pop_mod'	INTEGER NOT NULL,"
+                      "'avg_pp'	REAL NOT NULL,"
+                      "'avg_acc'	REAL NOT NULL,"
+                      "'avg_rank'	INTEGER NOT NULL,"
+                      "'avg_pos'	INTEGER NOT NULL,"
+                      "'mode'	INTEGER NOT NULL,"
+                      "'cs'	REAL NOT NULL,"
+                      "'ar'	REAL NOT NULL,"
+                      "'od'	REAL NOT NULL,"
+                      "'length'	INTEGER NOT NULL,"
+                      "'bpm'	REAL NOT NULL,"
+                      "'diff'	REAL NOT NULL,"
+                      "'version'	TEXT NOT NULL,"
+                      "'score'	REAL NOT NULL,"
+                      "'calculated'	INTEGER,"
+                      "PRIMARY KEY('bid','mode','pop_mod'));";
+    std::string sql2 = "CREATE TABLE IF NOT EXISTS 'scores' ("
+                      "'id'	INTEGER PRIMARY KEY AUTOINCREMENT,"
+                      "'uid'	INTEGER,"
+                      "'map_id'	INTEGER,"
+                      "'rank'	INTEGER,"
+                      "'acc'	REAL,"
+                      "'mods'	INTEGER,"
+                      "'pos'	INTEGER,"
+                      "'mode'	INTEGER,"
+                      "'map_pp'	REAL,"
+                      "'user_pp'	REAL);";
+
+    rc = sqlite3_exec(db, sql1.c_str(), callback, 0, &zErrMsg);
+
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+    else
+    {
+        fprintf(stdout, "Beatmap table created successfully\n");
+    }
+    rc = sqlite3_exec(db, sql2.c_str(), callback, 0, &zErrMsg);
+
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+    else
+    {
+        fprintf(stdout, "Score table created successfully\n");
+    }
+    sqlite3_close(db);
+}
+
+void populateFromTestDB()
+{
+    std::cout << "Loading Data\n";
+    sqlite3 *db;
+    char *zErrMsg = 0;
+    int rc;
+
+    rc = sqlite3_open("data.db", &db);
+
+    std::string sql = "SELECT * from 'main'.'scores';";
+
+    rc = sqlite3_exec(db, sql.c_str(), callbackPopulateScore, 0, &zErrMsg);
+
+    if (rc != SQLITE_OK)
+    {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+    else
+    {
+        fprintf(stderr, "Loaded Scores Successfully \n");
+    }
+    /* Create SQL statement */
+    std::string sql2 = "SELECT * from 'main'.'beatmaps';";
+    int rc2 = sqlite3_exec(db, sql2.c_str(), callbackPopulateMaps, 0, &zErrMsg);
+    std::cout << "Loaded " << beatmaps.size() << " from existing DB\n";
+    if (rc2 != SQLITE_OK)
+    {
+        fprintf(stderr, "SQL error: %s\n", zErrMsg);
+        sqlite3_free(zErrMsg);
+    }
+    else
+    {
+        fprintf(stdout, "Loaded test Beatmaps Successfully\n");
+    }
+
+    sqlite3_close(db);
+}
+
+
+
 void populateFromDB(std::vector<Beatmap *> &no_maps)
 {
     sqlite3 *db;
@@ -865,11 +1192,77 @@ void getUserData(json *j, std::string auth_string, int user_id, std::string mode
     *j = json::parse(getURL(best_url, auth_string, true));
 }
 
+void loadData(){
+    std::ifstream i("maps.json");
+    json j;
+    i >> j;
+    for(auto beatmap : j){
+        Beatmap *ret = new Beatmap(beatmap["id"], beatmap["set_id"], beatmap["title"],
+                               beatmap["artist"], beatmap["mapper"], beatmap["cs"], beatmap["ar"],
+                               beatmap["od"], beatmap["length"], beatmap["bpm"], beatmap["diff"],
+                               beatmap["version"], beatmap["mode"]);
+        beatmaps.insert({beatmap["id"], ret});
+    }
+
+    std::ifstream k("scores.json");
+    json l;
+    k >> l;
+    for(auto score : l){
+        Score ret(score["uid"], score["map_id"], score["rank"], score["acc"], score["mods"], score["pos"], score["mode"],
+                score["map_pp"], score["user_pp"]);
+        scores.push_back(ret);
+    }
+
+}
+
+void saveData(){
+    json score_json;
+    json map_json;
+    for(auto score : scores){
+        score_json.push_back({
+            {"uid", score.uid},
+            {"map_id", score.map_id},
+            {"rank", score.rank},
+            {"acc", score.acc},
+            {"mods", score.mods},
+            {"pos", score.pos},
+            {"mode", score.mode},
+            {"map_pp", score.map_pp},
+            {"user_pp", score.user_pp}
+        });
+    }
+    std::ofstream o("scores.json");
+    o << score_json << std::endl;
+
+    for(auto map : beatmaps){
+        map_json.push_back({
+        {"id", map.second->id},
+        {"set_id", map.second->set_id},
+        {"title", map.second->title},
+        {"artist", map.second->artist},
+        {"mapper", map.second->mapper},
+        {"cs", map.second->cs},
+        {"ar", map.second->ar},
+        {"od", map.second->od},
+        {"length", map.second->length},
+        {"bpm", map.second->bpm},
+        {"diff", map.second->diff},
+        {"version", map.second->version},
+        {"mode", map.second->mode}
+        });
+    }
+    std::ofstream o2("maps.json");
+    o2 << map_json << std::endl;
+
+}
+
 int main()
 {
     srand(time(NULL));
     std::vector<Beatmap *> new_maps;
-    populateFromDB(new_maps);
+    createTables();
+    populateFromTestDB();
+    // populateFromDB(new_maps);
     // read a JSON file
     std::ifstream i("conf.json");
     json j;
@@ -882,79 +1275,82 @@ int main()
 
     std::string access_token = auth["access_token"];
     std::string auth_string = "Bearer " + access_token;
+    std::cout << auth_string << std::endl;
     int max_pages = j["max_pages"];
     for (auto mode : modes)
     {
-        std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/country";
-        json countries = json::parse(getURL(url, auth_string, true))["ranking"];
-        for (auto country_obj : countries)
-        {
-            bool reached100k = false;
-            std::string country = country_obj["code"];
-            std::cout << "Starting country [" << country << "]\n";
-            for (int i = 1; i <= max_pages; i++)
-            {
-                if (reached100k)
-                {
-                    break;
-                }
-                std::cout << "[" << mode << "]" <<"[" << country << "]" << "Starting page" <<  "[" << i << "/" << max_pages << "]\n";
+        // updateDBTest();
+        // std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/country";
+        // json countries = json::parse(getURL(url, auth_string, true))["ranking"];
+        // for (auto country_obj : countries)
+        // {
+        //     bool reached100k = false;
+        //     std::string country = country_obj["code"];
+        //     std::cout << "Starting country [" << country << "]\n";
+        //     for (int i = 1; i <= max_pages; i++)
+        //     {
+        //         if (reached100k)
+        //         {
+        //             break;
+        //         }
+        //         std::cout << "[" << mode << "]" <<"[" << country << "]" << "Starting page" <<  "[" << i << "/" << max_pages << "]\n";
 
-                std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + std::to_string(i) + "&country=" + country;
-                json users = json::parse(getURL(url, auth_string, true))["ranking"];
+        //         std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + std::to_string(i) + "&country=" + country;
+        //         json users = json::parse(getURL(url, auth_string, true))["ranking"];
 
-                std::unordered_map<int, json> user_map;
-                std::unordered_map<int, json *> user_score_map;
-                std::vector<std::thread> thread_list;
-                for (json::iterator it = users.begin(); it != users.end(); ++it)
-                {
-                    json *j = new json;
-                    int user_id = (*it)["user"]["id"];
-                    try
-                    {
-                        if ((*it)["pp"] < 1000)
-                        {
-                            reached100k = true;
-                            break;
-                        }
-                    }
-                    catch (std::exception &e)
-                    {
-                        std::cout << "Null values for " << (*it)["user"]["username"] << std::endl;
-                        continue;
-                    }
-                    user_score_map[user_id] = j;
-                    user_map[user_id] = (*it);
-                    std::thread cpr_thread(getUserData, j, auth_string, user_id, mode);
-                    thread_list.push_back(std::move(cpr_thread));
-                }
-                for (std::thread &th : thread_list)
-                {
-                    th.join();
-                }
-                for (auto it : user_score_map)
-                {
-                    json score_json = *(it.second);
-                    int pos = 0;
-                    for (json::iterator it2 = score_json.begin(); it2 != score_json.end(); ++it2)
-                    {
-                        pos++;
-                        parseScore((*it2), user_map[it.first], pos);
-                    }
-                }
-                for (auto map_pt : user_score_map)
-                {
-                    delete map_pt.second;
-                }
-            }
-        }
-        processMaps(new_maps);
-        std::cout << new_maps.size() << " processed maps" << std::endl;
-        updateDB(new_maps);
-        for (auto map_pt : beatmaps)
-        {
-            delete map_pt.second;
-        }
+        //         std::unordered_map<int, json> user_map;
+        //         std::unordered_map<int, json *> user_score_map;
+        //         std::vector<std::thread> thread_list;
+        //         for (json::iterator it = users.begin(); it != users.end(); ++it)
+        //         {
+        //             json *j = new json;
+        //             int user_id = (*it)["user"]["id"];
+        //             try
+        //             {
+        //                 if ((*it)["pp"] < 1000)
+        //                 {
+        //                     reached100k = true;
+        //                     break;
+        //                 }
+        //             }
+        //             catch (std::exception &e)
+        //             {
+        //                 std::cout << "Null values for " << (*it)["user"]["username"] << std::endl;
+        //                 continue;
+        //             }
+        //             user_score_map[user_id] = j;
+        //             user_map[user_id] = (*it);
+        //             std::thread cpr_thread(getUserData, j, auth_string, user_id, mode);
+        //             thread_list.push_back(std::move(cpr_thread));
+        //         }
+        //         for (std::thread &th : thread_list)
+        //         {
+        //             th.join();
+        //         }
+        //         for (auto it : user_score_map)
+        //         {
+        //             json score_json = *(it.second);
+        //             int pos = 0;
+        //             for (json::iterator it2 = score_json.begin(); it2 != score_json.end(); ++it2)
+        //             {
+        //                 pos++;
+        //                 parseScore((*it2), user_map[it.first], pos);
+        //             }
+        //         }
+        //         for (auto map_pt : user_score_map)
+        //         {
+        //             delete map_pt.second;
+        //         }
+        //     }
+        // }
+        // saveData();
+        // processMaps(new_maps);
+        // std::cout << new_maps.size() << " processed maps" << std::endl;
+        // updateDB(new_maps);
+        // for (auto map_pt : beatmaps)
+        // {
+        //     delete map_pt.second;
+        // }
         scores.clear();
         beatmaps.clear();
     }
