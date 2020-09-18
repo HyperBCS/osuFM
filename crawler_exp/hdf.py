@@ -9,6 +9,7 @@ from scipy.stats import norm
 from sklearn.neighbors import KernelDensity
 from sklearn.utils.fixes import parse_version
 from peewee import *
+from scipy.optimize import curve_fit
 
 db = SqliteDatabase('osuFM.db',pragmas=[('journal_mode', 'wal')])
 
@@ -121,53 +122,62 @@ try:
 except:
     pass
 
-def predictData(y,X,bid,num_scores):
-	area = 2
-	slope_max = 0
-	score_max = 0
-	for mul in range(5,10,1):
-		mul /= 10.0
-		if num_scores > 300 and math.ceil(num_scores*mul) > 300:
-			data_slice = math.ceil(num_scores*mul)
-		else:
-			data_slice = num_scores
-		x1 = X[:data_slice]
-		y1 = y[:data_slice]
-		reg = LinearRegression().fit(x1, y1)
-		y_pred = reg.predict(x1)
-		
-		slope = reg.coef_[0][0]
-		if slope > slope_max:
-			slope_max = slope
-			score_max = reg.score(x1, y1)
-		# if bid == 1515526:
-		# 	plt.plot(x1, y_pred, color='blue', linewidth=3)
+def func(x, a):
+    return 1 / (x*a)
 
-	# if bid == 1515526:
-	# 	plt.scatter(X, y,  color='red',s=area)
-	# 	plt.show()
-	return reg.coef_[0][0], y_pred
+def predictData(y,X,bid,num_scores):
+    area = 2
+    slope_max = 0
+    x_d = np.linspace(0, 50, 1000)
+    density = sum(norm(xi).pdf(x_d) for xi in X)
+
+    plt.fill_between(x_d, density, alpha=0.5)
+    plt.plot(X, np.full_like(X, -0.1), '|k', markeredgewidth=1)
+    plt.show()
+    X = X.reshape(-1, 1)
+    y = y.reshape(-1, 1)
+    for mul in range(5,10,1):
+        mul /= 10.0
+        if num_scores > 300 and math.ceil(num_scores*mul) > 300:
+            data_slice = math.ceil(num_scores*mul)
+        else:
+            data_slice = num_scores
+        x1 = X[:data_slice]
+        y1 = y[:data_slice]
+        reg = LinearRegression().fit(x1, y1)
+        y_pred = reg.predict(x1)
+        
+        slope = reg.coef_[0][0]
+        if slope > slope_max:
+            slope_max = slope
+        if bid == 1515526:
+            plt.plot(x1, y_pred, color='blue', linewidth=3)
+
+    if bid == 1515526:
+        plt.scatter(X, y,  color='red',s=area)
+        plt.show()
+    return reg.coef_[0][0], y_pred
 
 def graphData(y,X, y_pred):
-	area = 2
-	plt.scatter(X, y,  color='red',s=area)
-	plt.plot(X, y_pred, color='blue', linewidth=3)
-	plt.show()
+    area = 2
+    plt.scatter(X, y,  color='red',s=area)
+    plt.plot(X, y_pred, color='blue', linewidth=3)
+    plt.show()
 
 mod_map = {}
 print("Creating Score Map")
 for ind, score in enumerate(scores.values):
-	bid = score[2]
-	mods = int(score[5])
-	if ind % 1000000 == 0:
-		print("["+str(ind)+"/"+str(len(scores))+"]")
-	if bid not in mod_map:
-		mod_map[bid] = {}
-	if mods not in mod_map[bid]:
-		mod_map[bid][mods] = []
-	# mod_map[bid][mods][0].append(score[9])
-	# mod_map[bid][mods][1].append(score[6])
-	mod_map[bid][mods].append((score[9],score[6]))
+    bid = score[2]
+    mods = int(score[5])
+    if ind % 1000000 == 0:
+        print("["+str(ind)+"/"+str(len(scores))+"]")
+    if bid not in mod_map:
+        mod_map[bid] = {}
+    if mods not in mod_map[bid]:
+        mod_map[bid][mods] = []
+    # mod_map[bid][mods][0].append(score[9])
+    # mod_map[bid][mods][1].append(score[6])
+    mod_map[bid][mods].append((score[9],score[6]))
 print("Score Map Created")
 
 uarray, carray = np.unique(scores["map_id"], return_counts=True)
@@ -175,33 +185,35 @@ bids = [(uarray[i],carray[i]) for i in range(0, len(uarray)) if carray[i] > 50]
 bids.sort(key=lambda bids: bids[1], reverse=True)
 map_coefs = []
 for ind, bid in enumerate(bids):
-	print("["+str(ind)+"/"+str(len(bids))+"]")
-	for mods in mod_map[bid[0]]:
-		mod_scores = mod_map[bid[0]][mods]
-		if(len(mod_scores) < 50):
-			continue
-		num_scores = len(mod_scores)
-		if len(mod_scores) > 2000:
-			top10 = math.ceil(num_scores * 0.33)
-		else:
-			top10 =num_scores
-		mod_scores.sort(key=lambda mod_scores: mod_scores[0], reverse=True)
-		x = []
-		y = []
-		[x.append(val[0])  for val in mod_scores]
-		[y.append(val[1])  for val in mod_scores]
-		x = np.array(x).reshape(-1, 1)
-		y = np.array(y).reshape(-1, 1)
-		y =  np.random.normal(0,0.5,np.array(x).reshape(-1, 1).shape)+y
-		score, y_pred = predictData(x,y,bid[0],num_scores)
-		map_coefs.append((bid, score, mods, x, y, y_pred))
+    print("["+str(ind)+"/"+str(len(bids))+"]")
+    for mods in mod_map[bid[0]]:
+        map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
+        
+        mod_scores = mod_map[bid[0]][mods]
+        if(len(mod_scores) < 50):
+            continue
+        print(map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(mods))
+        num_scores = len(mod_scores)
+        if len(mod_scores) > 2000:
+            top10 = math.ceil(num_scores * 0.33)
+        else:
+            top10 =num_scores
+        mod_scores.sort(key=lambda mod_scores: mod_scores[0], reverse=True)
+        x = []
+        y = []
+        [x.append(val[0])  for val in mod_scores]
+        [y.append(val[1])  for val in mod_scores]
+        x = np.array(x)
+        y = np.array(y)
+        score, y_pred = predictData(x,y,bid[0],num_scores)
+        map_coefs.append((bid, score, mods, x, y, y_pred))
 map_coefs.sort(key=lambda map_coefs: map_coefs[1], reverse=True)
 for m in map_coefs:
-	bid = m[0]
-	map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
-	map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
-	# print(m[1],map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(m[2]))
-	new_map = Beatmaps.replace(avg_acc=0,score=m[1],avg_pos =0,pop_mod=m[2],avg_pp=0,avg_rank=0,num_scores=0,mode=0,bid = bid[0], \
-		name = map_info["name"], artist=map_info["artist"],mapper=map_info["mapper"],cs=map_info["cs"],ar=map_info["ar"],od=map_info["od"], \
-		length=map_info["length"],bpm=map_info["bpm"],diff=map_info["diff"],version=map_info["version"],sid=map_info["sid"]).execute()
-	# graphData(m[3],m[4],m[5])
+    bid = m[0]
+    map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
+    map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
+    # print(m[1],map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(m[2]))
+    new_map = Beatmaps.replace(avg_acc=0,score=m[1],avg_pos =0,pop_mod=m[2],avg_pp=0,avg_rank=0,num_scores=0,mode=0,bid = bid[0], \
+        name = map_info["name"], artist=map_info["artist"],mapper=map_info["mapper"],cs=map_info["cs"],ar=map_info["ar"],od=map_info["od"], \
+        length=map_info["length"],bpm=map_info["bpm"],diff=map_info["diff"],version=map_info["version"],sid=map_info["sid"]).execute()
+    # graphData(m[3],m[4],m[5])

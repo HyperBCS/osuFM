@@ -490,7 +490,7 @@ void processMaps(std::vector<Beatmap *> &processed_maps)
             float count_pos = 0;
             for (auto score : mod_list.second)
             {
-                float pow_val = pow(1-.0529652,score.pos)+.0529652;
+                float pow_val = pow(0.95,score.pos-1);
                 count_pos += pow_val;
                 pos_sum += pow_val;
                 avg_pp += score.map_pp * pow_val;
@@ -861,8 +861,14 @@ void populateFromDB(std::vector<Beatmap *> &no_maps)
 
 void getUserData(json *j, std::string auth_string, int user_id, std::string mode)
 {
+    try{
     std::string best_url = "https://osu.ppy.sh/api/v2/users/" + std::to_string(user_id) + "/scores/best?mode=" + mode + "&limit=100";
     *j = json::parse(getURL(best_url, auth_string, true));
+    } catch(std::exception &e){
+        std::cout << "Exception parsing user json - " << user_id << std::endl;
+        json tmp;
+        *j = tmp;
+    }
 }
 
 int main()
@@ -935,6 +941,9 @@ int main()
                 for (auto it : user_score_map)
                 {
                     json score_json = *(it.second);
+                    if(score_json.empty()){
+                        continue;
+                    }
                     int pos = 0;
                     for (json::iterator it2 = score_json.begin(); it2 != score_json.end(); ++it2)
                     {
