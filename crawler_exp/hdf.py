@@ -431,8 +431,8 @@ for mode_int,mode in enumerate(modes):
             thread_list = []
             with ThreadPoolExecutor(max_workers=25) as executor:
                 for user in users:
-                    if user["pp"] < 1000:
-                            reached100 = True
+                    if "pp" in user and user["pp"] < 1000:
+                            reached100k = True
                             break
                     user_id = user["user"]["id"]
                     user_map[user_id] = user
@@ -441,6 +441,8 @@ for mode_int,mode in enumerate(modes):
 
             for task in as_completed(thread_list):
                 user_scores = task.result()
+                if len(user_scores) == 0 or "user" not in user_scores[0]:
+                    continue
                 user_id = ((user_scores[0])["user"])["id"]
                 user_score_map[user_id] = user_scores
             for user_scores in user_score_map:
