@@ -1279,70 +1279,72 @@ int main()
     int max_pages = j["max_pages"];
     for (auto mode : modes)
     {
-        // updateDBTest();
-        // std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/country";
-        // json countries = json::parse(getURL(url, auth_string, true))["ranking"];
-        // for (auto country_obj : countries)
-        // {
-        //     bool reached100k = false;
-        //     std::string country = country_obj["code"];
-        //     std::cout << "Starting country [" << country << "]\n";
-        //     for (int i = 1; i <= max_pages; i++)
-        //     {
-        //         if (reached100k)
-        //         {
-        //             break;
-        //         }
-        //         std::cout << "[" << mode << "]" <<"[" << country << "]" << "Starting page" <<  "[" << i << "/" << max_pages << "]\n";
+        
+        std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/country";
+        json countries = json::parse(getURL(url, auth_string, true))["ranking"];
+        for (auto country_obj : countries)
+        {
+            bool reached100k = false;
+            std::string country = country_obj["code"];
+            std::cout << "Starting country [" << country << "]\n";
+            for (int i = 1; i <= max_pages; i++)
+            {
+                if (reached100k)
+                {
+                    break;
+                }
+                std::cout << "[" << mode << "]" <<"[" << country << "]" << "Starting page" <<  "[" << i << "/" << max_pages << "]\n";
 
-        //         std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + std::to_string(i) + "&country=" + country;
-        //         json users = json::parse(getURL(url, auth_string, true))["ranking"];
+                std::string url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + std::to_string(i) + "&country=" + country;
+                json users = json::parse(getURL(url, auth_string, true))["ranking"];
 
-        //         std::unordered_map<int, json> user_map;
-        //         std::unordered_map<int, json *> user_score_map;
-        //         std::vector<std::thread> thread_list;
-        //         for (json::iterator it = users.begin(); it != users.end(); ++it)
-        //         {
-        //             json *j = new json;
-        //             int user_id = (*it)["user"]["id"];
-        //             try
-        //             {
-        //                 if ((*it)["pp"] < 1000)
-        //                 {
-        //                     reached100k = true;
-        //                     break;
-        //                 }
-        //             }
-        //             catch (std::exception &e)
-        //             {
-        //                 std::cout << "Null values for " << (*it)["user"]["username"] << std::endl;
-        //                 continue;
-        //             }
-        //             user_score_map[user_id] = j;
-        //             user_map[user_id] = (*it);
-        //             std::thread cpr_thread(getUserData, j, auth_string, user_id, mode);
-        //             thread_list.push_back(std::move(cpr_thread));
-        //         }
-        //         for (std::thread &th : thread_list)
-        //         {
-        //             th.join();
-        //         }
-        //         for (auto it : user_score_map)
-        //         {
-        //             json score_json = *(it.second);
-        //             int pos = 0;
-        //             for (json::iterator it2 = score_json.begin(); it2 != score_json.end(); ++it2)
-        //             {
-        //                 pos++;
-        //                 parseScore((*it2), user_map[it.first], pos);
-        //             }
-        //         }
-        //         for (auto map_pt : user_score_map)
-        //         {
-        //             delete map_pt.second;
-        //         }
-        //     }
-        // }
+                std::unordered_map<int, json> user_map;
+                std::unordered_map<int, json *> user_score_map;
+                std::vector<std::thread> thread_list;
+                for (json::iterator it = users.begin(); it != users.end(); ++it)
+                {
+                    json *j = new json;
+                    int user_id = (*it)["user"]["id"];
+                    try
+                    {
+                        if ((*it)["pp"] < 1000)
+                        {
+                            reached100k = true;
+                            break;
+                        }
+                    }
+                    catch (std::exception &e)
+                    {
+                        std::cout << "Null values for " << (*it)["user"]["username"] << std::endl;
+                        continue;
+                    }
+                    user_score_map[user_id] = j;
+                    user_map[user_id] = (*it);
+                    std::thread cpr_thread(getUserData, j, auth_string, user_id, mode);
+                    thread_list.push_back(std::move(cpr_thread));
+                }
+                for (std::thread &th : thread_list)
+                {
+                    th.join();
+                }
+                for (auto it : user_score_map)
+                {
+                    json score_json = *(it.second);
+                    int pos = 0;
+                    for (json::iterator it2 = score_json.begin(); it2 != score_json.end(); ++it2)
+                    {
+                        pos++;
+                        parseScore((*it2), user_map[it.first], pos);
+                    }
+                }
+                for (auto map_pt : user_score_map)
+                {
+                    delete map_pt.second;
+                }
+            }
+            break;
+        }
+        updateDBTest();
         // saveData();
         // processMaps(new_maps);
         // std::cout << new_maps.size() << " processed maps" << std::endl;
@@ -1353,6 +1355,7 @@ int main()
         // }
         scores.clear();
         beatmaps.clear();
+        break;
     }
     for (auto map_pt : new_maps)
     {

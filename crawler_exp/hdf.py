@@ -1,23 +1,22 @@
 import numpy as np
-import matplotlib.pyplot as plt  # To visualize
-import matplotlib
 import math
 import functools 
-from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.linear_model import LinearRegression
 import pandas as pd
 from scipy.stats import norm
-from sklearn.neighbors import KernelDensity
-from sklearn.utils.fixes import parse_version
 from peewee import *
-from scipy.optimize import curve_fit
+import json
+import requests
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import copy 
+from oppai import *
 
 db = SqliteDatabase('osuFM.db',pragmas=[('journal_mode', 'wal')])
-
-maps = pd.read_csv("beatmaps.csv")
-scores = pd.read_hdf('scores.hdf')
+modes = ["osu", "taiko", "fruits", "mania"]
 
 def intToMod(mod_int):
-    mod_string = "";
+    mod_string = ""
     if (mod_int == -1):
         mod_string += "NO"
     if (mod_int & 1 << 0):
@@ -82,6 +81,71 @@ def intToMod(mod_int):
         mod_string += "MR"
     return mod_string
 
+def modsToInt(mod_string_arr):
+    mods = 0
+    for mod in mod_string_arr:
+        if mod == "NF":
+            mods |= 1 << 0
+        elif mod == "EZ":
+            mods |= 1 << 1
+        elif mod == "HD":
+            mods |= 1 << 3
+        elif mod == "HR":
+            mods |= 1 << 4
+        elif mod == "SD":
+            mods |= 1 << 5
+        elif mod == "DT":
+            mods |= 1 << 6
+        elif mod == "RX":
+            mods |= 1 << 7
+        elif mod == "HT":
+            mods |= 1 << 8
+        elif mod == "NC":
+            mods |= 1 << 6
+            mods |= 1 << 9
+        elif mod == "FL":
+            mods |= 1 << 10
+        elif mod == "TD":
+            mods |= 1 << 2
+        elif mod == "AP":
+            mods |= 1 << 11
+        elif mod == "SO":
+            mods |= 1 << 12
+        elif mod == "RX":
+            mods |= 1 << 13
+        elif mod == "PF":
+            mods |= 1 << 14
+        elif mod == "4K":
+            mods |= 1 << 15
+        elif mod == "5K":
+            mods |= 1 << 16
+        elif mod == "6K":
+            mods |= 1 << 17
+        elif mod == "7K":
+            mods |= 1 << 18
+        elif mod == "8K":
+            mods |= 1 << 19
+        elif mod == "FI":
+            mods |= 1 << 20
+        elif mod == "RD":
+            mods |= 1 << 21
+        elif mod == "CM":
+            mods |= 1 << 22
+        elif mod == "TP":
+            mods |= 1 << 23
+        elif mod == "9K":
+            mods |= 1 << 24
+        elif mod == "CP":
+            mods |= 1 << 25
+        elif mod == "1K":
+            mods |= 1 << 26
+        elif mod == "3K":
+            mods |= 1 << 27
+        elif mod == "2K":
+            mods |= 1 << 28
+        elif mod == "MR":
+            mods |= 1 << 30
+    return mods
 
 class BaseModel(Model):
     class Meta:
@@ -111,6 +175,220 @@ class Beatmaps(BaseModel):
     calculated = BooleanField(null = True)
     class Meta:
         primary_key = CompositeKey('bid','pop_mod', 'mode')
+
+class Beatmap(object):
+    num_scores = 0
+    pop_mod = 0
+    avg_pp = 0
+    avg_acc = 0
+    avg_rank = 0
+    avg_pos = 0
+    
+    def __init__(self, bid, set_id, title, artist, mapper, cs, ar, od, length, bpm, diff, version, mode, calculated):
+        self.bid = bid
+        self.set_id = set_id
+        self.title = title
+        self.artist = artist
+        self.mapper = mapper
+        self.cs = cs
+        self.ar = ar
+        self.od = od
+        self.length = length
+        self.bpm = bpm
+        self.diff = diff
+        self.version = version
+        self.mode = mode
+        self.calculated = calculated
+
+class Score(object):
+    def __init__(self, uid, map_id, rank, acc, mods, pos, mode, map_pp, user_pp):
+        self.uid = uid
+        self.map_id = map_id
+        self.rank = rank
+        self.acc = acc
+        self.mods = mods
+        self.pos = pos
+        self.mode = mode
+        self.map_pp = map_pp
+        self.user_pp = user_pp
+
+def func(x, a):
+    return 1 / (x*a)
+
+def predictData(X,y,num_scores,bid):
+    bin_list = {}
+    for ind,val in enumerate(X):
+        bin_label = math.floor((val /2 ) * 25)
+        if bin_label not in bin_list:
+            bin_list[bin_label] = {}
+            bin_list[bin_label]['x'] = []
+            bin_list[bin_label]['y'] = []
+            bin_list[bin_label]['count'] = 0
+        bin_list[bin_label]['x'].append(X[ind])
+        bin_list[bin_label]['y'].append(y[ind])
+        bin_list[bin_label]['count'] += 1
+    count_arr = []
+    for bin_label in bin_list:
+        count_arr.append(bin_list[bin_label]['count'])
+    bins_normal = np.linalg.norm(count_arr)
+    for bin_label in bin_list:
+        bin_list[bin_label]['count'] /= bins_normal
+        bin_list[bin_label]['y'] = np.array(bin_list[bin_label]['y']) + 0.008* (np.array(bin_list[bin_label]['y'])/bin_list[bin_label]['count'])
+    new_x = []
+    new_y = []
+    if num_scores > 500:
+        from_top = 0.05
+    else:
+        from_top = 1
+    for b in bin_list:
+        bin_list[b]['x'] = np.sort(bin_list[b]['x'])[::-1]
+        bin_list[b]['y'] = np.sort(bin_list[b]['y'])[::-1]
+        num_scores = math.ceil(len(bin_list[b]['x']) * from_top)
+        new_x.extend(bin_list[b]['x'][:num_scores])
+        new_y.extend(bin_list[b]['y'][:num_scores])
+    new_x = np.array(new_x).reshape(-1, 1)
+    new_y = np.array(new_y).reshape(-1, 1)
+    reg = LinearRegression().fit(new_x, new_y)
+    score = reg.score(new_x, new_y)
+    # if bid == 2118443:
+    #     area = 2
+    #     y_pred = reg.predict(new_x)
+    #     print(abs(reg.coef_[0][0]*(score+score*(0.50))))
+    #     plt.plot(new_x, y_pred, color='blue', linewidth=3)
+    #     plt.scatter(new_x, new_y,  color='red',s=area)
+    #     plt.show()
+    #     print(score)
+    return abs(reg.coef_[0][0]*(score+score*(0.50)))
+
+def getURL(url, auth_string, checkJson):
+    tries = 100
+    while tries > 0:
+        headers = {"Authorization": auth_string}
+        r = requests.get(url, headers=headers)
+        if r.status_code != 200:
+            tries -= 1
+            time.sleep(0.1)
+            print("[" + str(r.status_code) + "]"
+                      + "[" + str(100 - tries) + "]"
+                      + "Retry... " + url)
+            if tries == 0:
+                print("BAD DATA")
+                exit(-1)
+            continue
+        if checkJson:
+            return r.json()
+        else:
+            return r.text
+def parse_scores(user, scores, beatmaps):
+    for pos,score in enumerate(scores):
+        mode = score["mode_int"]
+        if score["beatmap"]["id"] not in beatmaps[mode]:
+            beatmaps[mode][score["beatmap"]["id"]] = {}
+        mods = modsToInt(score["mods"]) & ~( (1<<30) | (1<<9) | (1<<5) | (1<<14))
+        try:
+            user_score = Score(score["user"]["id"], score["beatmap"]["id"], user["pp_rank"], score["accuracy"], mods, pos+1, score["beatmap"]["mode_int"],
+                        score["pp"], user["pp"])
+            if mods not in beatmaps[mode][score["beatmap"]["id"]]:
+                b = Beatmap(score["beatmap"]["id"], score["beatmap"]["beatmapset_id"], score["beatmapset"]["title"],
+                                score["beatmapset"]["artist"], score["beatmapset"]["creator"], score["beatmap"]["cs"], score["beatmap"]["ar"],
+                                score["beatmap"]["accuracy"], score["beatmap"]["hit_length"], score["beatmap"]["bpm"], score["beatmap"]["difficulty_rating"],
+                                score["beatmap"]["version"], score["beatmap"]["mode_int"], False)
+                beatmaps[mode][score["beatmap"]["id"]][mods] = {}
+                beatmaps[mode][score["beatmap"]["id"]][mods]["scores"] = []
+                beatmaps[mode][score["beatmap"]["id"]][mods]["map_info"] = b
+            beatmaps[mode][score["beatmap"]["id"]][mods]["scores"].append(user_score)
+        except:
+            print("Null values for " + score["user"]["username"])
+            return
+
+def process_maps(beatmaps, good_maps):
+    for mode in beatmaps:
+        for ind, beatmap in enumerate(beatmaps[mode]):
+            # print("["+str(ind)+"/"+str(len(beatmaps[mode]))+"]")
+            for mods in beatmaps[mode][beatmap]:
+                map_info = copy.deepcopy(beatmaps[mode][beatmap][mods]["map_info"])
+                mod_scores = beatmaps[mode][beatmap][mods]['scores']
+                if(len(mod_scores) < 50):
+                    continue
+                # print(map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(mods))
+                num_scores = len(mod_scores)
+                x = [val.pos for val in mod_scores]
+                y = [val.user_pp for val in mod_scores]
+                x = np.array(x, dtype=np.float64)
+                y = np.array(y, dtype=np.float64)
+                score = predictData(x,y,num_scores,beatmap)
+                if score < 1:
+                    continue
+                weight_arr = np.fromfunction(lambda i: pow(0.95,i), (num_scores,), dtype=np.float64)
+                weight_sum = np.sum(weight_arr)
+                pp_arr = np.array([val.map_pp for val in mod_scores], dtype=np.float64)
+                acc_arr = np.array([val.acc for val in mod_scores], dtype=np.float64)
+                rank_arr = np.array([val.rank for val in mod_scores], dtype=np.float64)
+                pp_arr *= weight_arr
+                acc_arr *= weight_arr
+                rank_arr *= weight_arr
+                x *= weight_arr
+                map_info.avg_pos = np.sum(x) / np.sum(weight_sum)
+                map_info.avg_pp = np.sum(pp_arr) / np.sum(weight_sum)
+                map_info.avg_acc = np.sum(acc_arr) / np.sum(weight_sum)
+                map_info.avg_rank = np.sum(rank_arr) / np.sum(weight_sum)
+                map_info.num_scores = num_scores
+                map_info.score = score
+                map_info.pop_mod = mods
+                good_maps.append(map_info)
+                # print(map_info.artist,"-",map_info.title + "[" + map_info.version + "]+",intToMod(mods))
+                # print("    Score: ",map_info.score)
+                # print("    AVG PP: ",map_info.avg_pp)
+                # print("    AVG ACC: ",map_info.avg_acc)
+                # print("    AVG RANK: ",map_info.avg_rank)
+
+def loadMaps(beatmaps):
+    count = 0
+    for m in Beatmaps.select():
+        count += 1
+        b = Beatmap(m.bid, m.sid, m.name,
+                                    m.artist, m.mapper, m.cs, m.ar,
+                                    m.od, m.length, m.bpm, m.diff,
+                                    m.version,m.mode, True)
+        if m.bid not in beatmaps[m.mode]:
+            beatmaps[m.mode][m.bid] = {}
+        beatmaps[m.mode][m.bid][m.pop_mod] = {}
+        beatmaps[m.mode][m.bid][m.pop_mod]["scores"] = []
+        beatmaps[m.mode][m.bid][m.pop_mod]["map_info"] = b
+    print("Loaded",count,"maps from the DB")
+
+def calcDiffs(maps):
+    for ind, m in enumerate(maps):
+        print("Calculating diff for map ["+str(ind+1)+"/"+str(len(maps))+"]")
+        if  m.calculated or m.mode != 0 or not ((m.pop_mod & ((1 << 1) + (1 << 4) + (1 << 6) + (1 << 8))) > 0):
+            m.calculated = 1
+            continue
+        url = "https://osu.ppy.sh/osu/" + str(m.bid)
+        map_text = getURL(url, "", False)
+        try:
+            ez = ezpp_new()
+            ezpp_set_mods(ez, m.pop_mod)
+            ezpp_data(ez, map_text, len(map_text.encode('utf-8')))
+            diff = ezpp_stars(ez)
+            if(diff > 100):
+                print("Invalid map file")
+                ezpp_free(ez)
+                continue
+            m.diff = diff
+            m.ar = ezpp_ar(ez)
+            m.cs = ezpp_cs(ez)
+            m.od = ezpp_od(ez)
+            if (m.pop_mod & (1 << 6)):
+                m.length /= 1.5
+                m.bpm *= 1.5
+            elif (m.pop_mod & (1 << 8)):
+                m.length *= 1.5
+                m.bpm /= 1.5
+            ezpp_free(ez)
+        except:
+           print("Exception caught handling map " + str(m.id))
+
+
 try:
     db.connect()
 except:
@@ -122,98 +400,56 @@ try:
 except:
     pass
 
-def func(x, a):
-    return 1 / (x*a)
+with open('conf.json') as json_file:
+    config = json.load(json_file)
+url = 'https://osu.ppy.sh/oauth/token'
+headers = {'Content-Type': 'application/json'}
+r = requests.post(url, headers=headers,json=config)
+auth_string = "Bearer " + r.json()["access_token"]
+max_pages = config["max_pages"]
+beatmaps = {0: {}, 1: {}, 2: {}, 3:{}}
+loadMaps(beatmaps)
+good_maps = []
+for mode_int,mode in enumerate(modes):
+    url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/country"
+    countries = getURL(url, auth_string, True)["ranking"]
+    for country_obj in countries:
+        reached100k = False
+        country = country_obj["code"]
+        print("Starting country [" + country + "]")
+        for i in range(1,max_pages+1):
+            if reached100k:
+                break
+            print("[" + mode + "][" + country + "]Starting page" +  "[" + str(i) + "/" + str(max_pages) + "]")
 
-def predictData(y,X,bid,num_scores):
-    area = 2
-    slope_max = 0
-    x_d = np.linspace(0, 50, 1000)
-    density = sum(norm(xi).pdf(x_d) for xi in X)
+            url = "https://osu.ppy.sh/api/v2/rankings/" + mode + "/performance?cursor[page]=" + str(i) + "&country=" + country
+            users = (getURL(url, auth_string, True))["ranking"]
 
-    plt.fill_between(x_d, density, alpha=0.5)
-    plt.plot(X, np.full_like(X, -0.1), '|k', markeredgewidth=1)
-    plt.show()
-    X = X.reshape(-1, 1)
-    y = y.reshape(-1, 1)
-    for mul in range(5,10,1):
-        mul /= 10.0
-        if num_scores > 300 and math.ceil(num_scores*mul) > 300:
-            data_slice = math.ceil(num_scores*mul)
-        else:
-            data_slice = num_scores
-        x1 = X[:data_slice]
-        y1 = y[:data_slice]
-        reg = LinearRegression().fit(x1, y1)
-        y_pred = reg.predict(x1)
-        
-        slope = reg.coef_[0][0]
-        if slope > slope_max:
-            slope_max = slope
-        if bid == 1515526:
-            plt.plot(x1, y_pred, color='blue', linewidth=3)
+            user_map = {}
+            user_score_map = {}
+            executor = ThreadPoolExecutor(len(users))
+            thread_list = []
+            with ThreadPoolExecutor(max_workers=25) as executor:
+                for user in users:
+                    if user["pp"] < 1000:
+                            reached100 = True
+                            break
+                    user_id = user["user"]["id"]
+                    user_map[user_id] = user
+                    url = "https://osu.ppy.sh/api/v2/users/" + str(user_id) + "/scores/best?mode=" + mode + "&limit=100"
+                    thread_list.append(executor.submit(getURL, url,auth_string,True))
 
-    if bid == 1515526:
-        plt.scatter(X, y,  color='red',s=area)
-        plt.show()
-    return reg.coef_[0][0], y_pred
-
-def graphData(y,X, y_pred):
-    area = 2
-    plt.scatter(X, y,  color='red',s=area)
-    plt.plot(X, y_pred, color='blue', linewidth=3)
-    plt.show()
-
-mod_map = {}
-print("Creating Score Map")
-for ind, score in enumerate(scores.values):
-    bid = score[2]
-    mods = int(score[5])
-    if ind % 1000000 == 0:
-        print("["+str(ind)+"/"+str(len(scores))+"]")
-    if bid not in mod_map:
-        mod_map[bid] = {}
-    if mods not in mod_map[bid]:
-        mod_map[bid][mods] = []
-    # mod_map[bid][mods][0].append(score[9])
-    # mod_map[bid][mods][1].append(score[6])
-    mod_map[bid][mods].append((score[9],score[6]))
-print("Score Map Created")
-
-uarray, carray = np.unique(scores["map_id"], return_counts=True)
-bids = [(uarray[i],carray[i]) for i in range(0, len(uarray)) if carray[i] > 50]
-bids.sort(key=lambda bids: bids[1], reverse=True)
-map_coefs = []
-for ind, bid in enumerate(bids):
-    print("["+str(ind)+"/"+str(len(bids))+"]")
-    for mods in mod_map[bid[0]]:
-        map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
-        
-        mod_scores = mod_map[bid[0]][mods]
-        if(len(mod_scores) < 50):
-            continue
-        print(map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(mods))
-        num_scores = len(mod_scores)
-        if len(mod_scores) > 2000:
-            top10 = math.ceil(num_scores * 0.33)
-        else:
-            top10 =num_scores
-        mod_scores.sort(key=lambda mod_scores: mod_scores[0], reverse=True)
-        x = []
-        y = []
-        [x.append(val[0])  for val in mod_scores]
-        [y.append(val[1])  for val in mod_scores]
-        x = np.array(x)
-        y = np.array(y)
-        score, y_pred = predictData(x,y,bid[0],num_scores)
-        map_coefs.append((bid, score, mods, x, y, y_pred))
-map_coefs.sort(key=lambda map_coefs: map_coefs[1], reverse=True)
-for m in map_coefs:
-    bid = m[0]
-    map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
-    map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
-    # print(m[1],map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(m[2]))
-    new_map = Beatmaps.replace(avg_acc=0,score=m[1],avg_pos =0,pop_mod=m[2],avg_pp=0,avg_rank=0,num_scores=0,mode=0,bid = bid[0], \
-        name = map_info["name"], artist=map_info["artist"],mapper=map_info["mapper"],cs=map_info["cs"],ar=map_info["ar"],od=map_info["od"], \
-        length=map_info["length"],bpm=map_info["bpm"],diff=map_info["diff"],version=map_info["version"],sid=map_info["sid"]).execute()
-    # graphData(m[3],m[4],m[5])
+            for task in as_completed(thread_list):
+                user_scores = task.result()
+                user_id = ((user_scores[0])["user"])["id"]
+                user_score_map[user_id] = user_scores
+            for user_scores in user_score_map:
+                parse_scores(user_map[((user_score_map[user_scores][0])["user"])["id"]], user_score_map[user_scores], beatmaps)
+process_maps(beatmaps, good_maps)
+calcDiffs(good_maps)
+good_maps.sort(key=lambda x:x.score, reverse=True)
+with db.atomic():
+    for map_info in good_maps:
+        new_map = Beatmaps.replace(avg_acc=map_info.avg_acc,score=map_info.score,avg_pos =map_info.avg_pos,pop_mod=map_info.pop_mod,avg_pp=map_info.avg_pp,avg_rank=map_info.avg_rank,num_scores=map_info.num_scores,mode=map_info.mode,bid = map_info.bid, \
+            name = map_info.title, artist=map_info.artist,mapper=map_info.mapper,cs=map_info.cs,ar=map_info.ar,od=map_info.od, \
+            length=map_info.length,bpm=map_info.bpm,diff=map_info.diff,version=map_info.version,sid=map_info.set_id, calculated=True).execute()
