@@ -218,7 +218,8 @@ def func(x, a):
 def predictData(X,y,num_scores,bid):
     bin_list = {}
     for ind,val in enumerate(X):
-        bin_label = math.floor((val /2 ) * 25)
+        # 50 / 2 groups
+        bin_label = math.floor(100*((val-1) / 2) / 100)
         if bin_label not in bin_list:
             bin_list[bin_label] = {}
             bin_list[bin_label]['x'] = []
@@ -227,37 +228,47 @@ def predictData(X,y,num_scores,bid):
         bin_list[bin_label]['x'].append(X[ind])
         bin_list[bin_label]['y'].append(y[ind])
         bin_list[bin_label]['count'] += 1
-    count_arr = []
+    count_arr = np.empty([26,])
     for bin_label in bin_list:
-        count_arr.append(bin_list[bin_label]['count'])
+        count_arr[bin_label] = (bin_list[bin_label]['count'])
     bins_normal = np.linalg.norm(count_arr)
     for bin_label in bin_list:
         bin_list[bin_label]['count'] /= bins_normal
-        bin_list[bin_label]['y'] = np.array(bin_list[bin_label]['y']) + 0.008* (np.array(bin_list[bin_label]['y'])/bin_list[bin_label]['count'])
+        count_arr[bin_label] /= bins_normal
     new_x = []
     new_y = []
     if num_scores > 500:
         from_top = 0.05
     else:
         from_top = 1
+    
     for b in bin_list:
-        bin_list[b]['x'] = np.sort(bin_list[b]['x'])[::-1]
-        bin_list[b]['y'] = np.sort(bin_list[b]['y'])[::-1]
+        score_tup = [((bin_list[b]['x'][ind]),(bin_list[b]['y'][ind])) for ind,val in enumerate(bin_list[b]['x'])]
+        score_tup.sort(key=lambda x:x[1], reverse=True)
         num_scores = math.ceil(len(bin_list[b]['x']) * from_top)
-        new_x.extend(bin_list[b]['x'][:num_scores])
-        new_y.extend(bin_list[b]['y'][:num_scores])
+        tmp_x = [score_tup[ind][0] for ind,val in enumerate(score_tup)]
+        tmp_y = [score_tup[ind][1] for ind,val in enumerate(score_tup)]
+        new_x.extend(tmp_x[:num_scores])
+        new_y.extend(tmp_y[:num_scores])
     new_x = np.array(new_x).reshape(-1, 1)
     new_y = np.array(new_y).reshape(-1, 1)
     reg = LinearRegression().fit(new_x, new_y)
+    y_pred = reg.predict(new_x)
     score = reg.score(new_x, new_y)
-    # if bid == 2118443:
-    #     area = 2
-    #     y_pred = reg.predict(new_x)
+    for ind in range(len(new_y)):
+        if reg.coef_[0][0] >= 0:
+            new_y[ind] = new_y[ind] + 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+        else:
+            new_y[ind] = new_y[ind] - 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+    reg = LinearRegression().fit(new_x, new_y)
+    y_pred = reg.predict(new_x)
+    score = reg.score(new_x, new_y)
+    # if bid == 933017:
+    #     print(count_arr)
     #     print(abs(reg.coef_[0][0]*(score+score*(0.50))))
     #     plt.plot(new_x, y_pred, color='blue', linewidth=3)
     #     plt.scatter(new_x, new_y,  color='red',s=area)
     #     plt.show()
-    #     print(score)
     return abs(reg.coef_[0][0]*(score+score*(0.50)))
 
 def getURL(url, auth_string, checkJson):

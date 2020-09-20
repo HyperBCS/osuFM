@@ -15,7 +15,7 @@ extern "C"
 }
 
 using json = nlohmann::json;
-std::vector<std::string> modes{"osu"};
+std::vector<std::string> modes{"fruits"};
 
 // move to header soon
 class Beatmap
@@ -1342,7 +1342,6 @@ int main()
                     delete map_pt.second;
                 }
             }
-            break;
         }
         updateDBTest();
         // saveData();

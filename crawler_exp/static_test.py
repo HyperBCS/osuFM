@@ -17,9 +17,10 @@ import time
 db = SqliteDatabase('osuFM2.db',pragmas=[('journal_mode', 'wal')])
 cnx = sqlite3.connect('data.db')
 
-maps = pd.read_csv("beatmaps.csv")
+# maps = pd.read_csv("beatmaps.csv")
 # scores = pd.read_hdf('scores.hdf')
 scores = pd.read_sql_query("SELECT * FROM scores", cnx)
+maps = pd.read_sql_query("SELECT * FROM beatmaps", cnx)
 
 def intToMod(mod_int):
     mod_string = "";
@@ -153,7 +154,8 @@ def predictData(X,y,bid,num_scores):
     slope_max = 0
     bin_list = {}
     for ind,val in enumerate(X):
-        bin_label = math.floor((val /2 ) * 25)
+        # 50 / 2 groups
+        bin_label = math.floor(100*((val-1) / 2) / 100)
         if bin_label not in bin_list:
             bin_list[bin_label] = {}
             bin_list[bin_label]['x'] = []
@@ -162,31 +164,44 @@ def predictData(X,y,bid,num_scores):
         bin_list[bin_label]['x'].append(X[ind])
         bin_list[bin_label]['y'].append(y[ind])
         bin_list[bin_label]['count'] += 1
-    count_arr = []
+    count_arr = np.empty([26,])
     for bin_label in bin_list:
-        count_arr.append(bin_list[bin_label]['count'])
+        count_arr[bin_label] = (bin_list[bin_label]['count'])
     bins_normal = np.linalg.norm(count_arr)
     for bin_label in bin_list:
         bin_list[bin_label]['count'] /= bins_normal
-        bin_list[bin_label]['y'] = np.array(bin_list[bin_label]['y']) + 0.008* (np.array(bin_list[bin_label]['y'])/bin_list[bin_label]['count'])
+        count_arr[bin_label] /= bins_normal
     new_x = []
     new_y = []
     if num_scores > 500:
         from_top = 0.05
     else:
         from_top = 1
+    
     for b in bin_list:
-        bin_list[b]['x'] = np.sort(bin_list[b]['x'])[::-1]
-        bin_list[b]['y'] = np.sort(bin_list[b]['y'])[::-1]
+        score_tup = [((bin_list[b]['x'][ind]),(bin_list[b]['y'][ind])) for ind,val in enumerate(bin_list[b]['x'])]
+        score_tup.sort(key=lambda x:x[1], reverse=True)
         num_scores = math.ceil(len(bin_list[b]['x']) * from_top)
-        new_x.extend(bin_list[b]['x'][:num_scores])
-        new_y.extend(bin_list[b]['y'][:num_scores])
+        tmp_x = [score_tup[ind][0] for ind,val in enumerate(score_tup)]
+        tmp_y = [score_tup[ind][1] for ind,val in enumerate(score_tup)]
+        new_x.extend(tmp_x[:num_scores])
+        new_y.extend(tmp_y[:num_scores])
     new_x = np.array(new_x).reshape(-1, 1)
     new_y = np.array(new_y).reshape(-1, 1)
     reg = LinearRegression().fit(new_x, new_y)
     y_pred = reg.predict(new_x)
     score = reg.score(new_x, new_y)
-    # if bid == 954692:
+    for ind in range(len(new_y)):
+        if reg.coef_[0][0] >= 0:
+            new_y[ind] = new_y[ind] + 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+        else:
+            new_y[ind] = new_y[ind] - 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+    reg = LinearRegression().fit(new_x, new_y)
+    y_pred = reg.predict(new_x)
+    score = reg.score(new_x, new_y)
+    # if bid == 933017:
+    #     print(count_arr)
+    #     print(abs(reg.coef_[0][0]*(score+score*(0.50))))
     #     plt.plot(new_x, y_pred, color='blue', linewidth=3)
     #     plt.scatter(new_x, new_y,  color='red',s=area)
     #     plt.show()
@@ -264,10 +279,13 @@ map_coefs.sort(key=lambda map_coefs: map_coefs[1], reverse=True)
 with db.atomic():
     for m in map_coefs:
         bid = m[0]
-        map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
-        map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
-        # print(m[1],map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(m[2]))
-        new_map = Beatmaps.replace(avg_acc=0,score=m[1],avg_pos =0,pop_mod=m[2],avg_pp=0,avg_rank=0,num_scores=0,mode=0,bid = bid[0], \
-            name = map_info["name"], artist=map_info["artist"],mapper=map_info["mapper"],cs=map_info["cs"],ar=map_info["ar"],od=map_info["od"], \
-            length=map_info["length"],bpm=map_info["bpm"],diff=map_info["diff"],version=map_info["version"],sid=map_info["sid"]).execute()
-        # graphData(m[3],m[4],m[5])
+        try:
+            map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
+            map_info = maps.loc[maps['bid'] == bid[0]].iloc[0]
+            # print(m[1],map_info["artist"],"-",map_info["name"] + "[" + map_info["version"] + "]+",intToMod(m[2]))
+            new_map = Beatmaps.replace(avg_acc=0,score=m[1],avg_pos =0,pop_mod=m[2],avg_pp=0,avg_rank=0,num_scores=0,mode=0,bid = bid[0], \
+                name = map_info["name"], artist=map_info["artist"],mapper=map_info["mapper"],cs=map_info["cs"],ar=map_info["ar"],od=map_info["od"], \
+                length=map_info["length"],bpm=map_info["bpm"],diff=map_info["diff"],version=map_info["version"],sid=map_info["sid"]).execute()
+            # graphData(m[3],m[4],m[5])
+        except:
+            print("BID NOT FOUND",bid)
