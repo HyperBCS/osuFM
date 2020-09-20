@@ -181,12 +181,12 @@ function genTableMobileHTML(pos, map_slice) {
     `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><a href="https://osu.ppy.sh/b/` + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + `.jpg"></a></div> </div>
     <div class="col"><div class="row"><a class="mb-0" href="https://osu.ppy.sh/b/` + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + `</a></div>
     <div class="row"><p class="text-muted small">`+ diff_str + `</p></div></div></div>
-    <div class="row"><div class="col-auto mr-auto"><div class="row d-flex justify-content-center mx-0"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><p class="font-weight-bold my-0 glow">` + (map_slice.score * 100).toFixed(2) +`</p></div></div>
-    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>PP</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_pp).toFixed(2) + `</p></div></div>
+    <div class="row"><div class="col-auto mr-auto"><div class="row d-flex justify-content-center mx-0"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><p class="font-weight-bold my-0 glow">` + (map_slice.score).toFixed(1) +`</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>PP</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_pp).toFixed(0) + `</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>Acc</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_acc * 100).toFixed(2) + `%</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>Mods</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.pop_mod + `</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'><i class="fas fa-clock"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.length + `</p></div></div>
-    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>BPM</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.bpm).toFixed(2) + `</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>BPM</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.bpm).toFixed(0) + `</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'><i class="fas fa-star"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.diff).toFixed(2) + '</p></div></div></div></div><hr>'
 }
 

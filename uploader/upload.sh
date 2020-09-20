@@ -5,7 +5,7 @@ if [[ "${UPLOAD_ADDR}" ]]; then
     ADDR="${UPLOAD_ADDR}"
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
     cd "$DIR/../crawler"
-    "$DIR/../crawler/build/main"
+    python3 "$DIR/../crawler/crawler.py"
     if [ $? -eq 0 ]
     then
         echo "Score crawler successful!"
