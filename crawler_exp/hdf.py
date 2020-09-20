@@ -427,7 +427,7 @@ for mode_int,mode in enumerate(modes):
 
             user_map = {}
             user_score_map = {}
-            executor = ThreadPoolExecutor(len(users))
+            executor = ThreadPoolExecutor()
             thread_list = []
             with ThreadPoolExecutor(max_workers=25) as executor:
                 for user in users:
@@ -450,8 +450,15 @@ for mode_int,mode in enumerate(modes):
 process_maps(beatmaps, good_maps)
 calcDiffs(good_maps)
 good_maps.sort(key=lambda x:x.score, reverse=True)
-with db.atomic():
-    for map_info in good_maps:
+for map_info in good_maps:
+    try:
         new_map = Beatmaps.replace(avg_acc=map_info.avg_acc,score=map_info.score,avg_pos =map_info.avg_pos,pop_mod=map_info.pop_mod,avg_pp=map_info.avg_pp,avg_rank=map_info.avg_rank,num_scores=map_info.num_scores,mode=map_info.mode,bid = map_info.bid, \
             name = map_info.title, artist=map_info.artist,mapper=map_info.mapper,cs=map_info.cs,ar=map_info.ar,od=map_info.od, \
             length=map_info.length,bpm=map_info.bpm,diff=map_info.diff,version=map_info.version,sid=map_info.set_id, calculated=True).execute()
+    except:
+        print("Error executing query with map")
+        print(map_info.artist,"-",map_info.title + "[" + map_info.version + "]+",map_info.pop_mod)
+        print("    Score: ",map_info.score)
+        print("    AVG PP: ",map_info.avg_pp)
+        print("    AVG ACC: ",map_info.avg_acc)
+        print("    AVG RANK: ",map_info.avg_rank)
