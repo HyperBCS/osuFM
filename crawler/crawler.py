@@ -231,7 +231,7 @@ def predictData(X,y,num_scores,bid):
     count_arr = np.empty([26,])
     for bin_label in bin_list:
         count_arr[bin_label] = (bin_list[bin_label]['count'])
-    bins_normal = np.linalg.norm(count_arr)
+    bins_normal = np.amax(count_arr)
     for bin_label in bin_list:
         bin_list[bin_label]['count'] /= bins_normal
         count_arr[bin_label] /= bins_normal
@@ -252,24 +252,24 @@ def predictData(X,y,num_scores,bid):
         new_y.extend(tmp_y[:num_scores])
     new_x = np.array(new_x).reshape(-1, 1)
     new_y = np.array(new_y).reshape(-1, 1)
-    reg = LinearRegression().fit(new_x, new_y)
-    y_pred = reg.predict(new_x)
-    score = reg.score(new_x, new_y)
+    reg1 = LinearRegression().fit(new_x, new_y)
+    y_pred = reg1.predict(new_x)
+    score = reg1.score(new_x, new_y)
     for ind in range(len(new_y)):
-        if reg.coef_[0][0] >= 0:
-            new_y[ind] = new_y[ind] + 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+        if reg1.coef_[0][0] >= 0:
+            new_y[ind] = new_y[ind] + 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
         else:
-            new_y[ind] = new_y[ind] - 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+            new_y[ind] = new_y[ind] - 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
     reg = LinearRegression().fit(new_x, new_y)
     y_pred = reg.predict(new_x)
     score = reg.score(new_x, new_y)
-    # if bid == 933017:
+    # if bid == 1373950:
     #     print(count_arr)
-    #     print(abs(reg.coef_[0][0]*(score+score*(0.50))))
+    #     print(abs(reg.coef_[0][0]*(score) + reg.coef_[0][0]*(1-score)*(0.5)))
     #     plt.plot(new_x, y_pred, color='blue', linewidth=3)
     #     plt.scatter(new_x, new_y,  color='red',s=area)
     #     plt.show()
-    return abs(reg.coef_[0][0]*(score+score*(0.50)))
+    return abs(reg.coef_[0][0]*(score) + reg.coef_[0][0]*(1-score)*(0.5))
 
 def getURL(url, auth_string, checkJson):
     tries = 100

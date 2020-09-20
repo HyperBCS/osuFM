@@ -14,7 +14,7 @@ import json
 import sqlite3
 import time
 
-db = SqliteDatabase('osuFM2.db',pragmas=[('journal_mode', 'wal')])
+db = SqliteDatabase('osuFM.db',pragmas=[('journal_mode', 'wal')])
 cnx = sqlite3.connect('data.db')
 
 # maps = pd.read_csv("beatmaps.csv")
@@ -167,7 +167,7 @@ def predictData(X,y,bid,num_scores):
     count_arr = np.empty([26,])
     for bin_label in bin_list:
         count_arr[bin_label] = (bin_list[bin_label]['count'])
-    bins_normal = np.linalg.norm(count_arr)
+    bins_normal = np.amax(count_arr)
     for bin_label in bin_list:
         bin_list[bin_label]['count'] /= bins_normal
         count_arr[bin_label] /= bins_normal
@@ -188,24 +188,24 @@ def predictData(X,y,bid,num_scores):
         new_y.extend(tmp_y[:num_scores])
     new_x = np.array(new_x).reshape(-1, 1)
     new_y = np.array(new_y).reshape(-1, 1)
-    reg = LinearRegression().fit(new_x, new_y)
-    y_pred = reg.predict(new_x)
-    score = reg.score(new_x, new_y)
+    reg1 = LinearRegression().fit(new_x, new_y)
+    y_pred = reg1.predict(new_x)
+    score = reg1.score(new_x, new_y)
     for ind in range(len(new_y)):
-        if reg.coef_[0][0] >= 0:
-            new_y[ind] = new_y[ind] + 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+        if reg1.coef_[0][0] >= 0:
+            new_y[ind] = new_y[ind] + 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
         else:
-            new_y[ind] = new_y[ind] - 0.08*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+            new_y[ind] = new_y[ind] - 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
     reg = LinearRegression().fit(new_x, new_y)
     y_pred = reg.predict(new_x)
     score = reg.score(new_x, new_y)
-    # if bid == 933017:
-    #     print(count_arr)
-    #     print(abs(reg.coef_[0][0]*(score+score*(0.50))))
-    #     plt.plot(new_x, y_pred, color='blue', linewidth=3)
-    #     plt.scatter(new_x, new_y,  color='red',s=area)
-    #     plt.show()
-    return abs(reg.coef_[0][0]*(score+score*(0.50))) , y_pred
+    if bid == 1373950:
+        print(count_arr)
+        print(abs(reg.coef_[0][0]*(score) + reg.coef_[0][0]*(1-score)*(0.5)))
+        plt.plot(new_x, y_pred, color='blue', linewidth=3)
+        plt.scatter(new_x, new_y,  color='red',s=area)
+        plt.show()
+    return abs(reg.coef_[0][0]*(score) + reg.coef_[0][0]*(1-score)*(0.5)) , y_pred
 
 def graphData(y,X, y_pred):
     area = 2
@@ -274,6 +274,8 @@ for ind, bid in enumerate(bids):
             print(y)
 
         score, y_pred = predictData(y,x,bid[0],num_scores)
+        if score < 1:
+            continue
         map_coefs.append((bid, score, mods, x, y, y_pred))
 map_coefs.sort(key=lambda map_coefs: map_coefs[1], reverse=True)
 with db.atomic():
