@@ -53,6 +53,7 @@ var max_per_page = 10
 var map_data = null
 var map_data_filter = null
 var filter_on = false
+var filter_on_2 = false
 var current_page = 1
 var num_show = 0
 var img_loaded = 0
@@ -190,21 +191,15 @@ function genTableMobileHTML(pos, map_slice) {
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'><i class="fas fa-star"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.diff).toFixed(2) + '</p></div></div></div></div><hr>'
 }
 
-$('#searchBox1, #searchBox2').on('input', function (data) {
-    if($(this).attr('id') == "searchBox1"){
-        $("#searchBox2").val($("#searchBox1").val())
-    } else{
-        $("#searchBox1").val($("#searchBox2").val())
-    }
-    var searchBox = data.target
+function doSearch(query){
     map_data_filter = []
-    if ($(searchBox).val() == '') {
+    if (query == '') {
         filter_on = false
     } else {
         filter_on = true
     }
     for (m_id in map_data) {
-        if ($(searchBox).val() == '' || (map_data[m_id].all_title).includes($(searchBox).val().toLowerCase())) {
+        if (query == '' || (map_data[m_id].all_title).includes(query)) {
             map_data_filter.push(map_data[m_id])
         }
     }
@@ -233,9 +228,26 @@ $('#searchBox1, #searchBox2').on('input', function (data) {
         maxVisible: 7
     });
 
+}
+
+$('#searchBox1, #searchBox2').on('input', function (data) {
+    if($(this).attr('id') == "searchBox1"){
+        $("#searchBox2").val($("#searchBox1").val())
+    } else{
+        $("#searchBox1").val($("#searchBox2").val())
+    }
+    console.log("val2")
+    var searchBox = data.target
+    doSearch($(searchBox).val().toLowerCase())
 });
 
 function fillTable(data, page) {
+    if(filter_on_2){
+        doSearch($("#searchBox1").val())
+        console.log("sdsdfsdfsdf")
+        filter_on_2 = false
+        return
+    }
     page -= 1
     var map_slice = (data).slice(page * max_per_page, (page + 1) * max_per_page)
     var tableData = ""
@@ -273,6 +285,7 @@ function fillTable(data, page) {
 
 $("#filterBtn").click(function () {
     getTableData(1)
+    filter_on_2 = true
 });
 
 $("#resetBtn").click(function () {
@@ -314,8 +327,9 @@ $("#dropdownMenuButton a.dropdown-item").click(function () {
 
 $("[name='mode'] a.dropdown-item").click(function () {
     mode = $(this).text();
-    $("#searchBox1").val("")
-    $("#searchBox2").val("")
+    if($( "#searchBox2" ).val() != ""){
+        filter_on_2 = true
+    }
     var y = document.getElementById('modes');
     $("#navbarDropdown").text(mode);
     if ($(this).attr("mode") == 3) {
