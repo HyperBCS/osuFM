@@ -15,7 +15,6 @@ var defaults = {
     page: '1',
     ml: '0',
     xl: '9007199254740991',
-    m: '0',
     n1: '',
     n2: '',
     mpp: '',
@@ -41,7 +40,7 @@ router.get('/', function (req, res, next) {
 
 /* GET filter page. */
 router.get('/filter', function (req, res, next) {
-    if(Object.keys(req.query).length == 0){
+    if (Object.keys(req.query).length == 0) {
         var err = new Error('Bad request');
         err.status = 400;
         return next(err);
@@ -75,18 +74,20 @@ router.get('/filter', function (req, res, next) {
     mode = util.get_mode(mode)
     default_params = true
     for (query in req.query) {
-        if (req.query[query] == defaults[query]) {
-        } else {
+        if (query == 'm') {
+            continue
+        }
+        if (req.query[query] != defaults[query]) {
             default_params = false
         }
     }
     if (default_params) {
         res.json({
-            maps: req.app.locals.mapCache,
+            maps: req.app.locals.mapCache[req.query.m],
         });
         return
     } else if (mods == null || mods == 0) {
-        query = {attributes: ['bid', 'sid', 'name', 'artist', 'mapper', 'pop_mod', 'avg_pp', 'avg_acc', 'mode', 'cs', 'ar', 'od', 'length', 'bpm', 'diff', 'version', 'score'], order: [['score', 'DESC']], where: { diff: { [Op.gte]: diff_range[0], [Op.lte]: diff_range[1] }, bpm: { [Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1] }, length: { [Op.gte]: time_range[0], [Op.lte]: time_range[1] }, avg_pp: { [Op.gte]: pp_range[0], [Op.lte]: pp_range[1] }, cs: { [Op.gte]: cs_range[0], [Op.lte]: cs_range[1] }, ar: { [Op.gte]: ar_range[0], [Op.lte]: ar_range[1] }, [Op.and]: [{ [Op.or]: mode }] } }
+        query = { attributes: ['bid', 'sid', 'name', 'artist', 'mapper', 'pop_mod', 'avg_pp', 'avg_acc', 'mode', 'cs', 'ar', 'od', 'length', 'bpm', 'diff', 'version', 'score'], order: [['score', 'DESC']], where: { diff: { [Op.gte]: diff_range[0], [Op.lte]: diff_range[1] }, bpm: { [Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1] }, length: { [Op.gte]: time_range[0], [Op.lte]: time_range[1] }, avg_pp: { [Op.gte]: pp_range[0], [Op.lte]: pp_range[1] }, cs: { [Op.gte]: cs_range[0], [Op.lte]: cs_range[1] }, ar: { [Op.gte]: ar_range[0], [Op.lte]: ar_range[1] }, [Op.and]: [{ [Op.or]: mode }] } }
 
     } else {
         query_mod = mods
@@ -101,7 +102,7 @@ router.get('/filter', function (req, res, next) {
         } else if (query_mod_m % 2 != 0) {
             query_mod_m += 1
         }
-        query = {attributes: ['bid', 'sid', 'name', 'artist', 'mapper', 'pop_mod', 'avg_pp', 'avg_acc', 'mode', 'cs', 'ar', 'od', 'length', 'bpm', 'diff', 'version', 'score'], order: [['score', 'DESC']], where: { mods: { [Op.or]: [{[Op.and]: [Sequelize.literal("pop_mod & " + query_mod + " == " + query_mod), Sequelize.literal("pop_mod & " + query_mod_m)] }, Sequelize.literal("pop_mod == " + query_mod)] }, diff: { [Op.gte]: diff_range[0], [Op.lte]: diff_range[1] }, bpm: { [Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1] }, length: { [Op.gte]: time_range[0], [Op.lte]: time_range[1] }, avg_pp: { [Op.gte]: pp_range[0], [Op.lte]: pp_range[1] }, cs: { [Op.gte]: cs_range[0], [Op.lte]: cs_range[1] }, ar: { [Op.gte]: ar_range[0], [Op.lte]: ar_range[1] }, [Op.and]: [{ [Op.or]: mode }] } }
+        query = { attributes: ['bid', 'sid', 'name', 'artist', 'mapper', 'pop_mod', 'avg_pp', 'avg_acc', 'mode', 'cs', 'ar', 'od', 'length', 'bpm', 'diff', 'version', 'score'], order: [['score', 'DESC']], where: { mods: { [Op.or]: [{ [Op.and]: [Sequelize.literal("pop_mod & " + query_mod + " == " + query_mod), Sequelize.literal("pop_mod & " + query_mod_m)] }, Sequelize.literal("pop_mod == " + query_mod)] }, diff: { [Op.gte]: diff_range[0], [Op.lte]: diff_range[1] }, bpm: { [Op.gte]: bpm_range[0], [Op.lte]: bpm_range[1] }, length: { [Op.gte]: time_range[0], [Op.lte]: time_range[1] }, avg_pp: { [Op.gte]: pp_range[0], [Op.lte]: pp_range[1] }, cs: { [Op.gte]: cs_range[0], [Op.lte]: cs_range[1] }, ar: { [Op.gte]: ar_range[0], [Op.lte]: ar_range[1] }, [Op.and]: [{ [Op.or]: mode }] } }
     }
     map_ret = []
     models.Beatmap.findAll(query).then(result => {
@@ -123,27 +124,6 @@ router.get('/filter', function (req, res, next) {
         err.status = 500;
         return next(err);
     });
-
-
-    // models.Beatmap.findAndCountAll(query).then(function (maps) {
-    //     for (m in maps.rows) {
-    //         m_json = maps.rows[m].toJSON()
-    //         m_json.length = util.str_time(maps.rows[m].length)
-    //         m_json.pop_mod = util.intToMods(maps.rows[m].pop_mod)
-    //         if (m_json.pop_mod == '') {
-    //             m_json.pop_mod = 'None'
-    //         }
-    //         map_ret.push(m_json)
-    //     }
-    //     res.json({
-    //         maps: map_ret,
-    //     });
-    // }).catch(function (err) {
-    //     console.error(err.stack)
-    //     var err = new Error('Internal Server Error');
-    //     err.status = 500;
-    //     return next(err);
-    // });
 });
 
 module.exports = router;

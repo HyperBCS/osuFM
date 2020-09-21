@@ -117,8 +117,8 @@ var str_time = function (length) {
 
 function getMapCache() {
     console.log("Loading cache")
-    query = { order: [['score', 'DESC']], where: { mode: { [Op.eq]: 0 } } }
-    map_ret = []
+    query = { order: [['score', 'DESC']]}
+    map_ret = {0: [], 1: [], 2: [], 3: [],4: []}
     models.Beatmap.findAndCountAll(query).then(function (maps) {
         for (m in maps.rows) {
             m_json = maps.rows[m].toJSON()
@@ -128,7 +128,8 @@ function getMapCache() {
             if (m_json.pop_mod == '') {
                 m_json.pop_mod = 'None'
             }
-            map_ret.push(m_json)
+            map_ret[m_json.mode].push(m_json)
+            map_ret[4].push(m_json)
         }
         console.log("Done Loading Cache")
     });
@@ -170,7 +171,7 @@ var format_min_max = function (min, max) {
 }
 
 var get_mode = function (mode) {
-    if (mode == -1) {
+    if (mode == 4) {
         return [{ mode: 0 }, { mode: 1 }, { mode: 2 }, { mode: 3 }]
     }
     return [{ mode: mode }]
