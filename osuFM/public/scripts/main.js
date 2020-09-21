@@ -50,8 +50,9 @@ $(':checkbox').change(function () {
 });
 
 var max_per_page = 10
-var map_data = null
-var map_data_filter = null
+var map_data_all = null
+var map_data = []
+var map_data_filter = []
 var filter_on = false
 var filter_on_2 = false
 var current_page = 1
@@ -84,7 +85,22 @@ $('#pages').bootpag().on('page', function (event, num) {
     $('#page').val(num)
 });
 
-function getTableData(num) {
+function parseCSV(csv){
+    map_data_all = d3.csvParse(csv, d3.autoType)
+    delete map_data_all.columns
+    for(m in map_data_all){
+        map_data_all[m].mod_str = intToMods(map_data_all[m].pop_mod)
+        map_data_all[m].name = atob(map_data_all[m].name)
+        map_data_all[m].artist = atob(map_data_all[m].artist)
+        map_data_all[m].mapper = atob(map_data_all[m].mapper)
+        map_data_all[m].version = atob(map_data_all[m].version)
+        map_data_all[m].all_title = (map_data_all[m].artist + " " + map_data_all[m].name + " " + map_data_all[m].version + " " + map_data_all[m].mapper).toLowerCase()
+        map_data.push(map_data_all[m])
+    }
+    getTableData(1)
+}
+
+function fillDummy(){
     filter_on = false
     table_dummy_data = ""
     table_dummy_mobile_data = ""
@@ -105,17 +121,75 @@ function getTableData(num) {
     }
     $('#data_body').html(table_dummy_data)
     $('#tableMobile').html(table_dummy_mobile_data)
-    $.get("filter?" + $('#filterForm').serialize(), function (data, status) {
-        map_data = data.maps
-        for (m in map_data) {
-            map_data[m].all_title = (map_data[m].artist + " " + map_data[m].name + " " + map_data[m].version + " " + map_data[m].mapper).toLowerCase()
-        }
-        fillTable(data.maps, num)
+}
+
+function loadData(){
+    fillDummy()
+    $.get("data/comp_maps.csv", function (data, status) {
+        parseCSV(data)
 
     })
         .fail(function (data, status) {
             console.log(data.responseText)
         })
+}
+
+
+function getTableData(num) {
+    fillDummy()
+    map_data = []
+    var unindexed_array = $('#filterForm').serializeArray();
+    var indexed_array = {};
+
+    $.map(unindexed_array, function(n, i){
+        indexed_array[n['name']] = parseFloat(n['value']);
+    });
+    console.log(indexed_array)
+    for(m in map_data_all){
+        if((map_data_all[m].mode != indexed_array.m) && (indexed_array.m != 4)){
+            continue;
+        }
+        if(map_data_all[m].ar < indexed_array.mar || map_data_all[m].ar > indexed_array.xar){
+            continue;
+        }
+        if(map_data_all[m].cs < indexed_array.mcs || map_data_all[m].cs > indexed_array.xcs){
+            continue;
+        }
+        if(map_data_all[m].diff < indexed_array.md || map_data_all[m].diff > indexed_array.xd){
+            continue;
+        }
+        if(map_data_all[m].length < indexed_array.ml || map_data_all[m].length > indexed_array.xl){
+            continue;
+        }
+        if(map_data_all[m].bpm < indexed_array.mb || map_data_all[m].bpm > indexed_array.xb){
+            continue;
+        }
+        if(map_data_all[m].avg_pp < indexed_array.mpp || map_data_all[m].avg_pp > indexed_array.xpp){
+            continue;
+        }
+        if(indexed_array.mods == 0){
+            map_data.push(map_data_all[m])
+            continue;
+        }
+
+        query_mod = indexed_array.mods
+        if (query_mod == -1) {
+            query_mod = 0;
+        } else if (query_mod % 2 != 0) {
+            query_mod += 1
+        }
+        query_mod_m = indexed_array.modsMaybe
+        if (query_mod_m == -1) {
+            query_mod_m = 0;
+        } else if (query_mod_m % 2 != 0) {
+            query_mod_m += 1
+        }
+        if(!(((map_data_all[m].pop_mod & ~(query_mod | query_mod_m)) == 0) && ((map_data_all[m].pop_mod & query_mod) == query_mod) && map_data_all[m].pop_mod != 0 ) && !(map_data_all[m].pop_mod == query_mod)){
+            continue;
+        }
+        map_data.push(map_data_all[m])
+    }
+    fillTable(map_data, num)
 }
 
 document.getElementById("filterBtn").addEventListener("click", function (event) {
@@ -162,11 +236,11 @@ $(function () {
 
 function genTableHTML(pos, map_slice) {
     if (map_slice.mode == 3) {
-        return '<tr><td><p class="text-center">' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">Keys: ' + map_slice.cs + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold text-center glow farm-score">' + (map_slice.score).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p class="text-center">' + map_slice.pop_mod + '</p></td><td><p class="text-center">' + map_slice.length + '</p></td><td><p class="text-center">' + (map_slice.bpm).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p class="text-center">' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">Keys: ' + map_slice.cs + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold text-center glow farm-score">' + (map_slice.score).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p class="text-center">' + map_slice.mod_str + '</p></td><td><p class="text-center">' + map_slice.length + '</p></td><td><p class="text-center">' + (map_slice.bpm).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else if (map_slice.mode == 1) {
-        return '<tr><td><p class="text-center">' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold text-center glow farm-score">' + (map_slice.score).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p class="text-center">' + map_slice.pop_mod + '</p></td><td><p class="text-center">' + map_slice.length + '</p></td><td><p class="text-center">' + (map_slice.bpm).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p class="text-center">' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold text-center glow farm-score">' + (map_slice.score).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p class="text-center">' + map_slice.mod_str + '</p></td><td><p class="text-center">' + map_slice.length + '</p></td><td><p class="text-center">' + (map_slice.bpm).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     } else {
-        return '<tr><td><p class="text-center">' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' + (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold text-center glow farm-score">' + (map_slice.score).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p class="text-center">' + map_slice.pop_mod + '</p></td><td><p class="text-center">' + map_slice.length + '</p></td><td><p class="text-center">' + (map_slice.bpm).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
+        return '<tr><td><p class="text-center">' + pos + '</p></td><td><a href="https://osu.ppy.sh/b/' + map_slice.bid + '"><img src="https://b.ppy.sh/thumb/' + map_slice.sid + '.jpg"></a></td><td> <a href="https://osu.ppy.sh/b/' + map_slice.bid + '">' + map_slice.artist + ' - ' + map_slice.name + ' [' + map_slice.version + ']' + '</a><p class="text-muted small">AR: ' + (map_slice.ar).toFixed(1) + ' CS: ' + (map_slice.cs).toFixed(1) + ' OD: ' + (map_slice.od).toFixed(1) + '</p></td><td><p class="font-weight-bold text-center glow farm-score">' + (map_slice.score).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_pp).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.avg_acc * 100).toFixed(2) + '%</p></td><td><p class="text-center">' + map_slice.mod_str + '</p></td><td><p class="text-center">' + map_slice.length + '</p></td><td><p class="text-center">' + (map_slice.bpm).toFixed(2) + '</p></td><td><p class="text-center">' + (map_slice.diff).toFixed(2) + '</p></td></tr>';
     }
 }
 
@@ -185,7 +259,7 @@ function genTableMobileHTML(pos, map_slice) {
     <div class="row"><div class="col-auto mr-auto"><div class="row d-flex justify-content-center mx-0"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><p class="font-weight-bold my-0 glow">` + (map_slice.score).toFixed(1) +`</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>PP</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_pp).toFixed(0) + `</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>Acc</p></div><div class="row d-flex justify-content-center"><p class='my-0'>` + (map_slice.avg_acc * 100).toFixed(2) + `%</p></div></div>
-    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>Mods</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.pop_mod + `</p></div></div>
+    <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>Mods</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.mod_str + `</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'><i class="fas fa-clock"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + map_slice.length + `</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'>BPM</p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.bpm).toFixed(0) + `</p></div></div>
     <div class="col-auto mr-auto"><div class="row d-flex justify-content-center"><p class='my-0 font-weight-bold'><i class="fas fa-star"></i></p></div><div class="row d-flex justify-content-center"><p class='my-0'> ` + (map_slice.diff).toFixed(2) + '</p></div></div></div></div><hr>'
@@ -462,3 +536,104 @@ $('#theme').on('change', function (event, state) {
 
 
 }); 
+
+var intToMods = function (mod_int) {
+    var mod_string = "";
+    if (mod_int == -1) {
+        mod_string += "NO";
+    }
+    if (mod_int & 1 << 0) {
+        mod_string += "NF";
+    }
+    if (mod_int & 1 << 1) {
+        mod_string += "EZ";
+    }
+    if (mod_int & 1 << 2) {
+        mod_string += "TD";
+    }
+    if (mod_int & 1 << 3) {
+        mod_string += "HD";
+    }
+    if (mod_int & 1 << 4) {
+        mod_string += "HR";
+    }
+    if (mod_int & 1 << 6 && !(mod_int & 1 << 9)) {
+        mod_string += "DT";
+    }
+    if (mod_int & 1 << 7) {
+        mod_string += "RX";
+    }
+    if (mod_int & 1 << 8) {
+        mod_string += "HT";
+    }
+    if (mod_int & 1 << 9) {
+        mod_string += "NC";
+    }
+    if (mod_int & 1 << 10) {
+        mod_string += "FL";
+    }
+    if (mod_int & 1 << 5) {
+        mod_string += "SD";
+    }
+    if (mod_int & 1 << 11) {
+        mod_string += "AP";
+    }
+    if (mod_int & 1 << 12) {
+        mod_string += "SO";
+    }
+    if (mod_int & 1 << 13) {
+        mod_string += "RX";
+    }
+    if (mod_int & 1 << 14) {
+        mod_string += "PF";
+    }
+    if (mod_int & 1 << 15) {
+        mod_string += "4K";
+    }
+    if (mod_int & 1 << 16) {
+        mod_string += "5K";
+    }
+    if (mod_int & 1 << 17) {
+        mod_string += "6K";
+    }
+    if (mod_int & 1 << 18) {
+        mod_string += "7K";
+    }
+    if (mod_int & 1 << 19) {
+        mod_string += "8K";
+    }
+    if (mod_int & 1 << 20) {
+        mod_string += "FI";
+    }
+    if (mod_int & 1 << 21) {
+        mod_string += "RD";
+    }
+    if (mod_int & 1 << 22) {
+        mod_string += "CM";
+    }
+    if (mod_int & 1 << 23) {
+        mod_string += "TP";
+    }
+    if (mod_int & 1 << 24) {
+        mod_string += "9K";
+    }
+    if (mod_int & 1 << 25) {
+        mod_string += "CP";
+    }
+    if (mod_int & 1 << 26) {
+        mod_string += "1K";
+    }
+    if (mod_int & 1 << 27) {
+        mod_string += "3K";
+    }
+    if (mod_int & 1 << 28) {
+        mod_string += "2K";
+    }
+    if (mod_int & 1 << 30) {
+        mod_string += "MR";
+    }
+    if(mod_string == ""){
+        mod_string = "None"
+    }
+    return mod_string;
+}
