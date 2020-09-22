@@ -32,6 +32,10 @@
   box-shadow: unset !important; 
 }
 
+.fa-arrow-up, .fa-arrow-down {
+  color: #007bff !important;
+}
+
   .form-control::-webkit-input-placeholder { color: #dcddde; }  /* WebKit, Blink, Edge */
   .form-control:-moz-placeholder { color: #dcddde; }  /* Mozilla Firefox 4 to 18 */
   .form-control::-moz-placeholder { color: #dcddde; }  /* Mozilla Firefox 19+ */

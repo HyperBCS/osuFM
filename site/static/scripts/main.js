@@ -532,7 +532,7 @@ function fillTable(data, page) {
         data.length +
         " entries"
     );
-    $("img").on("load", function () {
+    $("img").on("load error", function () {
       img_loaded += 1;
       if (img_loaded == num_show) {
         $("#data_body").html($("#data_body_dummy").html());
