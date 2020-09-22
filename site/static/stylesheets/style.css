@@ -3,6 +3,10 @@
   width: 90%;
 }
 
+.bootstrap-datetimepicker-widget table td span {
+  width: 40px;
+}
+
 table.table a, .table, th, th p, table td{
   font-size: 1.3rem !important;
 }
@@ -56,6 +60,10 @@ table.table a, .table, th, th p, table td{
 
 th {
   text-align: center;
+}
+
+.bootstrap-datetimepicker-widget table td span:hover {
+  background: unset;
 }
 
 /* table.table a, .table, th, th p, table td{

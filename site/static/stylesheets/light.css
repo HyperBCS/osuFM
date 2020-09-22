@@ -7,8 +7,8 @@
     
   }
 
-  .navbar .dropdown-menu a:not(.active){
-    color: white;
+  .navbar .dropdown-menu a:not(.active), .dropdown-item{
+    color: white !important;
   }
 
   .dropButton:hover{
