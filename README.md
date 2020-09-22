@@ -1,24 +1,18 @@
 # osuFM
 
-This is an all in one way to find the most farmable maps on osu!. The program supports all game modes, and a wide range of options for gathering data. Data can be gathered from the top 10k players and the scores be analyzed to determine the best maps.
+osu! Farmers Market is an all in one way to find the most farmable maps on osu!. The program supports all game modes, and a wide range of options for gathering data.
 
 # Repository Structure
 
 - `crawler/` Contains code to gather user and beatmap statistics. The crawler is multi-threaded which should help performance. You can choose the number of threads in the config.
-- `osuFM/` Contains the front end to display map information.
+- `site/` Contains the front end to display map information.
 
 # Installation
 
 **Requirements**
 
-- Node.js
 - osu! api key
-- npm
 - Python 3.5+
-
-CMake projects should use: "-DCMAKE_TOOLCHAIN_FILE=/home/brandon/vcpkg/scripts/buildsystems/vcpkg.cmake"
-CMake projects should use: "-DCMAKE_TOOLCHAIN_FILE=/home/brandon/osuFM/crawler/vcpkg/scripts/buildsystems/vcpkg.cmake"
-
 
 **Step 1: Installing requirements**
 
@@ -33,14 +27,9 @@ Install the python requirements
 
 `pip3 install -r requirements.txt`
 
-Install the node.js requirements
-
-    cd ../osuFM
-    npm install
-
 **Step 2: Config Setup**
 
-Open `keys.cfg.example` and fill out the information. You will need your osu! api key which can be obtained [here](https://osu.ppy.sh/p/api)
+Open `keys.cfg.example` and fill out the information. You will need your osu! api key which can be obtained from the bottom of the osu [profile settings](https://osu.ppy.sh/home/account/edit)
 
 Now rename `keys.cfg.example` to `keys.cfg`
 
@@ -49,13 +38,9 @@ Now rename `keys.cfg.example` to `keys.cfg`
 To begin gathering data.
 `python3 crawl.py`
 
-Once this finishes you will have all the data to run the site. The database is automatically created and placed into the right place.
+Once this finishes you will have a `comp_maps.csv` and `datemodified` in your crawler directory. These should be placed in `$PROJ_ROOT/site/static/data`
 
 **Step 4: Starting the web interface**
 
-This will start the web interface on port 5000.
+Upload the files to any web host and the site should be running
 
-    cd ../osuFM
-    npm start
-    
-To access the site point your browser to [localhost:5000](http://localhost:5000)

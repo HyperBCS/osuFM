@@ -3,7 +3,6 @@ import math
 import functools 
 from sklearn.linear_model import LinearRegression
 import pandas as pd
-from scipy.stats import norm
 from peewee import *
 import json
 import requests
