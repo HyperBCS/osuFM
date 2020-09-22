@@ -4,24 +4,45 @@
 <head>
     <title>osu!FM - Find the best osu! farm maps</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js" integrity="sha512-f0VlzJbcEB6KiW8ZVtL+5HWPDyW1+nJEjguZ5IVnSQkvZbwBt2RfCBY0CBO1PsMAqxxrG4Di6TfsCPP3ZRwKpA==" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css" integrity="sha512-3q8fi8M0VS+X/3n64Ndpp6Bit7oXSiyCnzmlx6IDBLGlY5euFySyJ46RUlqIVs0DPCGOypqP8IRk/EyPvU28mQ==" crossorigin="anonymous"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js" integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg==" crossorigin="anonymous"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+        integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/bootstrap-slider.min.js"
+        integrity="sha512-f0VlzJbcEB6KiW8ZVtL+5HWPDyW1+nJEjguZ5IVnSQkvZbwBt2RfCBY0CBO1PsMAqxxrG4Di6TfsCPP3ZRwKpA=="
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/11.0.2/css/bootstrap-slider.min.css"
+        integrity="sha512-3q8fi8M0VS+X/3n64Ndpp6Bit7oXSiyCnzmlx6IDBLGlY5euFySyJ46RUlqIVs0DPCGOypqP8IRk/EyPvU28mQ=="
+        crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"
+        integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
+        crossorigin="anonymous"></script>
+    <script type="text/javascript"
+        src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
+        integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
+        crossorigin="anonymous" />
     <link rel="stylesheet" href="static/stylesheets/mdb.min.css" />
     <link rel="stylesheet" href="static/stylesheets/mdb-plugins-gathered.min.css" />
     <link rel="stylesheet" href="static/stylesheets/compiled-addons-4.19.1.min.css" />
     <link rel="stylesheet" href="https://unpkg.com/placeholder-loading/dist/css/placeholder-loading.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/css-element-queries/1.2.3/ElementQueries.min.js" integrity="sha512-ggR6eS+dyTcPruG+XYlKG8V90GTV6cSIbPafzqflZei2g2opJ/rOzgQog3kE2k0o9fyR9iUAUjGiwXSchBKnkw==" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/css-element-queries/1.2.3/ResizeSensor.min.js" integrity="sha512-Li66vFTPdL3BpG7YUS8/TdT+mpL4QWYe9N3f39LLZzxnPJL/w1Ih3C/CgEJmsQjSEy8Xx8+vTFDAS3A2s5NBUg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/css-element-queries/1.2.3/ElementQueries.min.js"
+        integrity="sha512-ggR6eS+dyTcPruG+XYlKG8V90GTV6cSIbPafzqflZei2g2opJ/rOzgQog3kE2k0o9fyR9iUAUjGiwXSchBKnkw=="
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/css-element-queries/1.2.3/ResizeSensor.min.js"
+        integrity="sha512-Li66vFTPdL3BpG7YUS8/TdT+mpL4QWYe9N3f39LLZzxnPJL/w1Ih3C/CgEJmsQjSEy8Xx8+vTFDAS3A2s5NBUg=="
+        crossorigin="anonymous"></script>
     <script src="static/scripts/mdb.min.js"></script>
     <script src="static/scripts/compiled-addons.min.js"></script>
     <script src="static/scripts/mdb-plugins-gathered.min.js"></script>
@@ -29,7 +50,8 @@
     <script src="static/scripts/analytics.js"></script>
     <link rel="stylesheet" href="static/stylesheets/style.css" />
     <meta name="google-site-verification" content="Nk89qt7dzQ2YmVn1qa0HCchSaMpu48oBR7fvlcEFqFw" />
-    <meta name="description" content="osu! Farmers Market is an all in one way to find the most farmable maps on osu!. The program supports all game modes, and a wide range of options for gathering data." />
+    <meta name="description"
+        content="osu! Farmers Market is an all in one way to find the most farmable maps on osu!. The program supports all game modes, and a wide range of options for gathering data." />
 </head>
 
 <body onload="loadData()">
@@ -37,65 +59,104 @@
         <div class="row">
             <div class="col-auto pr-0">
                 <a href="/" style="color:black;text-decoration : none">
-                    <h1 class="h1">osu!F<span class="h6">armers</span><span class="h1">M</span><span class="h6">arket</span></h1>
+                    <h1 class="h1">osu!F<span class="h6">armers</span><span class="h1">M</span><span
+                            class="h6">arket</span></h1>
                 </a>
             </div>
             <div class="col d-flex justify-content-end my-auto pl-0">
-                <div class="switch mt-auto" id="themeEle" style="display:none"><label><i class="fas fa-moon"></i><input id="theme" type="checkbox"/><span class="lever"></span><i class="fas fa-sun"></i></label></div>
+                <div class="switch mt-auto" id="themeEle" style="display:none"><label><i class="fas fa-moon"></i><input
+                            id="theme" type="checkbox" /><span class="lever"></span><i class="fas fa-sun"></i></label>
+                </div>
             </div>
         </div>
-        <form id="filterForm" onsubmit="applyFilter()"><input id="mods" style="display:none" name="mods" value="0" /><input id="modsMaybe" style="display:none" name="modsMaybe" value="0" /><input id="page" style="display:none" name="page" value="1" /><input id="ml" style="display:none" name="ml" value="0"
-            /><input id="xl" style="display:none" name="xl" value="9007199254740991" /><input id="mode" style="display:none" name="m" value="0" />
+        <form id="filterForm" onsubmit="applyFilter()"><input id="mods" style="display:none" name="mods"
+                value="0" /><input id="modsMaybe" style="display:none" name="modsMaybe" value="0" /><input id="page"
+                style="display:none" name="page" value="1" /><input id="ml" style="display:none" name="ml"
+                value="0" /><input id="xl" style="display:none" name="xl" value="9007199254740991" /><input id="mode"
+                style="display:none" name="m" value="0" />
             <div class="container"></div>
             <div class="row">
                 <div class="col">
                     <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
-                        <div class="col d-flex d-none d-sm-block d-lg-none md-form p-0 my-0"><input class="form-control" id="searchBox1" type="text" aria-label="Search" name="n1" /><label for="searchBox1">Search</label></div>
-                        <div class="col-auto button navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-                            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></div>
+                        <div class="col d-flex d-none d-sm-block d-lg-none md-form p-0 my-0"><input class="form-control"
+                                id="searchBox1" type="text" aria-label="Search" name="n1" /><label
+                                for="searchBox1">Search</label></div>
+                        <div class="col-auto button navbar-toggler" type="button" data-toggle="collapse"
+                            data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation"><span
+                                class="navbar-toggler-icon"></span></div>
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
                             <div class="col-auto">
                                 <div class="row">
                                     <ul class="navbar-nav mr-auto">
-                                        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle custom-grey dropButton" id="navbarDropdown" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Standard</a>
-                                            <div class="dropdown-menu navbar-custom"
-                                                aria-labelledby="navbarDropdown" name="mode"><a class="dropdown-item custom-grey" onclick="$('#mode').val(0)" mode="0">Standard</a><a class="dropdown-item custom-grey" onclick="$('#mode').val(1)" mode="1">Taiko</a><a class="dropdown-item custom-grey" onclick="$('#mode').val(2)"
-                                                    mode="2">Catch the Beat</a><a class="dropdown-item custom-grey" onclick="$('#mode').val(3)" mode="3">Mania</a>
-                                                <div class="dropdown-divider"></div><a class="dropdown-item custom-grey" onclick="$('#mode').val(4)">All</a></div>
+                                        <li class="nav-item dropdown"><a
+                                                class="nav-link dropdown-toggle custom-grey dropButton"
+                                                id="navbarDropdown" href="#" role="button" data-toggle="dropdown"
+                                                aria-haspopup="true" aria-expanded="false">Standard</a>
+                                            <div class="dropdown-menu navbar-custom" aria-labelledby="navbarDropdown"
+                                                name="mode"><a class="dropdown-item custom-grey"
+                                                    onclick="$('#mode').val(0)" mode="0">Standard</a><a
+                                                    class="dropdown-item custom-grey" onclick="$('#mode').val(1)"
+                                                    mode="1">Taiko</a><a class="dropdown-item custom-grey"
+                                                    onclick="$('#mode').val(2)" mode="2">Catch the Beat</a><a
+                                                    class="dropdown-item custom-grey" onclick="$('#mode').val(3)"
+                                                    mode="3">Mania</a>
+                                                <div class="dropdown-divider"></div><a class="dropdown-item custom-grey"
+                                                    onclick="$('#mode').val(4)">All</a>
+                                            </div>
                                         </li>
-                                        <li class="nav-item dropdown"><a class="nav-link dropdown-toggle custom-grey dropButton" role="button" data-toggle="collapse" data-target="#filters" id="filter">Map Filters</a></li>
+                                        <li class="nav-item dropdown"><a
+                                                class="nav-link dropdown-toggle custom-grey dropButton" role="button"
+                                                data-toggle="collapse" data-target="#filters" id="filter">Map
+                                                Filters</a></li>
                                     </ul>
                                 </div>
                             </div>
                             <div class="col d-none d-lg-block">
-                                <div class="my-lg-0 d-flex md-form"><input class="form-control mr-sm-2" id="searchBox2" type="text" aria-label="Search" placeholder="Search" name="n2" /></div>
+                                <div class="my-lg-0 d-flex md-form"><input class="form-control mr-sm-2" id="searchBox2"
+                                        type="text" aria-label="Search" placeholder="Search" name="n2" /></div>
                             </div>
                         </div>
                     </nav>
                 </div>
-            </div><br/>
+            </div><br />
             <div class="collapse" id="filters">
-                <div class="container" id="mods">
+                <div class="container">
                     <div class="checkbox">
                         <h4>Mods</h4>
                         <div class="col">
-                            <div class="row"><label class="form-check form-check-inline col col-6 col-md-auto"><input class="form-check-input" type="checkbox" value="64" id="DT"/><label class="form-check-label" for="DT">Double Time</label></label><label class="form-check form-check-inline col col-6 col-md-auto"><input class="form-check-input" type="checkbox" value="8" id="HD"/><label class="form-check-label" for="HD">Hidden</label></label>
-                                <label
-                                    class="form-check form-check-inline col col-6 col-md-auto"><input class="form-check-input" type="checkbox" value="16" id="HR" /><label class="form-check-label" for="HR">Hard Rock</label></label><label class="form-check form-check-inline col col-6 col-md-auto"><input class="form-check-input" type="checkbox" value="2" id="EZ"/><label class="form-check-label" for="EZ">Easy</label></label>
-                                    <label
-                                        class="form-check form-check-inline col col-6 col-md-auto"><input class="form-check-input" type="checkbox" value="1024" id="FL" /><label class="form-check-label" for="FL">Flashlight</label></label><label class="form-check form-check-inline col col-6 col-md-auto"><input class="form-check-input" type="checkbox" value="-1" id="NO"/><label class="form-check-label" for="NO">No Mod</label></label>
+                            <div class="row"><label class="form-check form-check-inline col col-6 col-md-auto"><input
+                                        class="form-check-input" type="checkbox" value="64" id="DT" /><label
+                                        class="form-check-label" for="DT">Double Time</label></label><label
+                                    class="form-check form-check-inline col col-6 col-md-auto"><input
+                                        class="form-check-input" type="checkbox" value="8" id="HD" /><label
+                                        class="form-check-label" for="HD">Hidden</label></label>
+                                <label class="form-check form-check-inline col col-6 col-md-auto"><input
+                                        class="form-check-input" type="checkbox" value="16" id="HR" /><label
+                                        class="form-check-label" for="HR">Hard Rock</label></label><label
+                                    class="form-check form-check-inline col col-6 col-md-auto"><input
+                                        class="form-check-input" type="checkbox" value="2" id="EZ" /><label
+                                        class="form-check-label" for="EZ">Easy</label></label>
+                                <label class="form-check form-check-inline col col-6 col-md-auto"><input
+                                        class="form-check-input" type="checkbox" value="1024" id="FL" /><label
+                                        class="form-check-label" for="FL">Flashlight</label></label><label
+                                    class="form-check form-check-inline col col-6 col-md-auto"><input
+                                        class="form-check-input" type="checkbox" value="-1" id="NO" /><label
+                                        class="form-check-label" for="NO">No Mod</label></label>
                             </div>
                         </div>
                     </div>
-                </div><br/>
+                </div><br />
                 <div class="container" id="performance">
                     <h4>PP options</h4>
                     <div class="form-group row">
                         <div class="col">
-                            <div class="md-form"><input class="form-control" type="number" name="mpp" id="mpp" min="0" inputmode="decimal" /><label for="mpp">Min PP</label></div>
+                            <div class="md-form"><input class="form-control" type="number" name="mpp" id="mpp" min="0"
+                                    inputmode="decimal" /><label for="mpp">Min PP</label></div>
                         </div>
                         <div class="col">
-                            <div class="md-form"><input class="form-control" type="number" name="xpp" id="xpp" min="0" inputmode="decimal" /><label for="xpp">Max PP</label></div>
+                            <div class="md-form"><input class="form-control" type="number" name="xpp" id="xpp" min="0"
+                                    inputmode="decimal" /><label for="xpp">Max PP</label></div>
                         </div>
                     </div>
                 </div>
@@ -103,22 +164,30 @@
                     <h4>Map Options</h4>
                     <div class="form-group row">
                         <div class="col-12 col-lg-3">
-                            <div class="input-group date md-form" id="min_len" data-target-input="nearest"><input class="form-control datetimepicker-input" type="text" data-target="#min_len" data-toggle="datetimepicker" id="min_len_inp" placeholder="00:00:00" inputmode="none" /><label for="min_len_inp">Min Length</label>
-                                <div class="input-group-append"
-                                    data-target="#min_len" data-toggle="datetimepicker"></div>
+                            <div class="input-group date md-form" id="min_len" data-target-input="nearest"><input
+                                    class="form-control datetimepicker-input" type="text" data-target="#min_len"
+                                    data-toggle="datetimepicker" id="min_len_inp" placeholder="00:00:00"
+                                    inputmode="none" /><label for="min_len_inp">Min Length</label>
+                                <div class="input-group-append" data-target="#min_len" data-toggle="datetimepicker">
+                                </div>
                             </div>
                         </div>
                         <div class="col-12 col-lg-3">
-                            <div class="input-group date md-form" id="max_len" data-target-input="nearest"><input class="form-control datetimepicker-input" type="text" data-target="#max_len" data-toggle="datetimepicker" id="max_len_inp" placeholder="00:00:00" inputmode="none" /><label for="max_len_inp">Max Length</label>
-                                <div class="input-group-append"
-                                    data-target="#max_len" data-toggle="datetimepicker"></div>
+                            <div class="input-group date md-form" id="max_len" data-target-input="nearest"><input
+                                    class="form-control datetimepicker-input" type="text" data-target="#max_len"
+                                    data-toggle="datetimepicker" id="max_len_inp" placeholder="00:00:00"
+                                    inputmode="none" /><label for="max_len_inp">Max Length</label>
+                                <div class="input-group-append" data-target="#max_len" data-toggle="datetimepicker">
+                                </div>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <div class="md-form"><input class="form-control" type="number" name="mb" id="mb" min="0" inputmode="decimal" /><label for="mb">Min BPM</label></div>
+                            <div class="md-form"><input class="form-control" type="number" name="mb" id="mb" min="0"
+                                    inputmode="decimal" /><label for="mb">Min BPM</label></div>
                         </div>
                         <div class="col-6 col-lg-3">
-                            <div class="md-form"><input class="form-control" type="number" name="xb" id="xb" min="0" inputmode="decimal" /><label for="xb">Max BPM</label></div>
+                            <div class="md-form"><input class="form-control" type="number" name="xb" id="xb" min="0"
+                                    inputmode="decimal" /><label for="xb">Max BPM</label></div>
                         </div>
                     </div>
                 </div>
@@ -131,10 +200,14 @@
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="md-form"><input class="form-control" type="number" name="md" value="0" id="md" min="0" max="15" step="0.01" inputmode="decimal" /><label for="md">Max Stars</label></div>
+                                    <div class="md-form"><input class="form-control" type="number" name="md" value="0"
+                                            id="md" min="0" max="15" step="0.01" inputmode="decimal" /><label
+                                            for="md">Max Stars</label></div>
                                 </div>
                                 <div class="col">
-                                    <div class="md-form"><input class="form-control" type="number" name="xd" value="15" id="xd" min="0" max="15" step="0.01" inputmode="decimal" /><label for="xd">Max Stars</label></div>
+                                    <div class="md-form"><input class="form-control" type="number" name="xd" value="15"
+                                            id="xd" min="0" max="15" step="0.01" inputmode="decimal" /><label
+                                            for="xd">Max Stars</label></div>
                                 </div>
                             </div>
                         </div>
@@ -144,10 +217,14 @@
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="md-form"><input class="form-control" type="number" name="mar" value="0" id="mar" min="0" max="11" step="0.1" inputmode="decimal" /><label for="mar">Max AR</label></div>
+                                    <div class="md-form"><input class="form-control" type="number" name="mar" value="0"
+                                            id="mar" min="0" max="11" step="0.1" inputmode="decimal" /><label
+                                            for="mar">Max AR</label></div>
                                 </div>
                                 <div class="col">
-                                    <div class="md-form"><input class="form-control" type="number" name="xar" value="11" id="xar" min="0" max="11" step="0.1" inputmode="decimal" /><label for="xar">Max AR</label></div>
+                                    <div class="md-form"><input class="form-control" type="number" name="xar" value="11"
+                                            id="xar" min="0" max="11" step="0.1" inputmode="decimal" /><label
+                                            for="xar">Max AR</label></div>
                                 </div>
                             </div>
                         </div>
@@ -157,10 +234,15 @@
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    <div class="md-form"><input class="form-control" type="number" name="mcs" placeholder="Min CS" mode="0" value="0" id="mcs" min="0" max="10" step="0.1" inputmode="decimal" /><label id="csLabelMin" for="mcs">Max CS</label></div>
+                                    <div class="md-form"><input class="form-control" type="number" name="mcs"
+                                            placeholder="Min CS" mode="0" value="0" id="mcs" min="0" max="10" step="0.1"
+                                            inputmode="decimal" /><label id="csLabelMin" for="mcs">Max CS</label></div>
                                 </div>
                                 <div class="col">
-                                    <div class="md-form"><input class="form-control" type="number" name="xcs" placeholder="Max CS" mode="0" value="10" id="xcs" min="0" max="10" step="0.1" inputmode="decimal" /><label id="csLabelMax" for="xcs">Max CS</label></div>
+                                    <div class="md-form"><input class="form-control" type="number" name="xcs"
+                                            placeholder="Max CS" mode="0" value="10" id="xcs" min="0" max="10"
+                                            step="0.1" inputmode="decimal" /><label id="csLabelMax" for="xcs">Max
+                                            CS</label></div>
                                 </div>
                             </div>
                         </div>
@@ -168,8 +250,10 @@
                 </div>
                 <div class="container">
                     <div class="row">
-                        <div class="col d-flex justify-content-center"><button class="btn btn-outline-warning" id="resetBtn" type="submit">Reset Filter</button></div>
-                        <div class="col d-flex justify-content-center"><button class="btn btn-outline-success" id="filterBtn" type="submit">Apply Filter</button></div>
+                        <div class="col d-flex justify-content-center"><button class="btn btn-outline-warning"
+                                id="resetBtn" type="submit">Reset Filter</button></div>
+                        <div class="col d-flex justify-content-center"><button class="btn btn-outline-success"
+                                id="filterBtn" type="submit">Apply Filter</button></div>
                     </div>
                 </div>
             </div>
@@ -200,9 +284,13 @@
                 <div id="pages"></div>
             </div>
             <div class="col-12 col-md-4 d-flex justify-content-center mb-4">
-                <div class="dropdown"><button class="dropButton btn dropdown-toggle custom-grey navbar-custom" id="pageNum" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Maps Per Page</button>
+                <div class="dropdown"><button class="dropButton btn dropdown-toggle custom-grey navbar-custom"
+                        id="pageNum" type="button" data-toggle="dropdown" aria-haspopup="true"
+                        aria-expanded="false">Maps Per Page</button>
                     <div class="dropdown-menu navbar-custom" id="dropdownMenuButton"
-                        aria-labelledby="dropdownMenuButton"><a class="dropdown-item" num="10">10</a><a class="dropdown-item" num="25">25</a><a class="dropdown-item" num="50">50</a><a class="dropdown-item" num="100">100</a><a class="dropdown-item" num="250">250</a></div>
+                        aria-labelledby="dropdownMenuButton"><a class="dropdown-item" num="10">10</a><a
+                            class="dropdown-item" num="25">25</a><a class="dropdown-item" num="50">50</a><a
+                            class="dropdown-item" num="100">100</a><a class="dropdown-item" num="250">250</a></div>
                 </div>
             </div>
             <div class="col-12 col-md-4 d-flex justify-content-center mt-3">
@@ -210,13 +298,17 @@
             </div>
         </div>
     </div>
-    <div class="fixed-action-btn smooth-scroll" id="btnTop" style="bottom: 1vh; right: 1vh;display: none;"><a class="btn-floating btn-large blue" href="#filterForm"><i class="fa fa-arrow-up"></i></a></div>
+    <div class="fixed-action-btn smooth-scroll" id="btnTop" style="bottom: 1vh; right: 1vh;display: none;"><a
+            class="btn-floating btn-large blue" href="#filterForm"><i class="fa fa-arrow-up"></i></a></div>
     <script src="static/scripts/main.js"></script>
+    <footer>
+        <div class="page-footer font-small footer-text">
+            <div class="footer-copyright text-center py-3"><span>Created by <a
+                        href="https://github.com/hyperbcs">HyperBCS</a></span><br /><span>Database last updated: <span
+                        id="date"></span></span></div>
+        </div>
+    </footer>
 </body>
-<footer>
-    <div class="page-footer font-small footer-text">
-        <div class="footer-copyright text-center py-3"><span>Created by <a href="https://github.com/hyperbcs">HyperBCS</a></span><br/><span>Database last updated: <span id="date"></span></span></div>
-    </div>
-</footer>
+
 
 </html>
