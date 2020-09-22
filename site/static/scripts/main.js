@@ -697,51 +697,52 @@ $("#len_cs")
   });
 
 $("[name='md']").change(function () {
-  if (parseInt($("[name='md']").val()) > parseInt($("[name='xd']").val())) {
+  if (parseFloat($("[name='md']").val()) > parseFloat($("[name='xd']").val())) {
     var tmp = $("[name='xd']").val();
     $("[name='xd']").val($("[name='md']").val());
     $("[name='md']").val(tmp);
   }
   $("#len_diff").slider("setValue", [
-    parseInt($(this).val()),
-    parseInt($("[name='xd']").val()),
+    parseFloat($(this).val()),
+    parseFloat($("[name='xd']").val()),
   ]);
 });
 $("[name='xd']").change(function () {
-  if (parseInt($("[name='md']").val()) > parseInt($("[name='xd']").val())) {
+  if (parseFloat($("[name='md']").val()) > parseFloat($("[name='xd']").val())) {
     var tmp = $("[name='xd']").val();
     $("[name='xd']").val($("[name='md']").val());
     $("[name='md']").val(tmp);
   }
   $("#len_diff").slider("setValue", [
-    parseInt($("[name='md']").val()),
-    parseInt($(this).val()),
+    parseFloat($("[name='md']").val()),
+    parseFloat($(this).val()),
   ]);
 });
 
 $("[name='mar']").change(function () {
-  if (parseInt($("[name='mar']").val()) > parseInt($("[name='xar']").val())) {
+  if (parseFloat($("[name='mar']").val()) > parseFloat($("[name='xar']").val())) {
     var tmp = $("[name='xar']").val();
     $("[name='xar']").val($("[name='mar']").val());
     $("[name='mar']").val(tmp);
   }
   $("#len_ar").slider("setValue", [
-    parseInt($(this).val()),
-    parseInt($("[name='xar']").val()),
+    parseFloat($(this).val()),
+    parseFloat($("[name='xar']").val()),
   ]);
 });
 $("[name='xar']").change(function () {
-  if (parseInt($("[name='mar']").val()) > parseInt($("[name='xar']").val())) {
+  if (parseFloat($("[name='mar']").val()) > parseFloat($("[name='xar']").val())) {
     var tmp = $("[name='xar']").val();
     $("[name='xar']").val($("[name='mar']").val());
     $("[name='mar']").val(tmp);
   }
   $("#len_ar").slider("setValue", [
-    parseInt($("[name='mar']").val()),
-    parseInt($(this).val()),
+    parseFloat($("[name='mar']").val()),
+    parseFloat($(this).val()),
   ]);
 });
 
+if($("#mode").val() == 3){
 $("[name='mcs']").change(function () {
   if (parseInt($("[name='mcs']").val()) > parseInt($("[name='xcs']").val())) {
     var tmp = $("[name='xcs']").val();
@@ -758,12 +759,38 @@ $("[name='xcs']").change(function () {
     var tmp = $("[name='xcs']").val();
     $("[name='xcs']").val($("[name='mcs']").val());
     $("[name='mcs']").val(tmp);
+  }
     $("#len_cs").slider("setValue", [
       parseInt($("[name='mcs']").val()),
       parseInt($(this).val()),
     ]);
-  }
+
 });
+} else{
+  $("[name='mcs']").change(function () {
+    if (parseFloat($("[name='mcs']").val()) > parseFloat($("[name='xcs']").val())) {
+      var tmp = $("[name='xcs']").val();
+      $("[name='xcs']").val($("[name='mcs']").val());
+      $("[name='mcs']").val(tmp);
+    }
+    $("#len_cs").slider("setValue", [
+      parseFloat($(this).val()),
+      parseFloat($("[name='xcs']").val()),
+    ]);
+  });
+  $("[name='xcs']").change(function () {
+    if (parseFloat($("[name='mcs']").val()) > parseFloat($("[name='xcs']").val())) {
+      var tmp = $("[name='xcs']").val();
+      $("[name='xcs']").val($("[name='mcs']").val());
+      $("[name='mcs']").val(tmp);
+    }
+      $("#len_cs").slider("setValue", [
+        parseFloat($("[name='mcs']").val()),
+        parseFloat($(this).val()),
+      ]);
+
+  });
+}
 
 $("#theme").on("change", function (event, state) {
   if ($(event.target).is(":checked")) {
