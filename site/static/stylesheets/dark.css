@@ -97,6 +97,6 @@ table.table a, .table, th, th p, table td{
     background: #007bff;;
   }
 
-  .fa-arrow-up, .fa-arrow-down, .timepicker-hour, .timepicker-minute, .timepicker-second, .separator {
+  span.fa.fa-arrow-up,span.fa.fa-arrow-down, .timepicker-hour, .timepicker-minute, .timepicker-second, .separator {
     color: #dcddde !important;
   }

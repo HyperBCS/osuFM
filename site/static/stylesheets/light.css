@@ -32,7 +32,7 @@
   box-shadow: unset !important; 
 }
 
-.fa-arrow-up, .fa-arrow-down {
+span.fa.fa-arrow-up,span.fa.fa-arrow-down {
   color: #007bff !important;
 }
 
