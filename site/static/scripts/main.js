@@ -450,6 +450,7 @@ function genTableMobileHTML(pos, map_slice) {
 }
 
 function doSearch(query) {
+  query = query.toLowerCase()
   map_data_filter = [];
   if (query == "") {
     filter_on = false;
@@ -457,11 +458,10 @@ function doSearch(query) {
     filter_on = true;
   }
   for (m_id in map_data) {
-    if (query == "" || map_data[m_id].all_title.includes(query)) {
+    if (query == "" || map_data[m_id].all_title.toLowerCase().includes(query)) {
       map_data_filter.push(map_data[m_id]);
     }
   }
-
   var map_slice = map_data_filter.slice(0, max_per_page);
   var tableData = "";
   var tableData_mobile = "";
@@ -638,7 +638,7 @@ $("#len_diff").slider({
   value: [0, 15],
   focus: true,
   formatter: function (value) {
-    return value[0] + "★" + "  -  " + value[1] + "★";
+    return value[0] + "\u2605" + "  -  " + value[1] + "\u2605";
   },
 });
 $("#len_ar").slider({
