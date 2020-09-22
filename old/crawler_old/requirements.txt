@@ -1,0 +1,5 @@
+beautifulsoup4
+python-dateutil
+requests
+peewee
+requests-futures
