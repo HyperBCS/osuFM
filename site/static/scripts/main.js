@@ -552,8 +552,8 @@ function fillTable(data, page) {
 }
 
 $("#filterBtn").click(function () {
-  getTableData(1);
   filter_on_2 = true;
+  getTableData(1);
 });
 
 $("#resetBtn").click(function () {
