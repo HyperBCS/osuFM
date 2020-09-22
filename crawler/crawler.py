@@ -8,8 +8,10 @@ from peewee import *
 import json
 import requests
 import time
+import base64
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import copy 
+from datetime import datetime
 from oppai import *
 
 db = SqliteDatabase('osuFM.db',pragmas=[('journal_mode', 'wal')])
@@ -473,3 +475,28 @@ for map_info in good_maps:
         print("    AVG PP: ",map_info.avg_pp)
         print("    AVG ACC: ",map_info.avg_acc)
         print("    AVG RANK: ",map_info.avg_rank)
+
+f=open("comp_maps.csv", "w")
+f.write("bid,sid,name,artist,mapper,version,pop_mod,avg_pp,avg_acc,mode,cs,ar,od,length,bpm,diff,score\n")
+for m in good_maps:
+    try:
+        csv_line = [m.bid,m.set_id,(base64.b64encode((m.title).encode('UTF-8'))).decode("utf-8"),(base64.b64encode((m.artist).encode('UTF-8'))).decode("utf-8"),
+        (base64.b64encode((m.mapper).encode('UTF-8'))).decode("utf-8"),(base64.b64encode((m.version).encode('UTF-8'))).decode("utf-8"),m.pop_mod,m.avg_pp,m.avg_acc,m.mode,
+        m.cs,m.ar,m.od,m.length,m.bpm,m.diff,m.score]
+        for ind,val in enumerate(csv_line):
+            csv_line[ind] = str(csv_line[ind])
+        f.write(",".join(csv_line))
+        f.write("\n")
+    except:
+        print("Error writing map to csv")
+        print(map_info.artist,"-",map_info.title + "[" + map_info.version + "]+",map_info.pop_mod)
+        print("    Score: ",map_info.score)
+        print("    AVG PP: ",map_info.avg_pp)
+        print("    AVG ACC: ",map_info.avg_acc)
+        print("    AVG RANK: ",map_info.avg_rank)
+
+f.close() 
+
+f=open("datemodified", "w")
+f.write(str(datetime.now()))
+f.close()

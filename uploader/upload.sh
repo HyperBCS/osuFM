@@ -1,8 +1,6 @@
 #!/bin/bash
-if [[ "${UPLOAD_ADDR}" ]]; then
-    [[ "${UPLOAD_PORT}" ]] && PORT=${UPLOAD_PORT} || PORT=80
+if [[ "${AWS_S3_BUCKET}" ]]; then
     echo $PORT
-    ADDR="${UPLOAD_ADDR}"
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
     cd "$DIR/../crawler"
     python3 "$DIR/../crawler/crawler.py"
@@ -10,7 +8,7 @@ if [[ "${UPLOAD_ADDR}" ]]; then
     then
         echo "Score crawler successful!"
         echo "Beginning upload to server"
-        scp -P $PORT "$DIR/../crawler/osuFM.db" "$ADDR"
+        aws s3 sync "$DIR/../crawler" s3://${AWS_S3_BUCKET}/static/data --acl public-read --follow-symlinks --exclude "*" --include "comp_maps.csv" --include "datemodified"  --delete
         if [ $? -ne 0 ]
         then
             echo "Upload failed please check settings"
@@ -23,5 +21,5 @@ if [[ "${UPLOAD_ADDR}" ]]; then
     fi
   
 else
-    echo "Enviornment variable for upload address not found"
+    echo "Enviornment variable for s3 bucket not found"
 fi
