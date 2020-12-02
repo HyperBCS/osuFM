@@ -1,5 +1,5 @@
 {
-	"sync-rsync.remote": "brandon@192.168.1.115:~/osuFM",
+	"sync-rsync.remote": "brandon@192.168.1.65:~/osuFM",
 	"sync-rsync.onSaveIndividual": true,
 	"sync-rsync.local": "/mnt/c/Users/BCS14/Documents/osuFM/",
 	"sync-rsync.useWSL": true,

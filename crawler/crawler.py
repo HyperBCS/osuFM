@@ -279,7 +279,7 @@ def getURL(url, auth_string, checkJson):
         r = requests.get(url, headers=headers)
         if r.status_code != 200:
             tries -= 1
-            time.sleep(0.1)
+            time.sleep(0.5)
             print("[" + str(r.status_code) + "]"
                       + "[" + str(100 - tries) + "]"
                       + "Retry... " + url)
