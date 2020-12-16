@@ -16,7 +16,9 @@
 		"osuFM.db",
 		"scores.hdf",
 		"node_modules",
-		"build"
+		"build",
+		"datemodified",
+		"comp_maps.csv"
 	],
 	"python.pythonPath": "C:\\Users\\BCS14\\AppData\\Local\\Microsoft\\WindowsApps\\python.exe"
 

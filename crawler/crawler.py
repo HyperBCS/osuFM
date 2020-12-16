@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import copy 
 from datetime import datetime
 from oppai import *
+import sys, traceback
 
 db = SqliteDatabase('osuFM.db',pragmas=[('journal_mode', 'wal')])
 modes = ["osu", "taiko", "fruits", "mania"]
@@ -276,7 +277,12 @@ def getURL(url, auth_string, checkJson):
     tries = 100
     while tries > 0:
         headers = {"Authorization": auth_string}
-        r = requests.get(url, headers=headers)
+        try:
+            r = requests.get(url, headers=headers)
+        except Exception as e:
+            traceback.print_exc(file=sys.stdout)
+            tries -= 1
+            continue
         if r.status_code != 200:
             tries -= 1
             time.sleep(0.5)
