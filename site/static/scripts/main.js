@@ -90,6 +90,11 @@ $("#pages")
     $("#page").val(num);
   });
 
+  function toDateTime(secs) {
+    var t = moment(secs*1000)
+    return t.fromNow();
+}
+
 function parseCSV(csv) {
   map_data_all = d3.csvParse(csv, d3.autoType);
   delete map_data_all.columns;
@@ -100,6 +105,8 @@ function parseCSV(csv) {
     map_data_all[m].artist = atob(map_data_all[m].artist);
     map_data_all[m].mapper = atob(map_data_all[m].mapper);
     map_data_all[m].version = atob(map_data_all[m].version);
+    map_data_all[m].date_str = toDateTime(map_data_all[m].date_ranked)
+    map_data_all[m].date_str_full = moment(map_data_all[m].date_ranked*1000).format('MMM-DD-YYYY')
     map_data_all[m].all_title = (
       map_data_all[m].artist +
       " " +
@@ -120,7 +127,7 @@ function fillDummy() {
   table_dummy_mobile_data = "";
   for (i = 0; i < max_per_page; i++) {
     table_dummy_data +=
-      "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div></td><td><div class='ph-item ph-picture img-placeholder my-0'></td><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6 my-0'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>";
+      "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div></td><td><div class='ph-item ph-picture img-placeholder my-0'></td><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6 my-0'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>";
     table_dummy_mobile_data +=
       '<div class="col">' +
       `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><div class='ph-item ph-picture img-placeholder my-0'></div></div></div>
@@ -201,6 +208,14 @@ function getTableData(num) {
     ) {
       continue;
     }
+    if (
+      map_data_all[m].date_ranked < indexed_array.mdr ||
+      map_data_all[m].date_ranked > indexed_array.xdr
+    ) {
+      continue;
+    }
+
+
     if (indexed_array.mods == 0) {
       map_data.push(map_data_all[m]);
       continue;
@@ -258,20 +273,49 @@ $(function () {
 
 $(function () {
   $("#max_len").datetimepicker({
-    defaultDate: new Date(0, 0, 0, 0, 0, 0, 0),
+    defaultDate: new Date(0, 0, 0, 23, 59, 59, 0),
     format: "HH:mm:ss",
   });
 
-  $("#min_len").on("change.datetimepicker", (e) => {
+  $("#min_len").on("change.datetimepicker show.datetimepicker", (e) => {
     var time = $("#min_len").datetimepicker("viewDate");
     var secs = time.hour() * 3600 + time.minute() * 60 + time.seconds();
     $("#ml").val(secs);
   });
 
-  $("#max_len").on("change.datetimepicker", (e) => {
+  $("#max_len").on("change.datetimepicker show.datetimepicker", (e) => {
     var time = $("#max_len").datetimepicker("viewDate");
     var secs = time.hour() * 3600 + time.minute() * 60 + time.seconds();
     $("#xl").val(secs);
+  });
+});
+
+$(function () {
+  $("#min_date").datetimepicker({
+    defaultDate: new Date(2007, 8, 16, 0, 0, 0, 0),
+    format:'MMM-D-YYYY'
+  });
+});
+
+$(function () {
+  $("#max_date").datetimepicker({
+    defaultDate: Date.now(),
+    format:'MMM-D-YYYY'
+  });
+});
+
+$(function () {
+  $("#min_date").on("change.datetimepicker show.datetimepicker", (e) => {
+    var time = $("#min_date").datetimepicker("viewDate");
+    var secs = time.valueOf() / 1000;
+    $("#mdr").val(secs);
+    console.log("??")
+  });
+
+  $("#max_date").on("change.datetimepicker show.datetimepicker", (e) => {
+    var time = $("#max_date").datetimepicker("viewDate");
+    var secs = time.valueOf() / 1000;
+    $("#xdr").val(secs);
   });
 });
 
@@ -311,6 +355,8 @@ function genTableHTML(pos, map_slice) {
       map_slice.bpm.toFixed(2) +
       '</p></td><td><p class="text-center">' +
       map_slice.diff.toFixed(2) +
+      '</p></td><td title="' + map_slice.date_str_full + '"><p class="text-center">' +
+      map_slice.date_str +
       "</p></td></tr>"
     );
   } else if (map_slice.mode == 1) {
@@ -346,6 +392,8 @@ function genTableHTML(pos, map_slice) {
       map_slice.bpm.toFixed(2) +
       '</p></td><td><p class="text-center">' +
       map_slice.diff.toFixed(2) +
+      '</p></td><td title="' + map_slice.date_str_full + '"><p class="text-center">' +
+      map_slice.date_str +
       "</p></td></tr>"
     );
   } else {
@@ -385,6 +433,8 @@ function genTableHTML(pos, map_slice) {
       map_slice.bpm.toFixed(2) +
       '</p></td><td><p class="text-center">' +
       map_slice.diff.toFixed(2) +
+      '</p></td><td title="' + map_slice.date_str_full + '"><p class="text-center">' +
+      map_slice.date_str +
       "</p></td></tr>"
     );
   }
@@ -405,9 +455,10 @@ function genTableMobileHTML(pos, map_slice) {
     diff_str =
       "Keys: " + map_slice.cs.toFixed(1) + " OD: " + map_slice.od.toFixed(1);
   }
+  date_ranked_str = "Date Ranked: " + map_slice.date_str_full
   return (
     '<div class="col">' +
-    `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><a href="https://osu.ppy.sh/b/` +
+    `<div class="row"><div class="col-auto mr-1 mb-auto mt-auto"><div class="row"><a href="https://osu.ppy.sh/b/` +
     map_slice.bid +
     '"><img src="https://b.ppy.sh/thumb/' +
     map_slice.sid +
@@ -423,7 +474,8 @@ function genTableMobileHTML(pos, map_slice) {
     "]" +
     `</a></div>
     <div class="row"><p class="text-muted small">` +
-    diff_str +
+    diff_str + `<br>` + 
+    date_ranked_str +
     `</p></div></div></div>
     <div class="row"><div class="col-auto mr-auto"><div class="row d-flex justify-content-center mx-0"><p class='my-0'><i class="fas fa-meteor"></i></p></div><div class="row d-flex justify-content-center"><p class="font-weight-bold my-0 glow">` +
     map_slice.score.toFixed(1) +
@@ -563,9 +615,10 @@ $("#resetBtn").click(function () {
   $("#len_ar").slider("setValue", [0, 11]);
   $("#len_cs").slider("setValue", [0, 10]);
   $("#filterForm").trigger("reset");
+  $("#max_date_inp").attr('placeholder',moment().format('MMM-DD-YYYY'));
   $("[name='m']").val(curr_mod);
   $("#min_len").datetimepicker("date", new Date(0, 0, 0, 0, 0, 0, 0));
-  $("#max_len").datetimepicker("date", new Date(0, 0, 0, 0, 0, 0, 0));
+  $("#max_len").datetimepicker("date", new Date(0, 0, 0, 23, 59, 59, 0));
   $("#xl").val(Number.MAX_SAFE_INTEGER);
   $("#DT").attr("lastVal", 0);
   $("#DT").prop("indeterminate", false);

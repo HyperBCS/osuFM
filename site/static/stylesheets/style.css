@@ -8,7 +8,7 @@
 }
 
 table.table a, .table, th, th p, table td{
-  font-size: 1.3rem !important;
+  font-size: 1.1rem !important;
 }
 
 .slider-handle {
@@ -64,6 +64,22 @@ th {
 
 .bootstrap-datetimepicker-widget table td span:hover {
   background: unset;
+}
+
+.datepicker-days table.table a,.datepicker-days .table,.datepicker-days th,.datepicker-days th p,.datepicker-days table td {
+  font-size: unset !important;
+}
+
+.datepicker-months table.table a,.datepicker-months .table,.datepicker-months th,.datepicker-months th p,.datepicker-months table td {
+  font-size: unset !important;
+}
+
+.datepicker-years table.table a,.datepicker-years .table,.datepicker-years th,.datepicker-years th p,.datepicker-years table td {
+  font-size: unset !important;
+}
+
+.datepicker-decades table.table a,.datepicker-decades .table,.datepicker-decades th,.datepicker-decades th p,.datepicker-decades table td {
+  font-size: unset !important;
 }
 
 /* table.table a, .table, th, th p, table td{

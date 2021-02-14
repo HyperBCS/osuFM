@@ -25,11 +25,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"
         integrity="sha512-rmZcZsyhe0/MAjquhTgiUcb4d9knaFc7b5xAfju483gbEXTkeJRUMIPk6s3ySZMYUHEcjKbjLjyddGWMrNEvZg=="
         crossorigin="anonymous"></script>
-    <script type="text/javascript"
-        src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/js/tempusdominus-bootstrap-4.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/js/tempusdominus-bootstrap-4.min.js" crossorigin="anonymous"></script>
     <script src="https://d3js.org/d3.v6.min.js"></script>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.0.1/css/tempusdominus-bootstrap-4.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tempusdominus-bootstrap-4/5.39.0/css/tempusdominus-bootstrap-4.min.css" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css"
         integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog=="
         crossorigin="anonymous" />
@@ -73,7 +71,8 @@
                 value="0" /><input id="modsMaybe" style="display:none" name="modsMaybe" value="0" /><input id="page"
                 style="display:none" name="page" value="1" /><input id="ml" style="display:none" name="ml"
                 value="0" /><input id="xl" style="display:none" name="xl" value="9007199254740991" /><input id="mode"
-                style="display:none" name="m" value="0" />
+                style="display:none" name="m" value="0" /><input id="mdr" style="display:none" name="mdr"
+                value="0" /><input id="xdr" style="display:none" name="xdr" value="9007199254740991" />
             <div class="container"></div>
             <div class="row">
                 <div class="col">
@@ -147,19 +146,52 @@
                         </div>
                     </div>
                 </div><br />
-                <div class="container" id="performance">
-                    <h4>PP options</h4>
-                    <div class="form-group row">
-                        <div class="col">
-                            <div class="md-form"><input class="form-control" type="number" name="mpp" id="mpp" min="0"
-                                    inputmode="decimal" /><label for="mpp">Min PP</label></div>
+                <div class="container">
+                <div class="row">
+                    <div class="col-12 col-lg-6">
+                        <div id="performance">
+                            <h4>PP options</h4>
+                            <div class="form-group row">
+                                <div class="col">
+                                    <div class="md-form"><input class="form-control" type="number" name="mpp" id="mpp"
+                                            min="0" inputmode="decimal" /><label for="mpp">Min PP</label></div>
+                                </div>
+                                <div class="col">
+                                    <div class="md-form"><input class="form-control" type="number" name="xpp" id="xpp"
+                                            min="0" inputmode="decimal" /><label for="xpp">Max PP</label></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col">
-                            <div class="md-form"><input class="form-control" type="number" name="xpp" id="xpp" min="0"
-                                    inputmode="decimal" /><label for="xpp">Max PP</label></div>
+                    </div>
+                    <div class="col-12 col-lg-6">
+                        <div id="date_ranked">
+                            <h4>Date Ranked Options</h4>
+                            <div class="form-group row">
+                                <div class="col-12 col-lg-6">
+                                    <div class="date md-form" id="min_date" data-target-input="nearest"><input
+                                            class="form-control datetimepicker-input" type="text" data-target="#min_date"
+                                            data-toggle="datetimepicker" id="min_date_inp" placeholder="Sep-16-2007"
+                                            inputmode="none" /><label for="min_date_inp">Begin Date</label>
+                                        <div class="input-group-append" data-target="#min_date"
+                                            data-toggle="datetimepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <div class="date md-form" id="max_date" data-target-input="nearest"><input
+                                            class="form-control datetimepicker-input" type="text" data-target="#max_date"
+                                            data-toggle="datetimepicker" id="max_date_inp" placeholder=" "
+                                            inputmode="none" /><label for="max_date_inp">End Date</label>
+                                        <div class="input-group-append" data-target="#max_date"
+                                            data-toggle="datetimepicker">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
                 <div class="container" id="options">
                     <h4>Song Options</h4>
                     <div class="form-group row">
@@ -175,7 +207,7 @@
                         <div class="col-12 col-lg-3">
                             <div class="date md-form" id="max_len" data-target-input="nearest"><input
                                     class="form-control datetimepicker-input" type="text" data-target="#max_len"
-                                    data-toggle="datetimepicker" id="max_len_inp" placeholder="00:00:00"
+                                    data-toggle="datetimepicker" id="max_len_inp" placeholder="23:59:59"
                                     inputmode="none" /><label for="max_len_inp">Max Length</label>
                                 <div class="input-group-append" data-target="#max_len" data-toggle="datetimepicker">
                                 </div>
@@ -265,13 +297,14 @@
                         <th>#</th>
                         <th></th>
                         <th>Map</th>
-                        <th class="font-weight-bold" style="width: 15%">Farm Score</th>
+                        <th class="font-weight-bold" style="width: 10%">Farm Score</th>
                         <th>PP</th>
                         <th>Acc</th>
                         <th>Mods</th>
                         <th>Length</th>
                         <th>BPM</th>
                         <th>Stars</th>
+                        <th>Ranked</th>
                     </tr>
                 </thead>
                 <tbody id="data_body"></tbody>

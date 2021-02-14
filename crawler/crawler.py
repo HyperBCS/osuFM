@@ -175,6 +175,7 @@ class Beatmaps(BaseModel):
     version = CharField()
     score = FloatField()
     calculated = BooleanField(null = True)
+    date_ranked = FloatField()
     class Meta:
         primary_key = CompositeKey('bid','pop_mod', 'mode')
 
@@ -186,7 +187,7 @@ class Beatmap(object):
     avg_rank = 0
     avg_pos = 0
     
-    def __init__(self, bid, set_id, title, artist, mapper, cs, ar, od, length, bpm, diff, version, mode, calculated):
+    def __init__(self, bid, set_id, title, artist, mapper, cs, ar, od, length, bpm, diff, version, mode, date_ranked, calculated):
         self.bid = bid
         self.set_id = set_id
         self.title = title
@@ -201,6 +202,7 @@ class Beatmap(object):
         self.version = version
         self.mode = mode
         self.calculated = calculated
+        self.date_ranked = date_ranked
 
 class Score(object):
     def __init__(self, uid, map_id, rank, acc, mods, pos, mode, map_pp, user_pp):
@@ -310,7 +312,7 @@ def parse_scores(user, scores, beatmaps):
                 b = Beatmap(score["beatmap"]["id"], score["beatmap"]["beatmapset_id"], score["beatmapset"]["title"],
                                 score["beatmapset"]["artist"], score["beatmapset"]["creator"], score["beatmap"]["cs"], score["beatmap"]["ar"],
                                 score["beatmap"]["accuracy"], score["beatmap"]["hit_length"], score["beatmap"]["bpm"], score["beatmap"]["difficulty_rating"],
-                                score["beatmap"]["version"], score["beatmap"]["mode_int"], False)
+                                score["beatmap"]["version"], score["beatmap"]["mode_int"],None, False)
                 beatmaps[mode][score["beatmap"]["id"]][mods] = {}
                 beatmaps[mode][score["beatmap"]["id"]][mods]["scores"] = []
                 beatmaps[mode][score["beatmap"]["id"]][mods]["map_info"] = b
@@ -367,13 +369,44 @@ def loadMaps(beatmaps):
         b = Beatmap(m.bid, m.sid, m.name,
                                     m.artist, m.mapper, m.cs, m.ar,
                                     m.od, m.length, m.bpm, m.diff,
-                                    m.version,m.mode, True)
+                                    m.version,m.mode,m.date_ranked, True)
         if m.bid not in beatmaps[m.mode]:
             beatmaps[m.mode][m.bid] = {}
         beatmaps[m.mode][m.bid][m.pop_mod] = {}
         beatmaps[m.mode][m.bid][m.pop_mod]["scores"] = []
         beatmaps[m.mode][m.bid][m.pop_mod]["map_info"] = b
     print("Loaded",count,"maps from the DB")
+
+def getDates(maps, auth_string):
+    set_id_list = {}
+    date_cache = {}
+    thread_list = []
+    for m in maps:
+        if m.date_ranked is not None:
+            date_cache[m.set_id] = m.date_ranked
+            continue
+        if m.date_ranked is None and m.set_id in date_cache:
+            m.date_ranked = date_cache[m.set_id]
+            continue
+        if m.set_id not in set_id_list and m.set_id not in date_cache:
+            set_id_list[m.set_id] = m.bid
+    
+    executor = ThreadPoolExecutor()
+    with ThreadPoolExecutor(max_workers=25) as executor:
+        for sid in set_id_list:
+            url = "https://osu.ppy.sh/api/v2/beatmaps/" + str(set_id_list[sid])
+            thread_list.append(executor.submit(getURL, url,auth_string,True))
+    fetch_count = 0
+    for task in as_completed(thread_list):
+        fetch_count += 1
+        print("Getting date ranked for map ["+str(fetch_count)+"/"+str(len(set_id_list))+"]")
+        map_text = task.result()
+        date_str = map_text["beatmapset"]["ranked_date"]
+        date_time_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+        date_cache[map_text["beatmapset"]["id"]] = date_time_obj.timestamp()
+    for ind, m in enumerate(maps):
+        print("Setting date ranked for map ["+str(ind+1)+"/"+str(len(maps))+"]")
+        m.date_ranked = date_cache[m.set_id]
 
 def calcDiffs(maps):
     for ind, m in enumerate(maps):
@@ -467,12 +500,13 @@ for mode_int,mode in enumerate(modes):
                 parse_scores(user_map[((user_score_map[user_scores][0])["user"])["id"]], user_score_map[user_scores], beatmaps)
 process_maps(beatmaps, good_maps)
 calcDiffs(good_maps)
+getDates(good_maps,auth_string)
 good_maps.sort(key=lambda x:x.score, reverse=True)
 for map_info in good_maps:
     try:
         new_map = Beatmaps.replace(avg_acc=map_info.avg_acc,score=map_info.score,avg_pos =map_info.avg_pos,pop_mod=map_info.pop_mod,avg_pp=map_info.avg_pp,avg_rank=map_info.avg_rank,num_scores=map_info.num_scores,mode=map_info.mode,bid = map_info.bid, \
             name = map_info.title, artist=map_info.artist,mapper=map_info.mapper,cs=map_info.cs,ar=map_info.ar,od=map_info.od, \
-            length=map_info.length,bpm=map_info.bpm,diff=map_info.diff,version=map_info.version,sid=map_info.set_id, calculated=True).execute()
+            length=map_info.length,bpm=map_info.bpm,diff=map_info.diff,version=map_info.version,sid=map_info.set_id,date_ranked=map_info.date_ranked, calculated=True).execute()
     except:
         print("Error executing query with map")
         print(map_info.artist,"-",map_info.title + "[" + map_info.version + "]+",map_info.pop_mod)
@@ -482,12 +516,12 @@ for map_info in good_maps:
         print("    AVG RANK: ",map_info.avg_rank)
 
 f=open("comp_maps.csv", "w")
-f.write("bid,sid,name,artist,mapper,version,pop_mod,avg_pp,avg_acc,mode,cs,ar,od,length,bpm,diff,score\n")
+f.write("bid,sid,name,artist,mapper,version,pop_mod,avg_pp,avg_acc,mode,cs,ar,od,length,bpm,diff,score,date_ranked\n")
 for m in good_maps:
     try:
         csv_line = [m.bid,m.set_id,(base64.b64encode((m.title).encode('UTF-8'))).decode("utf-8"),(base64.b64encode((m.artist).encode('UTF-8'))).decode("utf-8"),
         (base64.b64encode((m.mapper).encode('UTF-8'))).decode("utf-8"),(base64.b64encode((m.version).encode('UTF-8'))).decode("utf-8"),m.pop_mod,m.avg_pp,m.avg_acc,m.mode,
-        m.cs,m.ar,m.od,m.length,m.bpm,m.diff,m.score]
+        m.cs,m.ar,m.od,m.length,m.bpm,m.diff,m.score,m.date_ranked]
         for ind,val in enumerate(csv_line):
             csv_line[ind] = str(csv_line[ind])
         f.write(",".join(csv_line))
