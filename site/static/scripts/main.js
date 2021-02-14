@@ -131,7 +131,7 @@ function fillDummy() {
   table_dummy_mobile_data = "";
   for (i = 0; i < max_per_page; i++) {
     table_dummy_data +=
-      "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div></td><td><div class='ph-item ph-picture img-placeholder my-0'></td><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6 my-0'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>";
+    "<tr><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div></td><td><div class='ph-item ph-picture img-placeholder my-0'></td><td><div class='ph-row'> <div class='ph-item ph-col-12 my-0'></div></div><p class='text-muted small'<td><div class='ph-row'> <div class='ph-item ph-col-6 my-0'></div></div></p></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td><td><div class='ph-row'> <div class='ph-item ph-col-12'></div></td></tr>";
     table_dummy_mobile_data +=
       '<div class="col">' +
       `<div class="row"><div class="col-auto mr-1 mb-1"><div class="row"><div class='ph-item ph-picture img-placeholder my-0'></div></div></div>
@@ -324,6 +324,7 @@ $(function () {
 });
 
 function genTableHTML(pos, map_slice) {
+  date_ranked_str = "Ranked: " + map_slice.date_str
   if (map_slice.mode == 3) {
     return (
       '<tr><td><p class="text-center">' +
@@ -344,7 +345,9 @@ function genTableHTML(pos, map_slice) {
       '</a><p class="text-muted small">Keys: ' +
       map_slice.cs +
       " OD: " +
-      map_slice.od.toFixed(1) +
+      map_slice.od.toFixed(1) + ''
+      + `<span title="` + map_slice.date_str_full + `"><br>` + 
+      date_ranked_str +
       '</p></td><td><p class="font-weight-bold text-center glow farm-score">' +
       map_slice.score.toFixed(2) +
       '</p></td><td><p class="text-center">' +
@@ -359,8 +362,6 @@ function genTableHTML(pos, map_slice) {
       map_slice.bpm.toFixed(2) +
       '</p></td><td><p class="text-center">' +
       map_slice.diff.toFixed(2) +
-      '</p></td><td title="' + map_slice.date_str_full + '"><p class="text-center">' +
-      map_slice.date_str +
       "</p></td></tr>"
     );
   } else if (map_slice.mode == 1) {
@@ -381,7 +382,9 @@ function genTableHTML(pos, map_slice) {
       map_slice.version +
       "]" +
       '</a><p class="text-muted small">OD: ' +
-      map_slice.od.toFixed(1) +
+      map_slice.od.toFixed(1) + ''
+      + `<span title="` + map_slice.date_str_full + `"><br>` + 
+      date_ranked_str +
       '</p></td><td><p class="font-weight-bold text-center glow farm-score">' +
       map_slice.score.toFixed(2) +
       '</p></td><td><p class="text-center">' +
@@ -396,8 +399,6 @@ function genTableHTML(pos, map_slice) {
       map_slice.bpm.toFixed(2) +
       '</p></td><td><p class="text-center">' +
       map_slice.diff.toFixed(2) +
-      '</p></td><td title="' + map_slice.date_str_full + '"><p class="text-center">' +
-      map_slice.date_str +
       "</p></td></tr>"
     );
   } else {
@@ -422,7 +423,9 @@ function genTableHTML(pos, map_slice) {
       " CS: " +
       map_slice.cs.toFixed(1) +
       " OD: " +
-      map_slice.od.toFixed(1) +
+      map_slice.od.toFixed(1) + ''
+      + `<span title="` + map_slice.date_str_full + `"><br>` + 
+      date_ranked_str +
       '</p></td><td><p class="font-weight-bold text-center glow farm-score">' +
       map_slice.score.toFixed(2) +
       '</p></td><td><p class="text-center">' +
@@ -437,8 +440,6 @@ function genTableHTML(pos, map_slice) {
       map_slice.bpm.toFixed(2) +
       '</p></td><td><p class="text-center">' +
       map_slice.diff.toFixed(2) +
-      '</p></td><td title="' + map_slice.date_str_full + '"><p class="text-center">' +
-      map_slice.date_str +
       "</p></td></tr>"
     );
   }
