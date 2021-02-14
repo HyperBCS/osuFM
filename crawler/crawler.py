@@ -392,7 +392,7 @@ def getDates(maps, auth_string):
             set_id_list[m.set_id] = m.bid
     
     executor = ThreadPoolExecutor()
-    with ThreadPoolExecutor(max_workers=25) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         for sid in set_id_list:
             url = "https://osu.ppy.sh/api/v2/beatmaps/" + str(set_id_list[sid])
             thread_list.append(executor.submit(getURL, url,auth_string,True))
