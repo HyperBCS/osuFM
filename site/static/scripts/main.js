@@ -11,6 +11,10 @@ if (saveData.theme == 0 || saveData.theme == null) {
   $("head").append(
     '<link rel="stylesheet" href="static/stylesheets/light.css" type="text/css" />'
   );
+  $("#resetBtn").removeClass("btn-outline-warning")
+  $("#resetBtn").addClass("btn-warning")
+  $("#filterBtn").removeClass("btn-outline-success")
+  $("#filterBtn").addClass("btn-success")
 }
 
 // Store your data.
@@ -848,15 +852,25 @@ $("[name='xcs']").change(function () {
 $("#theme").on("change", function (event, state) {
   if ($(event.target).is(":checked")) {
     $("link[href='static/stylesheets/dark.css']").remove();
+
     $("head").append(
       '<link rel="stylesheet" href="static/stylesheets/light.css" type="text/css" />'
     );
+    $("#resetBtn").removeClass("btn-outline-warning")
+    $("#resetBtn").addClass("btn-warning")
+    $("#filterBtn").removeClass("btn-outline-success")
+    $("#filterBtn").addClass("btn-success")
     saveTheme(1);
   } else {
     $("link[href='static/stylesheets/light.css']").remove();
+
     $("head").append(
       '<link rel="stylesheet" href="static/stylesheets/dark.css" type="text/css" />'
     );
+    $("#resetBtn").removeClass("btn-warning")
+    $("#resetBtn").addClass("btn-outline-warning")
+    $("#filterBtn").removeClass("btn-success")
+    $("#filterBtn").addClass("btn-outline-success")
     saveTheme(0);
   }
 });

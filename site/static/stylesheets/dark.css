@@ -94,9 +94,22 @@ table.table a, .table, th, th p, table td{
   }
 
   .bootstrap-datetimepicker-widget table td.day:hover, .bootstrap-datetimepicker-widget table td.hour:hover, .bootstrap-datetimepicker-widget table td.minute:hover, .bootstrap-datetimepicker-widget table td.second:hover {
-    background: #007bff;;
+    background: #007bff;
   }
 
   span.fa.fa-arrow-up,span.fa.fa-arrow-down, .timepicker-hour, .timepicker-minute, .timepicker-second, .separator {
     color: #dcddde !important;
   }
+
+  .bootstrap-datetimepicker-widget table thead tr:first-child th:hover {
+    background: #007bff;
+}
+
+.datepicker-months table td span:hover,.datepicker-years table td span:hover,.datepicker-decades table td span:hover {
+  background: #007bff;
+}
+
+.fa, .timepicker-hour, .timepicker-minute, .timepicker-second, .separator {
+  color: unset !important;
+}
+
