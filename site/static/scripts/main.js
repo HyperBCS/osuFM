@@ -460,7 +460,7 @@ function genTableMobileHTML(pos, map_slice) {
     diff_str =
       "Keys: " + map_slice.cs.toFixed(1) + " OD: " + map_slice.od.toFixed(1);
   }
-  date_ranked_str = "Date Ranked: " + map_slice.date_str_full
+  date_ranked_str = "Ranked: " + map_slice.date_str_full
   return (
     '<div class="col">' +
     `<div class="row"><div class="col-auto mr-1 mb-auto mt-auto"><div class="row"><a href="https://osu.ppy.sh/b/` +
