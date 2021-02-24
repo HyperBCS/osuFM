@@ -755,6 +755,9 @@ $("#len_cs")
   });
 
 $("[name='md']").change(function () {
+  if(isNaN(parseFloat($("[name='md']").val()))){
+    $("[name='md']").val(0)
+  }
   if (parseFloat($("[name='md']").val()) > parseFloat($("[name='xd']").val())) {
     var tmp = $("[name='xd']").val();
     $("[name='xd']").val($("[name='md']").val());
@@ -766,6 +769,9 @@ $("[name='md']").change(function () {
   ]);
 });
 $("[name='xd']").change(function () {
+  if(isNaN(parseFloat($("[name='xd']").val()))){
+    $("[name='xd']").val(15)
+  }
   if (parseFloat($("[name='md']").val()) > parseFloat($("[name='xd']").val())) {
     var tmp = $("[name='xd']").val();
     $("[name='xd']").val($("[name='md']").val());
@@ -778,6 +784,9 @@ $("[name='xd']").change(function () {
 });
 
 $("[name='mar']").change(function () {
+  if(isNaN(parseFloat($("[name='mar']").val()))){
+    $("[name='mar']").val(0)
+  }
   if (parseFloat($("[name='mar']").val()) > parseFloat($("[name='xar']").val())) {
     var tmp = $("[name='xar']").val();
     $("[name='xar']").val($("[name='mar']").val());
@@ -789,6 +798,9 @@ $("[name='mar']").change(function () {
   ]);
 });
 $("[name='xar']").change(function () {
+  if(isNaN(parseFloat($("[name='xar']").val()))){
+    $("[name='xar']").val(11)
+  }
   if (parseFloat($("[name='mar']").val()) > parseFloat($("[name='xar']").val())) {
     var tmp = $("[name='xar']").val();
     $("[name='xar']").val($("[name='mar']").val());
@@ -802,6 +814,9 @@ $("[name='xar']").change(function () {
 
 if($("#mode").val() == 3){
 $("[name='mcs']").change(function () {
+  if(isNaN(parseInt($("[name='mcs']").val()))){
+    $("[name='mcs']").val(0)
+  }
   if (parseInt($("[name='mcs']").val()) > parseInt($("[name='xcs']").val())) {
     var tmp = $("[name='xcs']").val();
     $("[name='xcs']").val($("[name='mcs']").val());
@@ -813,6 +828,9 @@ $("[name='mcs']").change(function () {
   ]);
 });
 $("[name='xcs']").change(function () {
+  if(isNaN(parseInt($("[name='xcs']").val()))){
+    $("[name='xcs']").val(10)
+  }
   if (parseInt($("[name='mcs']").val()) > parseInt($("[name='xcs']").val())) {
     var tmp = $("[name='xcs']").val();
     $("[name='xcs']").val($("[name='mcs']").val());
@@ -826,6 +844,9 @@ $("[name='xcs']").change(function () {
 });
 } else{
   $("[name='mcs']").change(function () {
+    if(isNaN(parseFloat($("[name='mcs']").val()))){
+      $("[name='mcs']").val(0)
+    }
     if (parseFloat($("[name='mcs']").val()) > parseFloat($("[name='xcs']").val())) {
       var tmp = $("[name='xcs']").val();
       $("[name='xcs']").val($("[name='mcs']").val());
@@ -837,6 +858,9 @@ $("[name='xcs']").change(function () {
     ]);
   });
   $("[name='xcs']").change(function () {
+    if(isNaN(parseFloat($("[name='xcs']").val()))){
+      $("[name='xcs']").val(10)
+    }
     if (parseFloat($("[name='mcs']").val()) > parseFloat($("[name='xcs']").val())) {
       var tmp = $("[name='xcs']").val();
       $("[name='xcs']").val($("[name='mcs']").val());
