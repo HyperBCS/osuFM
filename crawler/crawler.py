@@ -306,7 +306,7 @@ def parse_scores(user, scores, beatmaps):
             beatmaps[mode][score["beatmap"]["id"]] = {}
         mods = modsToInt(score["mods"]) & ~( (1<<30) | (1<<9) | (1<<5) | (1<<14))
         try:
-            user_score = Score(score["user"]["id"], score["beatmap"]["id"], user["pp_rank"], score["accuracy"], mods, pos+1, score["beatmap"]["mode_int"],
+            user_score = Score(score["user"]["id"], score["beatmap"]["id"], user["global_rank"], score["accuracy"], mods, pos+1, score["beatmap"]["mode_int"],
                         score["pp"], user["pp"])
             if mods not in beatmaps[mode][score["beatmap"]["id"]]:
                 b = Beatmap(score["beatmap"]["id"], score["beatmap"]["beatmapset_id"], score["beatmapset"]["title"],
@@ -318,6 +318,7 @@ def parse_scores(user, scores, beatmaps):
                 beatmaps[mode][score["beatmap"]["id"]][mods]["map_info"] = b
             beatmaps[mode][score["beatmap"]["id"]][mods]["scores"].append(user_score)
         except:
+            traceback.print_exc(file=sys.stdout)
             print("Null values for " + score["user"]["username"])
             return
 
