@@ -648,7 +648,7 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
               </Grid>
               <Grid item xs={6}>
                 <Box mr={2}>
-                  <TextField fullWidth id="mpp" value={localMinPP} onChange={handleMinPP} placeholder="Placeholder" inputProps={{ inputMode: 'decimal' }} label="Min PP" />
+                  <TextField fullWidth id="mpp" value={localMinPP} onChange={handleMinPP} inputProps={{ inputMode: 'decimal' }} label="Min PP" />
                 </Box>
               </Grid>
               <Grid item xs={6}>
