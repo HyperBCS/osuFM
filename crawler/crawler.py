@@ -205,6 +205,31 @@ class Beatmap(object):
         self.calculated = calculated
         self.date_ranked = date_ranked
 
+    def to_dict(self):
+        return {
+        'bid': self.bid,
+        'sid': self.set_id,
+        'name': self.title,
+        'artist': self.artist,
+        'mapper': self.mapper,
+        'version': self.cs,
+        'ar': self.ar,
+        'cs': self.cs,
+        'od': self.od,
+        'length': self.length,
+        'bpm': self.bpm,
+        'diff': self.diff,
+        'version': self.version,
+        'mode': self.mode,
+        'date_ranked': self.date_ranked,
+        'score': self.score,
+        'pop_mod': self.pop_mod,
+        'avg_pp':  self.avg_pp,
+        'avg_acc':  self.avg_acc,
+        'avg_rank':  self.avg_rank,
+        'avg_pos':  self.avg_pos
+        }
+
 class Score(object):
     def __init__(self, uid, map_id, rank, acc, mods, pos, mode, map_pp, user_pp):
         self.uid = uid

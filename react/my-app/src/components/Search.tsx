@@ -767,12 +767,12 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
               <Grid item xs={6} md={6}>
                 <Hidden mdUp>
                   <Box mr={2}>
-                    <TextField id="xb" fullWidth value={localMaxBPM} onChange={handleMaxBPM} label="Max BPM" />
+                    <TextField id="xb" fullWidth value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
                   </Box>
                 </Hidden>
                 <Hidden smDown>
                   <Box mr={2}>
-                    <TextField id="xb" fullWidth value={localMaxBPM} onChange={handleMaxBPM} label="Max BPM" />
+                    <TextField id="xb" fullWidth value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
                   </Box>
                 </Hidden>
               </Grid>

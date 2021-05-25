@@ -6,6 +6,7 @@ import Footer from './components/Footer'
 import { Box, Container, Grid } from '@material-ui/core';
 import { createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
 import MyTheme from './components/MyTheme'
+import Scroll from './components/Scroll'
 
 
 let Filters = {
@@ -45,13 +46,16 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
     <CssBaseline />
+    <Scroll showBelow={120} />
     <Box display="flex"
       justifyContent="center">
       <Grid item xs={11}>
+      
         <Header theme={theme} setTheme={setTheme}/>
         <SearchBar loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} />
         <DataTable loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} endPage={endPage} />
         <div ref={endPage} />
+        
         <Footer />
       </Grid>
     </Box>
