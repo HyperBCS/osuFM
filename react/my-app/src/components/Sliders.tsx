@@ -229,7 +229,7 @@ export const Sliders =  React.memo(function Sliders(props: Input) {
       }
     
       function diffCS(value: number) {
-        return (props.mode == 3) ? "Keys" : "CS" + ` ${value}`;
+        return ((props.mode == 3) ? "Keys" : "CS") + ` ${value}`;
       }
 
     return (

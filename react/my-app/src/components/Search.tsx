@@ -18,10 +18,11 @@ import Divider from '@material-ui/core/Divider';
 import Box from '@material-ui/core/Box';
 import { getMaps } from '../lib/db'
 import DateFnsUtils from '@date-io/date-fns';
+import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
 import {
   MuiPickersUtilsProvider,
   KeyboardTimePicker,
-  KeyboardDatePicker,
+  DatePicker,
 } from '@material-ui/pickers';
 import {Sliders} from './Sliders'
 
@@ -334,7 +335,6 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
 
   const handleFilterReset = async () => {
     setReset(true)
-    console.log("NEW MOD", props.filters.req_mods)
     let filter_tmp = {
       search: "",
       mode: modeVal,
@@ -385,7 +385,6 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
 
 
   const handleFilterApply = async () => {
-    console.log("NEW MOD", props.filters.req_mods)
     let filter_tmp = props.filters
     filter_tmp.req_mods = 0
     filter_tmp.opt_mods = 0
@@ -407,9 +406,6 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     } else {
       filter_tmp.mods_enabled = false
     }
-
-    console.log(filter_tmp.req_mods)
-    console.log(filter_tmp.opt_mods)
     updateMaps(0, props.rowsPerPage, filter_tmp)
     props.setFilters(filter_tmp)
   }
@@ -543,7 +539,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
               <MuiPickersUtilsProvider utils={DateFnsUtils}>
                 <Grid item xs={6}>
                   <Box mr={2}>
-                    <KeyboardDatePicker
+                    <DatePicker
                       autoOk
                       fullWidth
                       variant="inline"
@@ -553,15 +549,12 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       label="Begin Date"
                       value={localMinDate}
                       onChange={handleMinDate}
-                      KeyboardButtonProps={{
-                        'aria-label': 'change date',
-                      }}
                     />
                   </Box>
                 </Grid>
                 <Grid item xs={6}>
                   <Box mr={2}>
-                    <KeyboardDatePicker
+                    <DatePicker
                       autoOk
                       fullWidth
                       variant="inline"
@@ -571,9 +564,6 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       label="End Date"
                       value={localMaxDate}
                       onChange={handleMaxDate}
-                      KeyboardButtonProps={{
-                        'aria-label': 'change date',
-                      }}
                     />
                   </Box>
                 </Grid>
@@ -592,7 +582,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                     <KeyboardTimePicker
                       fullWidth
                       ampm={false}
-                      openTo="hours"
+                      openTo="minutes"
                       views={["minutes", "seconds"]}
                       format="mm:ss"
                       margin="normal"
@@ -600,6 +590,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       label="Min Length"
                       value={localMinLen}
                       onChange={handleMinLen}
+                      keyboardIcon={<QueryBuilderIcon />}
                       KeyboardButtonProps={{
                         'aria-label': 'change time',
                       }}
@@ -611,7 +602,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                     <KeyboardTimePicker
                       fullWidth
                       ampm={false}
-                      openTo="hours"
+                      openTo="minutes"
                       views={["minutes", "seconds"]}
                       format="mm:ss"
                       margin="normal"
@@ -619,6 +610,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       label="Max Length"
                       value={localMaxLen}
                       onChange={handleMaxLen}
+                      keyboardIcon={<QueryBuilderIcon />}
                       KeyboardButtonProps={{
                         'aria-label': 'change time',
                       }}
