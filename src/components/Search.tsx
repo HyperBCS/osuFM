@@ -16,7 +16,7 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import Box from '@material-ui/core/Box';
-import { getMaps } from './lib/db'
+import { getMaps } from './lib/DB'
 import DateFnsUtils from '@date-io/date-fns';
 import QueryBuilderIcon from '@material-ui/icons/QueryBuilder';
 import {
