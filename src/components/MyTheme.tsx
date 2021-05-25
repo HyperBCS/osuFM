@@ -10,6 +10,9 @@ export default {
           display: "none",
           margin: 80
         },
+        '&[type=number]': {
+          '-moz-appearance': 'textfield',
+        },
         "&$disabled": {
           '&:before': {
             borderBottom: 'none!important',
@@ -18,6 +21,18 @@ export default {
             display: 'none',
           },
         },
+      },
+      underline: {
+        '&:after': {
+          transition: 'none',
+        },
+      },
+    },
+    MuiInputBase: {
+      input: {
+        '&[type=number]': {
+          '-moz-appearance': 'textfield',
+        }
       },
       underline: {
         '&:after': {
