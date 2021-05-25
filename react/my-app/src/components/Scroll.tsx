@@ -7,20 +7,19 @@ const useStyles = makeStyles((theme) => ({
     toTop: {
         zIndex: 2,
         position: 'fixed',
-        bottom: '2vh',
-        backgroundColor: '#DCDCDC',
-        color: 'black',
+        bottom: '5vh',
+        boxShadow: 'rgba(0, 0, 0, 0.19) 0px 10px 20px, rgba(0, 0, 0, 0.23) 0px 6px 6px;',
+        backgroundColor: '#1976d2',
+        color: '#fff',
         "&:hover, &.Mui-focusVisible": {
             transition: '0.3s',
-            color: '#397BA6',
-            backgroundColor: '#DCDCDC'
+            backgroundColor: '#2196f3'
         },
         [theme.breakpoints.up('xs')]: {
-            right: '5%',
-            backgroundColor: 'rgb(220,220,220,0.7)',
+            right: '3%',
         },
         [theme.breakpoints.up('lg')]: {
-            right: '6.5%',
+            right: '4.5%',
         },
     }
 })
@@ -35,7 +34,7 @@ const Scroll = (
     const [show, setShow] = useState(props.showBelow ? false : true)
 
     const handleScroll = () => {
-        if (window.pageYOffset > props.showBelow) {
+        if (props.showBelow.current.getBoundingClientRect().top < 0) {
             if (!show) setShow(true)
         } else {
             if (show) setShow(false)

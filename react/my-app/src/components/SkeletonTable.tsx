@@ -97,11 +97,11 @@ export function SkeletonTable(props: { rowsPerPage: any }) {
     return (
         <TableBody>
             {/* Mobile View */}
-            <Hidden smUp>
+            <Hidden mdUp>
                 {mobileTable}
             </Hidden>
             {/* Desktop View */}
-            <Hidden xsDown>
+            <Hidden smDown>
                 {desktopTable}
             </Hidden>
 

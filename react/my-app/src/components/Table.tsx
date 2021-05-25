@@ -178,10 +178,10 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
       {/* {String(this.data)} */}
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="custom pagination table">
-          <Hidden smUp>
+          <Hidden mdUp>
             <TableHead></TableHead>
           </Hidden>
-          <Hidden xsDown>
+          <Hidden smDown>
             <TableHead>
               <TableRow>
                 <TableCell align="left">#</TableCell>
@@ -200,7 +200,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
           {props.loading ? <SkeletonTable rowsPerPage={props.rowsPerPage} /> : (
             <TableBody>
               {/* Mobile View */}
-              <Hidden smUp>
+              <Hidden mdUp>
                 {props.mapData.map((row: any) => (
                   <TableRow key={row.bid.toString() + row.pop_mod.toString() + row.mode.toString()}>
                     <TableCell align="left">
@@ -264,7 +264,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
                 ))}
               </Hidden>
               {/* Desktop View */}
-              <Hidden xsDown>
+              <Hidden smDown>
                 {props.mapData.map((row: any) => (
                   <TableRow key={row.bid.toString() + row.pop_mod.toString() + row.mode.toString()}>
                     <TableCell align="left">{row.pos}</TableCell>
@@ -289,7 +289,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
           }
         </Table>
       </TableContainer>
-      <Hidden smUp>
+      <Hidden mdUp>
         <TablePagination
           rowsPerPageOptions={[10, 25, 50, 100, 250]}
           count={props.resultCount}
@@ -305,7 +305,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
           onChangeRowsPerPage={handleChangeRowsPerPage}
         />
       </Hidden>
-      <Hidden xsDown>
+      <Hidden smDown>
         <TablePagination
           rowsPerPageOptions={[10, 25, 50, 100, 250]}
           count={props.resultCount}

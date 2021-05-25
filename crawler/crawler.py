@@ -208,7 +208,7 @@ class Beatmap(object):
     def to_dict(self):
         return {
         'bid': self.bid,
-        'sid': self.set_id,
+        'sid': self.sid,
         'name': self.title,
         'artist': self.artist,
         'mapper': self.mapper,

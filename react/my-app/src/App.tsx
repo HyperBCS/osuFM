@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import DataTable from './components/Table'
 import SearchBar from './components/Search'
 import Header from './components/Header'
@@ -39,6 +39,7 @@ function App() {
   const [page, setPage] = React.useState(0);
   const [loading, setLoading] = React.useState(false);
   const endPage = React.useRef(null)
+  const afterHeader = React.useRef<HTMLDivElement>(null)
   const [theme, setTheme] = React.useState(createMuiTheme(MyTheme));
 
 
@@ -46,13 +47,14 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
     <CssBaseline />
-    <Scroll showBelow={120} />
+    <Scroll showBelow={afterHeader} />
     <Box display="flex"
       justifyContent="center">
       <Grid item xs={11}>
       
         <Header theme={theme} setTheme={setTheme}/>
         <SearchBar loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} />
+        <div ref={afterHeader} />
         <DataTable loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} endPage={endPage} />
         <div ref={endPage} />
         
