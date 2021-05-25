@@ -12,7 +12,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import copy 
 from datetime import datetime
 from oppai import *
-import sys, traceback
+import sys, traceback, os
+import sqlite3
 
 db = SqliteDatabase('osuFM.db',pragmas=[('journal_mode', 'wal')])
 modes = ["osu", "taiko", "fruits", "mania"]
@@ -187,9 +188,9 @@ class Beatmap(object):
     avg_rank = 0
     avg_pos = 0
     
-    def __init__(self, bid, set_id, title, artist, mapper, cs, ar, od, length, bpm, diff, version, mode, date_ranked, calculated):
+    def __init__(self, bid, sid, title, artist, mapper, cs, ar, od, length, bpm, diff, version, mode, date_ranked, calculated):
         self.bid = bid
-        self.set_id = set_id
+        self.sid = sid
         self.title = title
         self.artist = artist
         self.mapper = mapper
@@ -379,35 +380,35 @@ def loadMaps(beatmaps):
     print("Loaded",count,"maps from the DB")
 
 def getDates(maps, auth_string):
-    set_id_list = {}
+    sid_list = {}
     date_cache = {}
     thread_list = []
     for m in maps:
         if m.date_ranked is not None:
-            date_cache[m.set_id] = m.date_ranked
+            date_cache[m.sid] = m.date_ranked
             continue
-        if m.date_ranked is None and m.set_id in date_cache:
-            m.date_ranked = date_cache[m.set_id]
+        if m.date_ranked is None and m.sid in date_cache:
+            m.date_ranked = date_cache[m.sid]
             continue
-        if m.set_id not in set_id_list and m.set_id not in date_cache:
-            set_id_list[m.set_id] = m.bid
+        if m.sid not in sid_list and m.sid not in date_cache:
+            sid_list[m.sid] = m.bid
     
     executor = ThreadPoolExecutor()
     with ThreadPoolExecutor(max_workers=10) as executor:
-        for sid in set_id_list:
-            url = "https://osu.ppy.sh/api/v2/beatmaps/" + str(set_id_list[sid])
+        for sid in sid_list:
+            url = "https://osu.ppy.sh/api/v2/beatmaps/" + str(sid_list[sid])
             thread_list.append(executor.submit(getURL, url,auth_string,True))
     fetch_count = 0
     for task in as_completed(thread_list):
         fetch_count += 1
-        print("Getting date ranked for map ["+str(fetch_count)+"/"+str(len(set_id_list))+"]")
+        print("Getting date ranked for map ["+str(fetch_count)+"/"+str(len(sid_list))+"]")
         map_text = task.result()
         date_str = map_text["beatmapset"]["ranked_date"]
         date_time_obj = datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
         date_cache[map_text["beatmapset"]["id"]] = date_time_obj.timestamp()
     for ind, m in enumerate(maps):
         print("Setting date ranked for map ["+str(ind+1)+"/"+str(len(maps))+"]")
-        m.date_ranked = date_cache[m.set_id]
+        m.date_ranked = date_cache[m.sid]
 
 def calcDiffs(maps):
     for ind, m in enumerate(maps):
@@ -507,7 +508,7 @@ for map_info in good_maps:
     try:
         new_map = Beatmaps.replace(avg_acc=map_info.avg_acc,score=map_info.score,avg_pos =map_info.avg_pos,pop_mod=map_info.pop_mod,avg_pp=map_info.avg_pp,avg_rank=map_info.avg_rank,num_scores=map_info.num_scores,mode=map_info.mode,bid = map_info.bid, \
             name = map_info.title, artist=map_info.artist,mapper=map_info.mapper,cs=map_info.cs,ar=map_info.ar,od=map_info.od, \
-            length=map_info.length,bpm=map_info.bpm,diff=map_info.diff,version=map_info.version,sid=map_info.set_id,date_ranked=map_info.date_ranked, calculated=True).execute()
+            length=map_info.length,bpm=map_info.bpm,diff=map_info.diff,version=map_info.version,sid=map_info.sid,date_ranked=map_info.date_ranked, calculated=True).execute()
     except:
         print("Error executing query with map")
         print(map_info.artist,"-",map_info.title + "[" + map_info.version + "]+",map_info.pop_mod)
@@ -516,26 +517,87 @@ for map_info in good_maps:
         print("    AVG ACC: ",map_info.avg_acc)
         print("    AVG RANK: ",map_info.avg_rank)
 
-f=open("comp_maps.csv", "w")
-f.write("bid,sid,name,artist,mapper,version,pop_mod,avg_pp,avg_acc,mode,cs,ar,od,length,bpm,diff,score,date_ranked\n")
-for m in good_maps:
-    try:
-        csv_line = [m.bid,m.set_id,(base64.b64encode((m.title).encode('UTF-8'))).decode("utf-8"),(base64.b64encode((m.artist).encode('UTF-8'))).decode("utf-8"),
-        (base64.b64encode((m.mapper).encode('UTF-8'))).decode("utf-8"),(base64.b64encode((m.version).encode('UTF-8'))).decode("utf-8"),m.pop_mod,m.avg_pp,m.avg_acc,m.mode,
-        m.cs,m.ar,m.od,m.length,m.bpm,m.diff,m.score,m.date_ranked]
-        for ind,val in enumerate(csv_line):
-            csv_line[ind] = str(csv_line[ind])
-        f.write(",".join(csv_line))
-        f.write("\n")
-    except:
-        print("Error writing map to csv")
-        print(map_info.artist,"-",map_info.title + "[" + map_info.version + "]+",map_info.pop_mod)
-        print("    Score: ",map_info.score)
-        print("    AVG PP: ",map_info.avg_pp)
-        print("    AVG ACC: ",map_info.avg_acc)
-        print("    AVG RANK: ",map_info.avg_rank)
+good_maps.sort(key=lambda x:x.score, reverse=True)
+try:
+    os.remove("osuDB.db")
+except:
+    pass
+con = sqlite3.connect("osuDB.db")
+sqliteCursor = con.cursor()
+df = pd.DataFrame.from_records([s.to_dict() for s in good_maps])
+df.to_sql("beatmaps", con,index=False)
 
-f.close() 
+sqliteCursor.executescript('''
+    PRAGMA foreign_keys=off;
+
+    BEGIN TRANSACTION;
+    ALTER TABLE beatmaps RENAME TO old_beatmaps;
+
+    /*create a new table with the same column names and types while
+    defining a primary key for the desired column*/
+    CREATE TABLE "beatmaps" (
+	"bid"	INTEGER,
+	"sid"	INTEGER,
+	"name"	TEXT,
+	"artist"	TEXT,
+	"mapper"	TEXT,
+	"version"	TEXT,
+	"ar"	REAL,
+	"cs"	REAL,
+	"od"	REAL,
+	"length"	INTEGER,
+	"bpm"	REAL,
+	"diff"	REAL,
+	"mode"	INTEGER,
+	"date_ranked"	REAL,
+	"score"	REAL,
+	"pop_mod"	INTEGER,
+	"avg_pp"	REAL,
+	"avg_acc"	REAL,
+	"avg_rank"	INTEGER,
+	"avg_pos"	INTEGER,
+	PRIMARY KEY("bid","pop_mod","mode")
+);
+
+    INSERT INTO beatmaps SELECT * FROM old_beatmaps;
+
+    DROP TABLE old_beatmaps;
+    COMMIT TRANSACTION;''')
+
+q1 = """CREATE INDEX "queryHelper" ON "beatmaps" (
+	"score"	DESC,
+	"index",
+	"bid",
+	"sid",
+	"name",
+	"artist",
+	"mapper",
+	"version",
+	"ar",
+	"cs",
+	"od",
+	"length",
+	"bpm",
+	"diff",
+	"mode",
+	"date_ranked",
+	"pop_mod",
+	"avg_pp",
+	"avg_acc",
+	"avg_rank",
+	"avg_pos"
+);
+"""
+q2 = "pragma journal_mode = delete;"
+q3 = "pragma page_size = 4096;"
+
+q4 = "VACUUM;"
+sqliteCursor.execute(q1)
+sqliteCursor.execute(q2)
+sqliteCursor.execute(q3)
+sqliteCursor.execute(q4)
+con.commit()
+con.close()
 
 f=open("datemodified", "w")
 f.write(str(datetime.now()))

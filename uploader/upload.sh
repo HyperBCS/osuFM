@@ -8,7 +8,7 @@ if [[ "${AWS_S3_BUCKET}" ]]; then
     then
         echo "Score crawler successful!"
         echo "Beginning upload to server"
-        aws s3 sync "$DIR/../crawler" s3://${AWS_S3_BUCKET}/static/data --acl public-read --follow-symlinks --exclude "*" --include "comp_maps.csv" --include "datemodified"  --delete
+        aws s3 sync "$DIR/../crawler" s3://${AWS_S3_BUCKET}/static --acl public-read --follow-symlinks --exclude "*" --include "osuDB.db" --include "datemodified"  --delete
         if [ $? -ne 0 ]
         then
             echo "Upload failed please check settings"
