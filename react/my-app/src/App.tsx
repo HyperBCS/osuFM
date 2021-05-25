@@ -1,9 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import DataTable from './components/Table'
-import SearchBar from './components/Search'
+import {SearchBar} from './components/Search'
 import Header from './components/Header'
 import Footer from './components/Footer'
-import { Box, Container, Grid } from '@material-ui/core';
+import { Box, Grid } from '@material-ui/core';
 import { createMuiTheme, CssBaseline, ThemeProvider } from '@material-ui/core';
 import MyTheme from './components/MyTheme'
 import Scroll from './components/Scroll'
@@ -41,7 +41,6 @@ function App() {
   const endPage = React.useRef(null)
   const afterHeader = React.useRef<HTMLDivElement>(null)
   const [theme, setTheme] = React.useState(createMuiTheme(MyTheme));
-
 
 
   return (

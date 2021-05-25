@@ -4,6 +4,27 @@ export default {
   palette: {
     type: 'dark' as PaletteType,
   }, overrides: {
+    MuiInput: {
+      root: {
+        "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
+          display: "none",
+          margin: 80
+        },
+        "&$disabled": {
+          '&:before': {
+            borderBottom: 'none!important',
+          },
+          '& svg': {
+            display: 'none',
+          },
+        },
+      },
+      underline: {
+        '&:after': {
+          transition: 'none',
+        },
+      },
+    },
     MuiFormControl: {
       root: {
         margin: '0 0!important',

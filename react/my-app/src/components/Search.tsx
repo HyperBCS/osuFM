@@ -4,12 +4,11 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
-import { createStyles, fade, Theme, makeStyles } from '@material-ui/core/styles';
-import { Collapse, FormGroup, ThemeProvider } from '@material-ui/core';
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { Collapse, FormGroup } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import Slider from '@material-ui/core/Slider';
 import TextField from '@material-ui/core/TextField';
 import Hidden from '@material-ui/core/Hidden';
 import FormControl from '@material-ui/core/FormControl';
@@ -17,7 +16,6 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import Box from '@material-ui/core/Box';
-import Tooltip from '@material-ui/core/Tooltip';
 import { getMaps } from '../lib/db'
 import DateFnsUtils from '@date-io/date-fns';
 import {
@@ -25,6 +23,7 @@ import {
   KeyboardTimePicker,
   KeyboardDatePicker,
 } from '@material-ui/pickers';
+import {Sliders} from './Sliders'
 
 
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -60,23 +59,23 @@ const useStyles = makeStyles((theme: Theme) =>
   }),
 );
 
-interface Props {
-  children: React.ReactElement;
-  open: boolean;
-  value: number;
+interface Input {
+  mapData: any;
+  setMapData: any;
+  resultCount: any;
+  setCount: any;
+  filters: any;
+  setFilters: any;
+  page: any;
+  setPage: any;
+  rowsPerPage: any;
+  setRowsPerPage: any;
+  loading: any;
+  setLoading: any
 }
 
-function ValueLabelComponent(props: Props) {
-  const { children, open, value } = props;
+export const SearchBar = React.memo(function SearchBar(props: Input) {
 
-  return (
-    <Tooltip open={open} enterTouchDelay={0} placement="top" title={value}>
-      {children}
-    </Tooltip>
-  );
-}
-
-export default function SearchBar(props: { mapData: any; setMapData: any; resultCount: any; setCount: any; filters: any; setFilters: any; page: any; setPage: any; rowsPerPage: any; setRowsPerPage: any; loading: any; setLoading: any }) {
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(true);
@@ -113,17 +112,7 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
   const [localMinBPM, setMinBPM] = React.useState("");
   const [localMaxBPM, setMaxBPM] = React.useState("");
 
-  const [localMinDiff, setMinDiff] = React.useState("0");
-  const [localMaxDiff, setMaxDiff] = React.useState("15");
-
-  const [localMinAR, setMinAR] = React.useState("0");
-  const [localMaxAR, setMaxAR] = React.useState("11");
-
-  const [localMinCS, setMinCS] = React.useState("0");
-  const [localMaxCS, setMaxCS] = React.useState("10");
-
-  const [csText, setCSText] = React.useState("CS");
-  const [csStep, setCSStep] = React.useState(0.1);
+  const [reset, setReset] = React.useState(false);
 
   const [filterToggle, setFilterToggle] = React.useState(true);
 
@@ -134,11 +123,7 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
   const [modeString, setModeString] = React.useState("Standard");
   const [modeVal, setModeVal] = React.useState(0);
 
-  const [valueStars, setValueStars] = React.useState<number[]>([0, 15]);
 
-  const [valueAR, setValueAR] = React.useState<number[]>([0, 11]);
-
-  const [valueCS, setValueCS] = React.useState<number[]>([0, 10]);
 
   const handleSearch = async (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
@@ -148,39 +133,6 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
     updateMaps(0, props.rowsPerPage, filter_tmp)
     props.setFilters(filter_tmp)
 
-  };
-
-  const handleStars = (event: any, newValue: number | number[]) => {
-    if (Array.isArray(newValue)) {
-      let filter_tmp = props.filters
-      filter_tmp.min_diff = newValue[0]
-      filter_tmp.max_diff = newValue[1]
-      setMinDiff(newValue[0].toString())
-      setMaxDiff(newValue[1].toString())
-    }
-    setValueStars(newValue as number[]);
-  };
-
-  const handleAR = (event: any, newValue: number | number[]) => {
-    if (Array.isArray(newValue)) {
-      let filter_tmp = props.filters
-      filter_tmp.min_ar = newValue[0]
-      filter_tmp.max_ar = newValue[1]
-      setMinAR(newValue[0].toString())
-      setMaxAR(newValue[1].toString())
-    }
-    setValueAR(newValue as number[]);
-  };
-
-  const handleCS = (event: any, newValue: number | number[]) => {
-    if (Array.isArray(newValue)) {
-      let filter_tmp = props.filters
-      filter_tmp.min_cs = newValue[0]
-      filter_tmp.max_cs = newValue[1]
-      setMinCS(newValue[0].toString())
-      setMaxCS(newValue[1].toString())
-    }
-    setValueCS(newValue as number[]);
   };
 
   const handleFilter = () => {
@@ -335,66 +287,6 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
     setMaxBPM(event.target.value)
   };
 
-  const handleMinDiff = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let filter_tmp = props.filters
-    filter_tmp.min_diff = event.target.value
-    props.setFilters(filter_tmp)
-    setMinDiff(event.target.value)
-    if (event.target.value.length == 0) {
-      setValueStars([0, props.filters.max_diff])
-    }
-  };
-
-  const handleMaxDiff = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let filter_tmp = props.filters
-    filter_tmp.max_diff = event.target.value
-    props.setFilters(filter_tmp)
-    setMaxDiff(event.target.value)
-    if (event.target.value.length == 0) {
-      setValueStars([props.filters.min_diff, 15])
-    }
-  };
-
-  const handleMinAR = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let filter_tmp = props.filters
-    filter_tmp.min_ar = event.target.value
-    props.setFilters(filter_tmp)
-    setMinAR(event.target.value)
-  };
-
-  const handleMaxAR = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let filter_tmp = props.filters
-    filter_tmp.max_ar = event.target.value
-    props.setFilters(filter_tmp)
-    setMaxAR(event.target.value)
-  };
-
-  const handleMinCS = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let filter_tmp = props.filters
-    filter_tmp.min_cs = event.target.value
-    props.setFilters(filter_tmp)
-    setMinCS(event.target.value)
-  };
-
-  const handleMaxCS = (event: React.ChangeEvent<HTMLInputElement>) => {
-    let filter_tmp = props.filters
-    filter_tmp.max_cs = event.target.value
-    props.setFilters(filter_tmp)
-    setMaxCS(event.target.value)
-  };
-
-  function diffText(value: number) {
-    return `${value}★`;
-  }
-
-  function diffAR(value: number) {
-    return `AR ${value}`;
-  }
-
-  function diffCS(value: number) {
-    return csText + ` ${value}`;
-  }
-
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
@@ -407,15 +299,6 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
     setModeIcon(<ArrowDropDownIcon />)
     setAnchorEl(null);
     if (event.currentTarget.innerText.length != 0) {
-      if (event.currentTarget.value == 3) {
-        setCSText("Keys")
-        setCSStep(1)
-      } else {
-        setCSText("CS")
-        setCSStep(0.1)
-      }
-
-
       setModeString(event.currentTarget.innerText)
       setModeVal(event.currentTarget.value)
       let filter_tmp = props.filters
@@ -433,6 +316,7 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
     if (response.count[0].values[0][0] == 0) {
       props.setMapData([])
       props.setCount(0)
+      props.setLoading(false)
       return false
     }
     const bigArr = response.result[0]["values"].map((row: any, index: number) => {
@@ -449,6 +333,7 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
   }
 
   const handleFilterReset = async () => {
+    setReset(true)
     console.log("NEW MOD", props.filters.req_mods)
     let filter_tmp = {
       search: "",
@@ -487,15 +372,6 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
     setMaxPP("")
     setMinBPM("")
     setMaxBPM("")
-    setMinDiff("0")
-    setMaxDiff("15")
-    setMinAR("0")
-    setMaxAR("11")
-    setMinCS("0")
-    setMaxCS("10")
-    setValueStars([0, 15])
-    setValueAR([0, 11])
-    setValueCS([0, 10])
     setSearch("")
     setMinDate(new Date('2007-09-16T00:00:01'));
     setMaxDate(new Date());
@@ -648,12 +524,12 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
               </Grid>
               <Grid item xs={6}>
                 <Box mr={2}>
-                  <TextField fullWidth id="mpp" value={localMinPP} onChange={handleMinPP} inputProps={{ inputMode: 'decimal' }} label="Min PP" />
+                  <TextField fullWidth id="mpp" type="number" value={localMinPP} onChange={handleMinPP} inputProps={{ inputMode: 'decimal' }} label="Min PP" />
                 </Box>
               </Grid>
               <Grid item xs={6}>
                 <Box mr={2}>
-                  <TextField fullWidth id="xpp" value={localMaxPP} onChange={handleMaxPP} inputProps={{ inputMode: 'decimal' }} label="Max PP" />
+                  <TextField fullWidth id="xpp" type="number" value={localMaxPP} onChange={handleMaxPP} inputProps={{ inputMode: 'decimal' }} label="Max PP" />
                 </Box>
               </Grid>
             </Grid>
@@ -755,98 +631,37 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
               <Grid item xs={6} md={6}>
                 <Hidden mdUp>
                   <Box mr={2}>
-                    <TextField id="mb" fullWidth value={localMinBPM} onChange={handleMinBPM} inputProps={{ inputMode: 'decimal' }} label="Min BPM" />
+                    <TextField id="mb" fullWidth type="number" value={localMinBPM} onChange={handleMinBPM} inputProps={{ inputMode: 'decimal' }} label="Min BPM" />
                   </Box>
                 </Hidden>
                 <Hidden smDown>
                   <Box mr={2}>
-                    <TextField id="mb" fullWidth value={localMinBPM} onChange={handleMinBPM} inputProps={{ inputMode: 'decimal' }} label="Min BPM" />
+                    <TextField id="mb" fullWidth type="number" value={localMinBPM} onChange={handleMinBPM} inputProps={{ inputMode: 'decimal' }} label="Min BPM" />
                   </Box>
                 </Hidden>
               </Grid>
               <Grid item xs={6} md={6}>
                 <Hidden mdUp>
                   <Box mr={2}>
-                    <TextField id="xb" fullWidth value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
+                    <TextField id="xb" fullWidth type="number" value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
                   </Box>
                 </Hidden>
                 <Hidden smDown>
                   <Box mr={2}>
-                    <TextField id="xb" fullWidth value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
+                    <TextField id="xb" fullWidth type="number" value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
                   </Box>
                 </Hidden>
               </Grid>
             </Grid>
           </Grid>
           <br></br>
-          <Grid container>
-            <Grid item xs={12}>
-              <Typography variant="h5">Difficulty Options</Typography>
-            </Grid>
-            <Grid container justify="center" item spacing={2} xs={12} md={4}>
-              <Grid item xs={10}>
-                <Slider
-                  value={valueStars}
-                  ValueLabelComponent={ValueLabelComponent}
-                  min={0}
-                  max={15}
-                  step={0.1}
-                  onChange={handleStars}
-                  valueLabelDisplay="auto"
-                  aria-labelledby="range-slider"
-                  valueLabelFormat={diffText}
-                />
-              </Grid>
-              <Grid item xs={5}>
-                <TextField id="md" value={localMinDiff} onChange={handleMinDiff} inputProps={{ inputMode: 'decimal' }} label="Min Stars" />
-              </Grid>
-              <Grid item xs={5}>
-                <TextField id="xd" value={localMaxDiff} onChange={handleMaxDiff} inputProps={{ inputMode: 'decimal' }} label="Max Stars" />
-              </Grid>
-            </Grid>
-            <Grid container justify="center" item spacing={2} xs={12} md={4}>
-              <Grid item xs={10}>
-                <Slider
-                  value={valueAR}
-                  ValueLabelComponent={ValueLabelComponent}
-                  min={0}
-                  max={11}
-                  step={0.1}
-                  onChange={handleAR}
-                  valueLabelDisplay="auto"
-                  aria-labelledby="range-slider"
-                  valueLabelFormat={diffAR}
-                />
-              </Grid>
-              <Grid item xs={5}>
-                <TextField id="mar" value={localMinAR} onChange={handleMinAR} inputProps={{ inputMode: 'decimal' }} label="Min AR" />
-              </Grid>
-              <Grid item xs={5}>
-                <TextField id="xar" value={localMaxAR} onChange={handleMaxAR} inputProps={{ inputMode: 'decimal' }} label="Max AR" />
-              </Grid>
-            </Grid>
-            <Grid container justify="center" item spacing={2} xs={12} md={4}>
-              <Grid item xs={10}>
-                <Slider
-                  value={valueCS}
-                  ValueLabelComponent={ValueLabelComponent}
-                  min={0}
-                  max={10}
-                  step={csStep}
-                  onChange={handleCS}
-                  valueLabelDisplay="auto"
-                  aria-labelledby="range-slider"
-                  valueLabelFormat={diffCS}
-                />
-              </Grid>
-              <Grid item xs={5}>
-                <TextField id="mcs" value={localMinCS} onChange={handleMinCS} inputProps={{ inputMode: 'decimal' }} label={"Min " + csText} />
-              </Grid>
-              <Grid item xs={5}>
-                <TextField id="xcs" value={localMaxCS} onChange={handleMaxCS} inputProps={{ inputMode: 'decimal' }} label={"Max " + csText} />
-              </Grid>
-            </Grid>
-          </Grid>
+          <Sliders 
+              filters={props.filters}
+              setFilters={props.setFilters}
+              mode={modeVal}
+              reset={reset}
+              setReset={setReset}
+          />
           <br></br>
           <Grid container item justify="space-around" alignContent="center" spacing={2}>
             <Grid item>
@@ -866,4 +681,4 @@ export default function SearchBar(props: { mapData: any; setMapData: any; result
 
     </div>
   );
-}
+});
