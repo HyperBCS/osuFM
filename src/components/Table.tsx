@@ -7,9 +7,9 @@ import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
-import { str_time, intToMods } from '../lib/util'
+import { str_time, intToMods } from './../lib/util'
 import TablePagination from '@material-ui/core/TablePagination';
-import { getMaps } from '../lib/db'
+import { getMaps } from './../lib/db'
 import { Hidden, IconButton, Link, Typography } from "@material-ui/core";
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
