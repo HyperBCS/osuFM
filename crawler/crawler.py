@@ -591,7 +591,6 @@ sqliteCursor.executescript('''
 
 q1 = """CREATE INDEX "queryHelper" ON "beatmaps" (
 	"score"	DESC,
-	"index",
 	"bid",
 	"sid",
 	"name",
