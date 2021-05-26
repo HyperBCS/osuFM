@@ -5,25 +5,8 @@ import ThemeSwitcher from './ThemeSwitch'
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
-    button: {
-      margin: theme.spacing(1),
-    },
     root: {
       flexGrow: 1,
-    },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    title: {
-      flexGrow: 1,
-      display: 'none',
-      [theme.breakpoints.up('sm')]: {
-        display: 'block',
-      },
-    },
-    search: {
-      margin: theme.spacing(1),
-      position: 'relative',
     }
   }),
 );

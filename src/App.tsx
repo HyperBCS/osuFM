@@ -1,6 +1,6 @@
 import React from 'react';
 import DataTable from './components/Table'
-import {SearchBar} from './components/Search'
+import { SearchBar } from './components/Search'
 import Header from './components/Header'
 import Footer from './components/Footer'
 import { Box, Grid } from '@material-ui/core';
@@ -45,21 +45,21 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-    <CssBaseline />
-    <Scroll showBelow={afterHeader} />
-    <Box display="flex"
-      justifyContent="center">
-      <Grid item xs={11}>
-      
-        <Header theme={theme} setTheme={setTheme}/>
-        <SearchBar loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} />
-        <div ref={afterHeader} />
-        <DataTable loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} endPage={endPage} />
-        <div ref={endPage} />
-        
-        <Footer />
-      </Grid>
-    </Box>
+      <CssBaseline />
+      <Scroll showBelow={afterHeader} />
+      <Box display="flex"
+        justifyContent="center">
+        <Grid item xs={11}>
+
+          <Header theme={theme} setTheme={setTheme} />
+          <SearchBar loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} />
+          <div ref={afterHeader} />
+          <DataTable loading={loading} setLoading={setLoading} mapData={mapData} setMapData={setMapData} resultCount={resultCount} setCount={setCount} filters={filters} setFilters={setFilters} page={page} setPage={setPage} rowsPerPage={rowsPerPage} setRowsPerPage={setRowsPerPage} endPage={endPage} />
+          <div ref={endPage} />
+
+          <Footer />
+        </Grid>
+      </Box>
     </ThemeProvider>
   );
 }

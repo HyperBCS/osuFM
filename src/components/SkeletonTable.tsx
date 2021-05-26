@@ -10,10 +10,6 @@ import StarIcon from '@material-ui/icons/Star';
 
 export function SkeletonTable(props: { rowsPerPage: any }) {
 
-
-
-
-
     const mobileTable = Array(props.rowsPerPage).fill(0).map((_, i) => (
         <TableRow key={i}>
             <TableCell align="left">

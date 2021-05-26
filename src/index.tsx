@@ -21,7 +21,7 @@ function sendToAnalytics(metric: Metric) {
 
 
 ReactDOM.render(
-  <App/>,
+  <App />,
   document.getElementById('root')
 );
 

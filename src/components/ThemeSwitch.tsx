@@ -12,16 +12,16 @@ const ThemeSwitcher = (props: { theme: any; setTheme: any }) => {
     const [themeLoaded, setloadState] = React.useState(false);
 
     React.useEffect(() => {
-        if(!themeLoaded){
+        if (!themeLoaded) {
             setloadState(true)
             let savedTheme = window.localStorage.getItem("theme")
-            if(savedTheme === null){
+            if (savedTheme === null) {
                 savedTheme = "dark"
             }
             setMode(savedTheme)
             setTheme(savedTheme)
         }
-      });
+    });
 
     const toggleDarkMode = () => {
         let newMode = (themeMode === "light") ? "dark" : "light"
@@ -41,7 +41,7 @@ const ThemeSwitcher = (props: { theme: any; setTheme: any }) => {
         <Box display="flex"
             justifyContent="space-between" alignItems="center">
             <Brightness3Icon />
-            <Switch onChange={toggleDarkMode} checked={(themeMode == "light") ? true : false}/>
+            <Switch onChange={toggleDarkMode} checked={(themeMode == "light") ? true : false} />
             <WbSunnyIcon />
         </Box>
     );

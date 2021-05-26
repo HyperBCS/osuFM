@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
 )
 
 const Scroll = (
-    props: { showBelow: any}
+    props: { showBelow: any }
 ) => {
 
     const classes = useStyles();

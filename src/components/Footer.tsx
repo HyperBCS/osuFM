@@ -7,26 +7,9 @@ import React, { useEffect } from 'react';
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
-        button: {
-            margin: theme.spacing(1),
-        },
         root: {
             flexGrow: 1,
             width: '100%'
-        },
-        menuButton: {
-            marginRight: theme.spacing(2),
-        },
-        title: {
-            flexGrow: 1,
-            display: 'none',
-            [theme.breakpoints.up('sm')]: {
-                display: 'block',
-            },
-        },
-        search: {
-            margin: theme.spacing(1),
-            position: 'relative',
         },
         typography: {
             fontSize: '0.7rem',

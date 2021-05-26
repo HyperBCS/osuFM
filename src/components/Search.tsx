@@ -24,7 +24,7 @@ import {
   KeyboardTimePicker,
   DatePicker,
 } from '@material-ui/pickers';
-import {Sliders} from './Sliders'
+import { Sliders } from './Sliders'
 
 
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -412,7 +412,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
 
   return (
     <div className={classes.root}>
-      <AppBar position="static">
+      <AppBar position="static" style={{ background: '#3f51b5' }}>
         <Toolbar>
           <Grid container justify="center">
             <Box>
@@ -635,24 +635,24 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
               <Grid item xs={6} md={6}>
                 <Hidden mdUp>
                   <Box mr={2}>
-                    <TextField id="xb" fullWidth type="number" value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
+                    <TextField id="xb" fullWidth type="number" value={localMaxBPM} onChange={handleMaxBPM} inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
                   </Box>
                 </Hidden>
                 <Hidden smDown>
                   <Box mr={2}>
-                    <TextField id="xb" fullWidth type="number" value={localMaxBPM} onChange={handleMaxBPM}  inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
+                    <TextField id="xb" fullWidth type="number" value={localMaxBPM} onChange={handleMaxBPM} inputProps={{ inputMode: 'decimal' }} label="Max BPM" />
                   </Box>
                 </Hidden>
               </Grid>
             </Grid>
           </Grid>
           <br></br>
-          <Sliders 
-              filters={props.filters}
-              setFilters={props.setFilters}
-              mode={modeVal}
-              reset={reset}
-              setReset={setReset}
+          <Sliders
+            filters={props.filters}
+            setFilters={props.setFilters}
+            mode={modeVal}
+            reset={reset}
+            setReset={setReset}
           />
           <br></br>
           <Grid container item justify="space-around" alignContent="center" spacing={2}>

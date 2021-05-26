@@ -2,6 +2,9 @@ import { PaletteType } from '@material-ui/core';
 
 export default {
   palette: {
+    primary: {
+      main: "#1976d2"
+    },
     type: 'dark' as PaletteType,
   }, overrides: {
     MuiInput: {
@@ -33,11 +36,6 @@ export default {
         '&[type=number]': {
           '-moz-appearance': 'textfield',
         }
-      },
-      underline: {
-        '&:after': {
-          transition: 'none',
-        },
       },
     },
     MuiFormControl: {
