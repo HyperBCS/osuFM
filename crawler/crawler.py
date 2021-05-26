@@ -589,27 +589,21 @@ sqliteCursor.executescript('''
     DROP TABLE old_beatmaps;
     COMMIT TRANSACTION;''')
 
-q1 = """CREATE INDEX "queryHelper" ON "beatmaps" (
-	"score"	DESC,
-	"bid",
-	"sid",
-	"name",
-	"artist",
-	"mapper",
-	"version",
-	"ar",
-	"cs",
-	"od",
-	"length",
-	"bpm",
-	"diff",
+q1 = """CREATE INDEX "loaderHelp" ON "beatmaps" (
 	"mode",
-	"date_ranked",
-	"pop_mod",
-	"avg_pp",
-	"avg_acc",
-	"avg_rank",
-	"avg_pos"
+	"score"	DESC
+);
+CREATE INDEX "searchHelp" ON "beatmaps" (
+	"mode"	DESC,
+	"score"	DESC,
+	"ar"	DESC,
+	"cs"	DESC,
+	"length"	DESC,
+	"bpm"	DESC,
+	"diff"	DESC,
+	"date_ranked"	DESC,
+	"pop_mod"	DESC,
+	"avg_pp"	DESC
 );
 """
 q2 = "pragma journal_mode = delete;"
