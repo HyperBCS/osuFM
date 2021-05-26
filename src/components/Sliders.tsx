@@ -233,7 +233,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
   }
 
   return (
-    <Grid container>
+    <Grid item container justify="center">
       <Grid item xs={12}>
         <Typography variant="h5">Difficulty Options</Typography>
       </Grid>

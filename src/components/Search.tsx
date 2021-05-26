@@ -655,7 +655,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
             setReset={setReset}
           />
           <br></br>
-          <Grid container item justify="space-around" alignContent="center" spacing={2}>
+          <Grid container item justify="space-evenly" alignContent="center" spacing={2}>
             <Grid item>
               <Button variant="contained" onClick={handleFilterReset} color="secondary">
                 Reset Filter
