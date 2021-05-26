@@ -207,7 +207,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
                     <TableCell align="left">
                       <Grid container>
                         <Grid item style={{ marginRight: 'auto' }}>
-                          <img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg'}></img>
+                          <img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg'} width="80" height="60"></img>
                         </Grid>
                         <Grid item xs><Box ml={1}><Typography variant="subtitle1" display={"inline"}><Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}>{row.artist} - {row.name} [{row.version}]</Link></Typography>
                           <br></br>
@@ -269,7 +269,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
                 {props.mapData.map((row: any) => (
                   <TableRow key={row.bid.toString() + row.pop_mod.toString() + row.mode.toString()}>
                     <TableCell align="left">{row.pos}</TableCell>
-                    <TableCell><img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg'}></img></TableCell>
+                    <TableCell><img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg' } width="80" height="60"></img></TableCell>
                     <TableCell component="th" scope="row">
                       <Typography variant="subtitle1"><Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}>{row.artist} - {row.name} [{row.version}]</Link></Typography>
                       <Typography color="textSecondary" className={classes.typography}>{(row.mode != 3 && row.mode != 1) ? "AR: " + row.ar.toFixed(1) : ""} {(row.mode != 1) ? ((row.mode == 3) ? "Keys: " + row.cs.toFixed(0) : "CS: " + row.cs.toFixed(1)) : ""} OD: {row.od.toFixed(1)}</Typography >
