@@ -10,7 +10,7 @@ import Paper from '@material-ui/core/Paper';
 import { str_time, intToMods } from '../lib/Util'
 import TablePagination from '@material-ui/core/TablePagination';
 import { getMaps } from '../lib/DB'
-import { Hidden, IconButton, Link, Typography } from "@material-ui/core";
+import { Hidden, IconButton, Link, Tooltip, Typography } from "@material-ui/core";
 import FirstPageIcon from '@material-ui/icons/FirstPage';
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
@@ -22,6 +22,7 @@ import GamepadIcon from '@material-ui/icons/Gamepad';
 import StarIcon from '@material-ui/icons/Star';
 import Grid from '@material-ui/core/Grid';
 import { SkeletonTable } from './SkeletonTable'
+import { format } from 'date-fns'
 
 
 const useStyles = makeStyles({
@@ -211,7 +212,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
                         <Grid item xs><Box ml={1}><Typography variant="subtitle1" display={"inline"}><Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}>{row.artist} - {row.name} [{row.version}]</Link></Typography>
                           <br></br>
                           <Typography color="textSecondary" className={classes.typography} >{(row.mode != 3 && row.mode != 1) ? "AR: " + row.ar.toFixed(1) : ""} {(row.mode != 1) ? ((row.mode == 3) ? "Keys: " + row.cs.toFixed(0) : "CS: " + row.cs.toFixed(1)) : ""} OD: {row.od.toFixed(1)}</Typography >
-                          <Typography color="textSecondary" className={classes.typography}>Ranked: {formatDistance(new Date(row.date_ranked * 1000), new Date())} ago</Typography >
+                          <Typography color="textSecondary" className={classes.typography}>Ranked: {format(new Date(row.date_ranked * 1000), "MMM-dd-yyyy")}</Typography >
                         </Box>
                         </Grid>
                       </Grid>
@@ -272,7 +273,7 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
                     <TableCell component="th" scope="row">
                       <Typography variant="subtitle1"><Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}>{row.artist} - {row.name} [{row.version}]</Link></Typography>
                       <Typography color="textSecondary" className={classes.typography}>{(row.mode != 3 && row.mode != 1) ? "AR: " + row.ar.toFixed(1) : ""} {(row.mode != 1) ? ((row.mode == 3) ? "Keys: " + row.cs.toFixed(0) : "CS: " + row.cs.toFixed(1)) : ""} OD: {row.od.toFixed(1)}</Typography >
-                      <Typography color="textSecondary" className={classes.typography}>Ranked: {formatDistance(new Date(row.date_ranked * 1000), new Date())} ago</Typography >
+                      <Tooltip title={format(new Date(row.date_ranked * 1000), "MMM-dd-yyyy")}  placement="bottom" arrow><Typography color="textSecondary" display="inline" className={classes.typography}>Ranked: {formatDistance(new Date(row.date_ranked * 1000), new Date())} ago</Typography ></Tooltip>
                     </TableCell>
                     <TableCell align="center"><Box fontSize={"1.5rem"} fontWeight="fontWeightBold">{row.score.toFixed(2)}</Box></TableCell>
                     <TableCell align="center">{row.avg_pp.toFixed(2)}</TableCell>

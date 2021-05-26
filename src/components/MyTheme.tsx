@@ -7,6 +7,11 @@ export default {
     },
     type: 'dark' as PaletteType,
   }, overrides: {
+    MuiTooltip: {
+      tooltipPlacementBottom: {
+        margin: "5px 0 !important",
+      },
+    },
     MuiInput: {
       root: {
         "& input::-webkit-clear-button, & input::-webkit-outer-spin-button, & input::-webkit-inner-spin-button": {
