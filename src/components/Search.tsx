@@ -42,6 +42,12 @@ const useStyles = makeStyles((theme: Theme) =>
       margin: theme.spacing(1),
       position: 'relative',
     },
+    radio: {
+      "& -webkit-user-select": "none",
+      "& -moz-user-select": "none",
+      "& -ms-user-select: none": "none",
+      userSelect: "none",
+    },
     input: {
       "& ::-webkit-input-placeholder": {
         color: "white"
@@ -474,37 +480,37 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
               </Grid>
 
               <Grid item xs={6} md>
-                <FormControlLabel
+                <FormControlLabel className={classes.radio}
                   control={<Checkbox onChange={handleModChecked} value={64} checked={checkedDT} indeterminate={indetermineDT} name="DT" />}
                   label="Double Time"
                 />
               </Grid>
               <Grid item xs={6} md>
-                <FormControlLabel
+                <FormControlLabel className={classes.radio}
                   control={<Checkbox onChange={handleModChecked} checked={checkedHD} indeterminate={indetermineHD} value={8} name="HD" />}
                   label="Hidden"
                 />
               </Grid>
               <Grid item xs={6} md>
-                <FormControlLabel
+                <FormControlLabel className={classes.radio}
                   control={<Checkbox onChange={handleModChecked} checked={checkedHR} indeterminate={indetermineHR} value={16} name="HR" />}
                   label="Hard Rock"
                 />
               </Grid>
               <Grid item xs={6} md>
-                <FormControlLabel
+                <FormControlLabel className={classes.radio}
                   control={<Checkbox onChange={handleModChecked} checked={checkedEZ} indeterminate={indetermineEZ} value={2} name="EZ" />}
                   label="Easy"
                 />
               </Grid>
               <Grid item xs={6} md>
-                <FormControlLabel
+                <FormControlLabel className={classes.radio}
                   control={<Checkbox onChange={handleModChecked} checked={checkedFL} indeterminate={indetermineFL} value={1024} name="FL" />}
                   label="Flashlight"
                 />
               </Grid>
               <Grid item xs={6} md>
-                <FormControlLabel
+                <FormControlLabel className={classes.radio}
                   control={<Checkbox onChange={handleModChecked} checked={checkedNO} indeterminate={indetermineNO} value={-1} name="NO" />}
                   label="No Mod"
                 />
