@@ -89,7 +89,7 @@ export async function getMaps(page: number, rowsPerPage: number, filters: any, d
   }
 
   if (filters.search.length > 0) {
-    query_params += `AND ("name" LIKE "%` + filters.search + `%" OR "artist" LIKE "%` + filters.search + `%" OR "mapper" LIKE "%` + filters.search + `%") `
+    query_params += `AND ("name" LIKE "%` + filters.search + `%" OR "artist" LIKE "%` + filters.search + `%" OR "mapper" LIKE "%` + filters.search + `%" OR "version" LIKE "%` + filters.search + `%") `
   }
 
 
