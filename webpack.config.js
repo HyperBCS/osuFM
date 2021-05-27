@@ -25,7 +25,7 @@ module.exports = {
   output: {
     filename: "bundle.js",
   },
-  plugins: [new HtmlWebpackPlugin({ template: 'public/index.html', inject: false, favicon: "./public/osufm-128x128.png" })],
+  plugins: [new HtmlWebpackPlugin({ template: 'public/index.html', inject: false, favicon: "./public/osufm-32x32.png" })],
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
     compress: true,
