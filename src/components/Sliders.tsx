@@ -31,14 +31,14 @@ function ValueLabelComponent(props: Props) {
 export const Sliders = React.memo(function Sliders(props: Input) {
 
 
-  const [localMinDiff, setMinDiff] = React.useState(0);
-  const [localMaxDiff, setMaxDiff] = React.useState(15);
+  const [localMinDiff, setMinDiff] = React.useState("0");
+  const [localMaxDiff, setMaxDiff] = React.useState("15");
 
-  const [localMinAR, setMinAR] = React.useState(0);
-  const [localMaxAR, setMaxAR] = React.useState(11);
+  const [localMinAR, setMinAR] = React.useState("0");
+  const [localMaxAR, setMaxAR] = React.useState("11");
 
-  const [localMinCS, setMinCS] = React.useState(0);
-  const [localMaxCS, setMaxCS] = React.useState(10);
+  const [localMinCS, setMinCS] = React.useState("0");
+  const [localMaxCS, setMaxCS] = React.useState("10");
 
   const [valueStars, setValueStars] = React.useState<number[]>([0, 15]);
 
@@ -49,12 +49,12 @@ export const Sliders = React.memo(function Sliders(props: Input) {
 
   function doReset() {
     props.setReset(false)
-    setMinDiff(0)
-    setMaxDiff(15)
-    setMinAR(0)
-    setMaxAR(11)
-    setMinCS(0)
-    setMaxCS(10)
+    setMinDiff("0")
+    setMaxDiff("15")
+    setMinAR("0")
+    setMaxAR("11")
+    setMinCS("0")
+    setMaxCS("10")
     setValueStars([0, 15])
     setValueAR([0, 11])
     setValueCS([0, 10])
@@ -72,8 +72,8 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       let filter_tmp = props.filters
       filter_tmp.min_diff = newValue[0]
       filter_tmp.max_diff = newValue[1]
-      setMinDiff(newValue[0])
-      setMaxDiff(newValue[1])
+      setMinDiff(newValue[0].toString())
+      setMaxDiff(newValue[1].toString())
     }
     setValueStars(newValue as number[]);
   };
@@ -83,8 +83,8 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       let filter_tmp = props.filters
       filter_tmp.min_ar = newValue[0]
       filter_tmp.max_ar = newValue[1]
-      setMinAR(newValue[0])
-      setMaxAR(newValue[1])
+      setMinAR(newValue[0].toString())
+      setMaxAR(newValue[1].toString())
     }
     setValueAR(newValue as number[]);
   };
@@ -94,27 +94,30 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       let filter_tmp = props.filters
       filter_tmp.min_cs = newValue[0]
       filter_tmp.max_cs = newValue[1]
-      setMinCS(newValue[0])
-      setMaxCS(newValue[1])
+      setMinCS(newValue[0].toString())
+      setMaxCS(newValue[1].toString())
     }
     setValueCS(newValue as number[]);
   };
 
   const handleMinAR = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    setMinAR(parseFloat(event.target.value))
+    setMinAR(event.target.value)
     if (parseFloat(event.target.value) > props.filters.max_ar && parseFloat(event.target.value) <= 11) {
-      filter_tmp.min_ar = localMaxAR
+      filter_tmp.min_ar = parseFloat(localMaxAR)
       filter_tmp.max_ar = parseFloat(event.target.value)
-      setValueAR([localMaxAR, parseFloat(event.target.value)])
-      setMaxAR(parseFloat(event.target.value))
+      setValueAR([parseFloat(localMaxAR), parseFloat(event.target.value)])
+      setMaxAR(event.target.value)
       setMinAR(localMaxAR)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 11) {
       setValueAR([parseFloat(event.target.value), parseFloat(props.filters.max_ar)])
       filter_tmp.min_ar = event.target.value
+    } else if(event.target.value.length == 0){
+      filter_tmp.min_ar = 0
+      setValueAR([0, props.filters.max_ar])
     } else {
       filter_tmp.min_ar = 0
-      setMinAR(0)
+      setMinAR("0")
       setValueAR([0, props.filters.max_ar])
     }
     props.setFilters(filter_tmp)
@@ -122,19 +125,22 @@ export const Sliders = React.memo(function Sliders(props: Input) {
 
   const handleMaxAR = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    setMaxAR(parseFloat(event.target.value))
+    setMaxAR(event.target.value)
     if (parseFloat(event.target.value) < props.filters.min_ar && parseFloat(event.target.value) <= 11) {
-      filter_tmp.max_ar = localMinAR
+      filter_tmp.max_ar = parseFloat(localMinAR)
       filter_tmp.min_ar = parseFloat(event.target.value)
-      setValueAR([parseFloat(event.target.value), localMinAR])
-      setMinAR(parseFloat(event.target.value))
+      setValueAR([parseFloat(event.target.value), parseFloat(localMinAR)])
+      setMinAR(event.target.value)
       setMaxAR(localMinAR)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 11) {
       setValueAR([parseFloat(props.filters.min_ar), parseFloat(event.target.value)])
       filter_tmp.max_ar = event.target.value
+    } else if(event.target.value.length == 0){
+      filter_tmp.max_ar = 11
+      setValueAR([props.filters.min_ar, 11])
     } else {
       filter_tmp.max_ar = 11
-      setMaxAR(11)
+      setMaxAR("11")
       setValueAR([props.filters.min_ar, 11])
     }
     props.setFilters(filter_tmp)
@@ -142,19 +148,22 @@ export const Sliders = React.memo(function Sliders(props: Input) {
 
   const handleMinCS = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    setMinCS(parseFloat(event.target.value))
+    setMinCS(event.target.value)
     if (parseFloat(event.target.value) > props.filters.max_cs && parseFloat(event.target.value) <= 10) {
-      filter_tmp.min_cs = localMaxCS
+      filter_tmp.min_cs = parseFloat(localMaxCS)
       filter_tmp.max_cs = parseFloat(event.target.value)
-      setValueCS([localMaxCS, parseFloat(event.target.value)])
-      setMaxCS(parseFloat(event.target.value))
+      setValueCS([parseFloat(localMaxCS), parseFloat(event.target.value)])
+      setMaxCS(event.target.value)
       setMinCS(localMaxCS)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 10) {
       setValueCS([parseFloat(event.target.value), parseFloat(props.filters.max_cs)])
       filter_tmp.min_cs = event.target.value
+    } else if(event.target.value.length == 0){
+      filter_tmp.min_cs = 0
+      setValueCS([0, props.filters.max_cs])
     } else {
       filter_tmp.min_cs = 0
-      setMinCS(0)
+      setMinCS("0")
       setValueCS([0, props.filters.max_cs])
     }
     props.setFilters(filter_tmp)
@@ -162,19 +171,22 @@ export const Sliders = React.memo(function Sliders(props: Input) {
 
   const handleMaxCS = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    setMaxCS(parseFloat(event.target.value))
+    setMaxCS(event.target.value)
     if (parseFloat(event.target.value) < props.filters.min_cs && parseFloat(event.target.value) <= 10) {
-      filter_tmp.max_cs = localMinCS
+      filter_tmp.max_cs = parseFloat(localMinCS)
       filter_tmp.min_cs = parseFloat(event.target.value)
-      setValueCS([parseFloat(event.target.value), localMinCS])
-      setMinCS(parseFloat(event.target.value))
+      setValueCS([parseFloat(event.target.value), parseFloat(localMinCS)])
+      setMinCS(event.target.value)
       setMaxCS(localMinCS)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueCS([parseFloat(props.filters.min_cs), parseFloat(event.target.value)])
       filter_tmp.max_cs = event.target.value
+    } else if(event.target.value.length == 0){
+      filter_tmp.max_cs = 10
+      setValueCS([props.filters.min_cs, 10])
     } else {
       filter_tmp.max_cs = 10
-      setMaxCS(10)
+      setMaxCS("10")
       setValueCS([props.filters.min_cs, 10])
     }
     props.setFilters(filter_tmp)
@@ -182,19 +194,22 @@ export const Sliders = React.memo(function Sliders(props: Input) {
 
   const handleMinDiff = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    setMinDiff(parseFloat(event.target.value))
+    setMinDiff(event.target.value)
     if (parseFloat(event.target.value) > props.filters.max_diff && parseFloat(event.target.value) <= 15) {
-      filter_tmp.min_diff = localMaxDiff
+      filter_tmp.min_diff = parseFloat(localMaxDiff)
       filter_tmp.max_diff = parseFloat(event.target.value)
-      setValueStars([localMaxDiff, parseFloat(event.target.value)])
-      setMaxDiff(parseFloat(event.target.value))
+      setValueStars([parseFloat(localMaxDiff), parseFloat(event.target.value)])
+      setMaxDiff(event.target.value)
       setMinDiff(localMaxDiff)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueStars([parseFloat(event.target.value), parseFloat(props.filters.max_diff)])
       filter_tmp.min_diff = event.target.value
+    } else if(event.target.value.length == 0){
+      filter_tmp.min_diff = 0
+      setValueStars([0, props.filters.max_diff])
     } else {
       filter_tmp.min_diff = 0
-      setMinDiff(0)
+      setMinDiff("0")
       setValueStars([0, props.filters.max_diff])
     }
     props.setFilters(filter_tmp)
@@ -202,19 +217,22 @@ export const Sliders = React.memo(function Sliders(props: Input) {
 
   const handleMaxDiff = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    setMaxDiff(parseFloat(event.target.value))
+    setMaxDiff(event.target.value)
     if (parseFloat(event.target.value) < props.filters.min_diff && parseFloat(event.target.value) <= 15) {
-      filter_tmp.max_diff = localMinDiff
+      filter_tmp.max_diff = parseFloat(localMinDiff)
       filter_tmp.min_diff = parseFloat(event.target.value)
-      setValueStars([parseFloat(event.target.value), localMinDiff])
-      setMinDiff(parseFloat(event.target.value))
+      setValueStars([parseFloat(event.target.value), parseFloat(localMinDiff)])
+      setMinDiff(event.target.value)
       setMaxDiff(localMinDiff)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueStars([parseFloat(props.filters.min_diff), parseFloat(event.target.value)])
       filter_tmp.max_diff = event.target.value
+    } else if(event.target.value.length == 0){
+      filter_tmp.max_diff = 15
+      setValueStars([props.filters.min_diff, 15])
     } else {
       filter_tmp.max_diff = 15
-      setMaxDiff(15)
+      setMaxDiff("15")
       setValueStars([props.filters.min_diff, 15])
     }
     props.setFilters(filter_tmp)
