@@ -10,13 +10,6 @@ module.exports = {
         use: "ts-loader",
         exclude: /node_modules/,
       },
-      {
-        test: /\.(png)$/i,
-        loader: 'file-loader',
-        options: {
-          name: 'favicon/[name].[ext]',
-        },
-      },
     ],
   },
   resolve: {
