@@ -112,7 +112,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 11) {
       setValueAR([parseFloat(event.target.value), parseFloat(props.filters.max_ar)])
       filter_tmp.min_ar = event.target.value
-    } else if(event.target.value.length == 0){
+    } else if (event.target.value.length == 0) {
       filter_tmp.min_ar = 0
       setValueAR([0, props.filters.max_ar])
     } else {
@@ -135,7 +135,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 11) {
       setValueAR([parseFloat(props.filters.min_ar), parseFloat(event.target.value)])
       filter_tmp.max_ar = event.target.value
-    } else if(event.target.value.length == 0){
+    } else if (event.target.value.length == 0) {
       filter_tmp.max_ar = 11
       setValueAR([props.filters.min_ar, 11])
     } else {
@@ -158,7 +158,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 10) {
       setValueCS([parseFloat(event.target.value), parseFloat(props.filters.max_cs)])
       filter_tmp.min_cs = event.target.value
-    } else if(event.target.value.length == 0){
+    } else if (event.target.value.length == 0) {
       filter_tmp.min_cs = 0
       setValueCS([0, props.filters.max_cs])
     } else {
@@ -181,7 +181,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueCS([parseFloat(props.filters.min_cs), parseFloat(event.target.value)])
       filter_tmp.max_cs = event.target.value
-    } else if(event.target.value.length == 0){
+    } else if (event.target.value.length == 0) {
       filter_tmp.max_cs = 10
       setValueCS([props.filters.min_cs, 10])
     } else {
@@ -204,7 +204,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueStars([parseFloat(event.target.value), parseFloat(props.filters.max_diff)])
       filter_tmp.min_diff = event.target.value
-    } else if(event.target.value.length == 0){
+    } else if (event.target.value.length == 0) {
       filter_tmp.min_diff = 0
       setValueStars([0, props.filters.max_diff])
     } else {
@@ -227,7 +227,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueStars([parseFloat(props.filters.min_diff), parseFloat(event.target.value)])
       filter_tmp.max_diff = event.target.value
-    } else if(event.target.value.length == 0){
+    } else if (event.target.value.length == 0) {
       filter_tmp.max_diff = 15
       setValueStars([props.filters.min_diff, 15])
     } else {
