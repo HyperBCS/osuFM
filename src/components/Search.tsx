@@ -92,6 +92,9 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
   const [indetermineDT, setDTindet] = React.useState(false);
   const [checkedDT, setDTcheck] = React.useState(false);
 
+  const [indetermineHT, setHTindet] = React.useState(false);
+  const [checkedHT, setHTcheck] = React.useState(false);
+
   const [indetermineHD, setHDindet] = React.useState(false);
   const [checkedHD, setHDcheck] = React.useState(false);
 
@@ -164,6 +167,18 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
       } else if (indetermineDT && checkedDT) {
         setDTcheck(false)
         setDTindet(false)
+      }
+    }
+
+    if (event.target.value == "256") {
+      if (!indetermineHT && !checkedHT) {
+        setHTcheck(true)
+        setHTindet(false)
+      } else if (!indetermineHT && checkedHT) {
+        setHTindet(true)
+      } else if (indetermineHT && checkedHT) {
+        setHTcheck(false)
+        setHTindet(false)
       }
     }
 
@@ -364,6 +379,8 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     }
     setDTcheck(false)
     setDTindet(false)
+    setHTcheck(false)
+    setHTindet(false)
     setHDcheck(false)
     setHDindet(false)
     setHRcheck(false)
@@ -395,6 +412,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     filter_tmp.req_mods = 0
     filter_tmp.opt_mods = 0
     if (checkedDT && !indetermineDT) (filter_tmp.req_mods += 64)
+    if (checkedHT && !indetermineHT) (filter_tmp.req_mods += 256)
     if (checkedHD && !indetermineHD) (filter_tmp.req_mods += 8)
     if (checkedHR && !indetermineHR) (filter_tmp.req_mods += 16)
     if (checkedEZ && !indetermineEZ) (filter_tmp.req_mods += 2)
@@ -402,6 +420,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     if (checkedNO && !indetermineNO) (filter_tmp.req_mods += -1)
 
     if (indetermineDT) (filter_tmp.opt_mods += 64)
+    if (indetermineHT) (filter_tmp.opt_mods += 256)
     if (indetermineHD) (filter_tmp.opt_mods += 8)
     if (indetermineHR) (filter_tmp.opt_mods += 16)
     if (indetermineEZ) (filter_tmp.opt_mods += 2)
@@ -483,6 +502,12 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                 <FormControlLabel className={classes.radio}
                   control={<Checkbox onChange={handleModChecked} value={64} checked={checkedDT} indeterminate={indetermineDT} name="DT" />}
                   label="Double Time"
+                />
+              </Grid>
+              <Grid item xs={6} md>
+                <FormControlLabel className={classes.radio}
+                  control={<Checkbox onChange={handleModChecked} value={256} checked={checkedHT} indeterminate={indetermineHT} name="HT" />}
+                  label="Half Time"
                 />
               </Grid>
               <Grid item xs={6} md>
