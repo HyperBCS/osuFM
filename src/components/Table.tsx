@@ -207,7 +207,9 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
                     <TableCell align="left">
                       <Grid container>
                         <Grid item style={{ marginRight: 'auto' }}>
-                          <img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg'} width="80" height="60"></img>
+                          <Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}>
+                            <img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg'} width="80" height="60"></img>
+                          </Link>
                         </Grid>
                         <Grid item xs><Box ml={1}><Typography variant="subtitle1" display={"inline"}><Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}>{row.artist} - {row.name} [{row.version}]</Link></Typography>
                           <br></br>
@@ -269,11 +271,11 @@ export default function DataTable(props: { mapData: any; setMapData: any, result
                 {props.mapData.map((row: any) => (
                   <TableRow key={row.bid.toString() + row.pop_mod.toString() + row.mode.toString()}>
                     <TableCell align="left">{row.pos}</TableCell>
-                    <TableCell><img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg' } width="80" height="60"></img></TableCell>
+                    <TableCell><Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}><img src={"https://b.ppy.sh/thumb/" + row.sid + '.jpg'} width="80" height="60"></img></Link></TableCell>
                     <TableCell component="th" scope="row">
                       <Typography variant="subtitle1"><Link color="inherit" href={"https://osu.ppy.sh/b/" + row.bid}>{row.artist} - {row.name} [{row.version}]</Link></Typography>
                       <Typography color="textSecondary" className={classes.typography}>{(row.mode != 3 && row.mode != 1) ? "AR: " + row.ar.toFixed(1) : ""} {(row.mode != 1) ? ((row.mode == 3) ? "Keys: " + row.cs.toFixed(0) : "CS: " + row.cs.toFixed(1)) : ""} OD: {row.od.toFixed(1)}</Typography >
-                      <Tooltip title={format(new Date(row.date_ranked * 1000), "MMM-dd-yyyy")}  placement="bottom" arrow><Typography color="textSecondary" display="inline" className={classes.typography}>Ranked: {formatDistance(new Date(row.date_ranked * 1000), new Date())} ago</Typography ></Tooltip>
+                      <Tooltip title={format(new Date(row.date_ranked * 1000), "MMM-dd-yyyy")} placement="bottom" arrow><Typography color="textSecondary" display="inline" className={classes.typography}>Ranked: {formatDistance(new Date(row.date_ranked * 1000), new Date())} ago</Typography ></Tooltip>
                     </TableCell>
                     <TableCell align="center"><Box fontSize={"1.5rem"} fontWeight="fontWeightBold">{row.score.toFixed(2)}</Box></TableCell>
                     <TableCell align="center">{row.avg_pp.toFixed(2)}</TableCell>
