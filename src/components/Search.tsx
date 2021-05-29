@@ -482,7 +482,8 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                   placeholder="Search..."
                   value={localSearch}
                   onChange={handleSearch}
-                  inputProps={{ 'aria-label': 'search', className: classes.input }}
+                  autoComplete="off"
+                  inputProps={{ 'aria-label': 'search', className: classes.input, autocorrect: "off", autocapitalize: "off", spellcheck: "false"  }}
                 />
               </div>
             </Box>
