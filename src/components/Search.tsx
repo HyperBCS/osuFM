@@ -626,6 +626,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       KeyboardButtonProps={{
                         'aria-label': 'change time',
                       }}
+                      inputProps={{ inputMode: 'numeric' }}
                     />
                   </Box>
                 </Grid>
@@ -646,6 +647,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       KeyboardButtonProps={{
                         'aria-label': 'change time',
                       }}
+                      inputProps={{ inputMode: 'numeric' }}
                     />
                   </Box>
                 </Grid>
