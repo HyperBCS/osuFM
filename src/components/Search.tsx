@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Toolbar from '@material-ui/core/Toolbar';
 import Button from '@material-ui/core/Button';
@@ -25,6 +25,7 @@ import {
   DatePicker,
 } from '@material-ui/pickers';
 import { Sliders } from './Sliders'
+import { Profiles } from './Profiles'
 
 
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
@@ -87,6 +88,8 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
 
   const [open, setOpen] = React.useState(true);
 
+  const [profileOpen, setProfileOpen] = React.useState(false);
+
   const [localSearch, setSearch] = React.useState("");
 
   const [indetermineDT, setDTindet] = React.useState(false);
@@ -113,16 +116,18 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
   const [localMinPP, setMinPP] = React.useState("");
   const [localMaxPP, setMaxPP] = React.useState("");
 
-  const [localMinDate, setMinDate] = React.useState(new Date('2007-09-16T00:00:01'));
-  const [localMaxDate, setMaxDate] = React.useState(new Date());
+  const [localMinDate, setMinDate] = React.useState(new Date('2007-09-16T00:00:01').valueOf());
+  const [localMaxDate, setMaxDate] = React.useState(new Date().valueOf());
 
-  const [localMinLen, setMinLen] = React.useState(new Date('2007-09-16T00:00:00'));
-  const [localMaxLen, setMaxLen] = React.useState(new Date('2007-09-16T23:59:59'));
+  const [localMinLen, setMinLen] = React.useState(new Date('2007-09-16T00:00:00').valueOf());
+  const [localMaxLen, setMaxLen] = React.useState(new Date('2007-09-16T23:59:59').valueOf());
 
   const [localMinBPM, setMinBPM] = React.useState("");
   const [localMaxBPM, setMaxBPM] = React.useState("");
 
   const [reset, setReset] = React.useState(false);
+
+  const [refresh, setRefresh] = React.useState(false);
 
   const [filterToggle, setFilterToggle] = React.useState(true);
 
@@ -133,6 +138,10 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
   const [modeString, setModeString] = React.useState("Standard");
   const [modeVal, setModeVal] = React.useState(0);
 
+  const handleClickOpen = () => {
+
+    setProfileOpen(true);
+  };
 
 
   const handleSearch = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -262,7 +271,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     if (date == null) return
     let tmp_date = date.valueOf() / 1000
     if (isNaN(tmp_date)) return
-    setMinDate(date)
+    setMinDate(date.valueOf())
     let filter_tmp = props.filters
     filter_tmp.min_date = tmp_date
     props.setFilters(filter_tmp);
@@ -271,7 +280,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     if (date == null) return
     let tmp_date = date.valueOf() / 1000
     if (isNaN(tmp_date)) return
-    setMaxDate(date)
+    setMaxDate(date.valueOf())
     let filter_tmp = props.filters
     filter_tmp.max_date = tmp_date
     props.setFilters(filter_tmp);
@@ -280,7 +289,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     if (date == null) return
     let tmp_date = date.getMinutes() * 60 + date.getSeconds();
     if (isNaN(tmp_date)) return
-    setMinLen(date)
+    setMinLen(date.valueOf())
     let filter_tmp = props.filters
     filter_tmp.min_len = tmp_date
     props.setFilters(filter_tmp);
@@ -289,7 +298,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     if (date == null) return
     let tmp_date = date.getMinutes() * 60 + date.getSeconds();
     if (isNaN(tmp_date)) return
-    setMaxLen(date)
+    setMaxLen(date.valueOf())
     let filter_tmp = props.filters
     filter_tmp.max_len = tmp_date
     props.setFilters(filter_tmp);
@@ -354,6 +363,53 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     return true
   }
 
+  const updateCheckBox = () => {
+    let tmp_filter = updateMods()
+    props.setFilters(tmp_filter)
+  }
+
+  useEffect(() => {
+    updateCheckBox()
+  });
+
+  const handleFilterRefresh = async (filters: any) => {
+    setRefresh(true)
+    if (Math.abs(filters.req_mods % 2) == 1) {
+      filters.req_mods += 1
+      setNOcheck(true)
+    }
+    if (Math.abs(filters.opt_mods % 2) == 1) {
+      filters.opt_mods += 1
+      setNOindet(true)
+    }
+    setDTcheck((filters.req_mods & 64) > 0 || (filters.opt_mods & 64) > 0)
+    setDTindet((filters.opt_mods & 64) > 0)
+    setHTcheck((filters.req_mods & 256) > 0 || (filters.opt_mods & 256) > 0)
+    setHTindet((filters.opt_mods & 256) > 0)
+    setHDcheck((filters.req_mods & 8) > 0 || (filters.opt_mods & 8) > 0)
+    setHDindet((filters.opt_mods & 8) > 0)
+    setHRcheck((filters.req_mods & 16) > 0 || (filters.opt_mods & 16) > 0)
+    setHRindet((filters.opt_mods & 16) > 0)
+    setEZcheck((filters.req_mods & 2) > 0 || (filters.opt_mods & 2) > 0)
+    setEZindet((filters.opt_mods & 2) > 0)
+    setFLcheck((filters.req_mods & 1024) > 0 || (filters.opt_mods & 1024) > 0)
+    setFLindet((filters.opt_mods & 1024) > 0)
+
+    setMinPP((filters.min_pp == 0) ? "" : filters.min_pp)
+    setMaxPP((filters.max_pp == Number.MAX_SAFE_INTEGER) ? "" : filters.max_pp)
+    setMinBPM((filters.min_bpm == 0) ? "" : filters.min_bpm)
+    setMaxBPM((filters.max_pp == Number.MAX_SAFE_INTEGER) ? "" : filters.max_pp)
+    setSearch(filters.search)
+    setMinDate(new Date(filters.min_date * 1000).valueOf());
+    setMaxDate(new Date(filters.max_date * 1000).valueOf());
+    setMinLen(new Date(filters.min_len * 1000).valueOf())
+    setMaxLen(new Date(filters.max_len * 1000).valueOf())
+    updateMaps(0, props.rowsPerPage, filters)
+    props.setPage(0)
+    props.setFilters(filters)
+
+  }
+
   const handleFilterReset = async () => {
     setReset(true)
     let filter_tmp = {
@@ -364,10 +420,10 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
       opt_mods: 0,
       min_pp: 0,
       max_pp: Number.MAX_SAFE_INTEGER,
-      min_date: 0,
-      max_date: Number.MAX_SAFE_INTEGER,
-      min_len: 0,
-      max_len: Number.MAX_SAFE_INTEGER,
+      min_date: new Date('2007-09-16T00:00:01').valueOf() / 1000,
+      max_date: new Date().valueOf() / 1000,
+      min_len: new Date('2007-09-16T00:00:00').getMinutes() * 60 + new Date('2007-09-16T00:00:00').getSeconds(),
+      max_len: new Date('2007-09-16T23:59:59').getMinutes() * 60 + new Date('2007-09-16T23:59:59').getSeconds(),
       min_bpm: 0,
       max_bpm: Number.MAX_SAFE_INTEGER,
       min_diff: 0,
@@ -396,18 +452,17 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     setMinBPM("")
     setMaxBPM("")
     setSearch("")
-    setMinDate(new Date('2007-09-16T00:00:01'));
-    setMaxDate(new Date());
-    setMinLen(new Date('2007-09-16T00:00:00'))
-    setMaxLen(new Date('2007-09-16T23:59:59'))
+    setMinDate(new Date('2007-09-16T00:00:01').valueOf());
+    setMaxDate(new Date().valueOf());
+    setMinLen(new Date('2007-09-16T00:00:00').valueOf())
+    setMaxLen(new Date('2007-09-16T23:59:59').valueOf())
     updateMaps(0, props.rowsPerPage, filter_tmp)
     props.setPage(0)
     props.setFilters(filter_tmp)
 
   }
 
-
-  const handleFilterApply = async () => {
+  const updateMods = () => {
     let filter_tmp = props.filters
     filter_tmp.req_mods = 0
     filter_tmp.opt_mods = 0
@@ -431,49 +486,72 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     } else {
       filter_tmp.mods_enabled = false
     }
+    return filter_tmp
+  }
+
+
+  const handleFilterApply = async () => {
+    let filter_tmp = updateMods()
     updateMaps(0, props.rowsPerPage, filter_tmp)
     props.setFilters(filter_tmp)
   }
 
   return (
     <div className={classes.root}>
+      <Profiles handleRefresh={handleFilterRefresh} profileOpen={profileOpen} setProfileOpen={setProfileOpen} filters={props.filters} setFilters={props.setFilters}></Profiles>
       <AppBar position="static" style={{ background: '#3f51b5' }}>
         <Toolbar>
           <Grid container justify="center">
             <Box>
-              <FormControl>
-                <Button aria-controls="simple-menu" variant="contained" color="secondary" className={classes.button} startIcon={modeDropdownIcon} id="modeSelect" aria-haspopup="true" onClick={handleMode}>
-                  {modeString}
-                </Button>
-                <Menu
-                  id="simple-menu"
-                  anchorEl={anchorEl}
-                  keepMounted
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                  getContentAnchorEl={null}
-                  anchorOrigin={{
-                    vertical: "bottom",
-                    horizontal: "left"
-                  }}
-                >
-                  <MenuItem onClick={handleClose} value={0}>Standard</MenuItem>
-                  <MenuItem onClick={handleClose} value={1}>Taiko</MenuItem>
-                  <MenuItem onClick={handleClose} value={2}>Catch the Beat</MenuItem>
-                  <MenuItem onClick={handleClose} value={3}>Mania</MenuItem>
-                  <Divider></Divider>
-                  <MenuItem onClick={handleClose} value={4}>All</MenuItem>
-                </Menu>
-              </FormControl>
-              <Button
-                onClick={handleFilter}
-                variant="contained"
-                color="secondary"
-                className={classes.button}
-                startIcon={filterIcon}
-              >
-                Filters
+              <Grid container justify="center">
+                <Grid item>
+                  <FormControl>
+                    <Button aria-controls="simple-menu" variant="contained" color="secondary" className={classes.button} startIcon={modeDropdownIcon} id="modeSelect" aria-haspopup="true" onClick={handleMode}>
+                      {modeString}
+                    </Button>
+                    <Menu
+                      id="simple-menu"
+                      anchorEl={anchorEl}
+                      keepMounted
+                      open={Boolean(anchorEl)}
+                      onClose={handleClose}
+                      getContentAnchorEl={null}
+                      anchorOrigin={{
+                        vertical: "bottom",
+                        horizontal: "left"
+                      }}
+                    >
+                      <MenuItem onClick={handleClose} value={0}>Standard</MenuItem>
+                      <MenuItem onClick={handleClose} value={1}>Taiko</MenuItem>
+                      <MenuItem onClick={handleClose} value={2}>Catch the Beat</MenuItem>
+                      <MenuItem onClick={handleClose} value={3}>Mania</MenuItem>
+                      <Divider></Divider>
+                      <MenuItem onClick={handleClose} value={4}>All</MenuItem>
+                    </Menu>
+                  </FormControl>
+                </Grid>
+                <Grid item>
+                  <Button
+                    onClick={handleFilter}
+                    variant="contained"
+                    color="secondary"
+                    className={classes.button}
+                    startIcon={filterIcon}
+                  >
+                    Filters
       </Button>
+                </Grid>
+                <Grid item>
+                  <Button
+                    onClick={handleClickOpen}
+                    variant="contained"
+                    color="secondary"
+                    className={classes.button}
+                  >
+                    Profiles
+      </Button>
+                </Grid>
+              </Grid>
             </Box>
             <Box m={0} p={0} flexGrow={1}>
               <div className={classes.search}>
@@ -483,7 +561,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                   value={localSearch}
                   onChange={handleSearch}
                   autoComplete="off"
-                  inputProps={{ 'aria-label': 'search', className: classes.input, autocorrect: "off", autocapitalize: "off", spellcheck: "false"  }}
+                  inputProps={{ 'aria-label': 'search', className: classes.input, autoCorrect: "off", autoCapitalize: "off", spellCheck: "false" }}
                 />
               </div>
             </Box>
@@ -579,7 +657,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       margin="normal"
                       id="beginDatePicker"
                       label="Begin Date"
-                      value={localMinDate}
+                      value={new Date(localMinDate)}
                       onChange={handleMinDate}
                     />
                   </Box>
@@ -594,7 +672,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       margin="normal"
                       id="endDatePicker"
                       label="End Date"
-                      value={localMaxDate}
+                      value={new Date(localMaxDate)}
                       onChange={handleMaxDate}
                     />
                   </Box>
@@ -620,7 +698,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       margin="normal"
                       id="minLenPicker"
                       label="Min Length"
-                      value={localMinLen}
+                      value={new Date(localMinLen)}
                       onChange={handleMinLen}
                       keyboardIcon={<QueryBuilderIcon />}
                       KeyboardButtonProps={{
@@ -641,7 +719,7 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
                       margin="normal"
                       id="maxLenPicker"
                       label="Max Length"
-                      value={localMaxLen}
+                      value={new Date(localMaxLen)}
                       onChange={handleMaxLen}
                       keyboardIcon={<QueryBuilderIcon />}
                       KeyboardButtonProps={{
@@ -687,6 +765,8 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
             mode={modeVal}
             reset={reset}
             setReset={setReset}
+            refresh={refresh}
+            setRefresh={setRefresh}
           />
           <br></br>
           <Grid container item justify="space-evenly" alignContent="center" spacing={2}>

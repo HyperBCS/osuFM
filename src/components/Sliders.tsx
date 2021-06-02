@@ -8,6 +8,8 @@ interface Input {
   setFilters: any;
   mode: any;
   reset: any;
+  refresh: any;
+  setRefresh: any;
   setReset: any;
 }
 
@@ -30,7 +32,6 @@ function ValueLabelComponent(props: Props) {
 
 export const Sliders = React.memo(function Sliders(props: Input) {
 
-
   const [localMinDiff, setMinDiff] = React.useState("0");
   const [localMaxDiff, setMaxDiff] = React.useState("15");
 
@@ -46,6 +47,19 @@ export const Sliders = React.memo(function Sliders(props: Input) {
 
   const [valueCS, setValueCS] = React.useState<number[]>([0, 10]);
 
+
+  function doRefresh() {
+    props.setRefresh(false)
+    setMinDiff(props.filters.min_diff)
+    setMaxDiff(props.filters.max_diff)
+    setMinAR(props.filters.min_ar)
+    setMaxAR(props.filters.max_ar)
+    setMinCS(props.filters.min_cs)
+    setMaxCS(props.filters.max_cs)
+    setValueStars([props.filters.min_diff, props.filters.max_diff])
+    setValueAR([props.filters.min_ar, props.filters.max_ar])
+    setValueCS([props.filters.min_cs, props.filters.max_cs])
+  }
 
   function doReset() {
     props.setReset(false)
@@ -63,6 +77,8 @@ export const Sliders = React.memo(function Sliders(props: Input) {
   useEffect(() => {
     if (props.reset) {
       doReset()
+    } else if (props.refresh) {
+      doRefresh()
     }
   });
 
@@ -111,7 +127,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       setMinAR(localMaxAR)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 11) {
       setValueAR([parseFloat(event.target.value), parseFloat(props.filters.max_ar)])
-      filter_tmp.min_ar = event.target.value
+      filter_tmp.min_ar = parseFloat(event.target.value)
     } else if (event.target.value.length == 0) {
       filter_tmp.min_ar = 0
       setValueAR([0, props.filters.max_ar])
@@ -134,7 +150,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       setMaxAR(localMinAR)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 11) {
       setValueAR([parseFloat(props.filters.min_ar), parseFloat(event.target.value)])
-      filter_tmp.max_ar = event.target.value
+      filter_tmp.max_ar = parseFloat(event.target.value)
     } else if (event.target.value.length == 0) {
       filter_tmp.max_ar = 11
       setValueAR([props.filters.min_ar, 11])
@@ -157,7 +173,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       setMinCS(localMaxCS)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 10) {
       setValueCS([parseFloat(event.target.value), parseFloat(props.filters.max_cs)])
-      filter_tmp.min_cs = event.target.value
+      filter_tmp.min_cs = parseFloat(event.target.value)
     } else if (event.target.value.length == 0) {
       filter_tmp.min_cs = 0
       setValueCS([0, props.filters.max_cs])
@@ -180,7 +196,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       setMaxCS(localMinCS)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueCS([parseFloat(props.filters.min_cs), parseFloat(event.target.value)])
-      filter_tmp.max_cs = event.target.value
+      filter_tmp.max_cs = parseFloat(event.target.value)
     } else if (event.target.value.length == 0) {
       filter_tmp.max_cs = 10
       setValueCS([props.filters.min_cs, 10])
@@ -203,7 +219,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       setMinDiff(localMaxDiff)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueStars([parseFloat(event.target.value), parseFloat(props.filters.max_diff)])
-      filter_tmp.min_diff = event.target.value
+      filter_tmp.min_diff = parseFloat(event.target.value)
     } else if (event.target.value.length == 0) {
       filter_tmp.min_diff = 0
       setValueStars([0, props.filters.max_diff])
@@ -226,7 +242,7 @@ export const Sliders = React.memo(function Sliders(props: Input) {
       setMaxDiff(localMinDiff)
     } else if (parseFloat(event.target.value) >= 0 && parseFloat(event.target.value) <= 15) {
       setValueStars([parseFloat(props.filters.min_diff), parseFloat(event.target.value)])
-      filter_tmp.max_diff = event.target.value
+      filter_tmp.max_diff = parseFloat(event.target.value)
     } else if (event.target.value.length == 0) {
       filter_tmp.max_diff = 15
       setValueStars([props.filters.min_diff, 15])

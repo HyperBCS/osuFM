@@ -589,7 +589,8 @@ sqliteCursor.executescript('''
     DROP TABLE old_beatmaps;
     COMMIT TRANSACTION;''')
 
-q1 = """CREATE INDEX "loaderHelp" ON "beatmaps" (
+sqliteCursor.executescript(
+    """CREATE INDEX "loaderHelp" ON "beatmaps" (
 	"mode",
 	"score"	DESC
 );
@@ -605,12 +606,11 @@ CREATE INDEX "searchHelp" ON "beatmaps" (
 	"pop_mod"	DESC,
 	"avg_pp"	DESC
 );
-"""
+""")
 q2 = "pragma journal_mode = delete;"
 q3 = "pragma page_size = 4096;"
 
 q4 = "VACUUM;"
-sqliteCursor.execute(q1)
 sqliteCursor.execute(q2)
 sqliteCursor.execute(q3)
 sqliteCursor.execute(q4)

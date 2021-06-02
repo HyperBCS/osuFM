@@ -10,16 +10,17 @@ import Scroll from './components/Scroll'
 
 
 let Filters = {
+  search: "",
   mode: 0,
   mods_enabled: false,
   req_mods: 0,
   opt_mods: 0,
   min_pp: 0,
   max_pp: Number.MAX_SAFE_INTEGER,
-  min_date: 0,
-  max_date: Number.MAX_SAFE_INTEGER,
-  min_len: 0,
-  max_len: Number.MAX_SAFE_INTEGER,
+  min_date: new Date('2007-09-16T00:00:01').valueOf() / 1000,
+  max_date: new Date().valueOf() / 1000,
+  min_len: new Date('2007-09-16T00:00:00').getMinutes() * 60 +  new Date('2007-09-16T00:00:00').getSeconds() ,
+  max_len: new Date('2007-09-16T23:59:59').getMinutes() * 60 +  new Date('2007-09-16T23:59:59').getSeconds() ,
   min_bpm: 0,
   max_bpm: Number.MAX_SAFE_INTEGER,
   min_diff: 0,
@@ -27,8 +28,7 @@ let Filters = {
   min_ar: 0,
   max_ar: 11,
   min_cs: 0,
-  max_cs: 10,
-  search: ""
+  max_cs: 10
 }
 
 function App() {
