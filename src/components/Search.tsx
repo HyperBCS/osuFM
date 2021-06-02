@@ -5,14 +5,14 @@ import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography';
 import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
-import { Collapse, FormGroup } from '@material-ui/core';
+import { ClickAwayListener, Collapse, FormGroup, Grow, Paper, Popper } from '@material-ui/core';
 import Grid from '@material-ui/core/Grid';
 import Checkbox from '@material-ui/core/Checkbox';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import TextField from '@material-ui/core/TextField';
 import Hidden from '@material-ui/core/Hidden';
 import FormControl from '@material-ui/core/FormControl';
-import Menu from '@material-ui/core/Menu';
+import MenuList from '@material-ui/core/MenuList';
 import MenuItem from '@material-ui/core/MenuItem';
 import Divider from '@material-ui/core/Divider';
 import Box from '@material-ui/core/Box';
@@ -64,6 +64,9 @@ const useStyles = makeStyles((theme: Theme) =>
         borderBottomColor: 'rgba(255, 255, 255, 0.7)', // Solid underline on focus
       },
     },
+    modeMenu: {
+      zIndex: 1500
+    },
   }),
 );
 
@@ -87,6 +90,10 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(true);
+
+  const [modeOpen, setmodeOpen] = React.useState(false);
+
+  const anchorRef = React.useRef<HTMLButtonElement>(null);
 
   const [profileOpen, setProfileOpen] = React.useState(false);
 
@@ -143,6 +150,10 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     setProfileOpen(true);
   };
 
+  const handleToggle = () => {
+    setModeIcon(<ArrowDropUpIcon />)
+    setmodeOpen(!modeOpen);
+  };
 
   const handleSearch = async (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
@@ -318,27 +329,24 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
     setMaxBPM(event.target.value)
   };
 
-
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-
-  const handleMode = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setModeIcon(<ArrowDropUpIcon />)
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleClose = async (event: React.MouseEvent<HTMLLIElement>) => {
+  const handleClose = async (event: React.MouseEvent<EventTarget>) => {
     setModeIcon(<ArrowDropDownIcon />)
-    setAnchorEl(null);
-    if (event.currentTarget.innerText.length != 0) {
-      setModeString(event.currentTarget.innerText)
-      setModeVal(event.currentTarget.value)
-      let filter_tmp = props.filters
-      filter_tmp.mode = event.currentTarget.value
-      props.setFilters(filter_tmp)
-      updateMaps(0, props.rowsPerPage, filter_tmp)
-      props.setFilters(filter_tmp)
+    setmodeOpen(false);
+    if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
+      return;
     }
-
+    let target = event.target as HTMLButtonElement
+    if (target.matches('.MuiListItem-root')) {
+      if (target.innerText.length != 0) {
+        setModeString(target.innerText)
+        setModeVal(parseInt(target.value))
+        let filter_tmp = props.filters
+        filter_tmp.mode = target.value
+        props.setFilters(filter_tmp)
+        updateMaps(0, props.rowsPerPage, filter_tmp)
+        props.setFilters(filter_tmp)
+      }
+    }
   };
 
   const updateMaps = async (page: number, rowsPerPage: number, filters: any) => {
@@ -506,28 +514,33 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
               <Grid container justify="center">
                 <Grid item>
                   <FormControl>
-                    <Button aria-controls="simple-menu" variant="contained" color="secondary" className={classes.button} startIcon={modeDropdownIcon} id="modeSelect" aria-haspopup="true" onClick={handleMode}>
+                    <Button aria-controls="simple-menu" variant="contained" color="secondary" className={classes.button} startIcon={modeDropdownIcon} id="modeSelect" aria-haspopup="true" ref={anchorRef} onClick={handleToggle}>
                       {modeString}
                     </Button>
-                    <Menu
-                      id="simple-menu"
-                      anchorEl={anchorEl}
-                      keepMounted
-                      open={Boolean(anchorEl)}
-                      onClose={handleClose}
-                      getContentAnchorEl={null}
-                      anchorOrigin={{
-                        vertical: "bottom",
-                        horizontal: "left"
-                      }}
-                    >
-                      <MenuItem onClick={handleClose} value={0}>Standard</MenuItem>
-                      <MenuItem onClick={handleClose} value={1}>Taiko</MenuItem>
-                      <MenuItem onClick={handleClose} value={2}>Catch the Beat</MenuItem>
-                      <MenuItem onClick={handleClose} value={3}>Mania</MenuItem>
-                      <Divider></Divider>
-                      <MenuItem onClick={handleClose} value={4}>All</MenuItem>
-                    </Menu>
+                    <Popper className={classes.modeMenu} open={modeOpen} placement="bottom-start" anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+                      {({ TransitionProps, placement }) => (
+                        <Grow
+                          {...TransitionProps}
+                          style={{ transformOrigin: placement === 'bottom-start' ? 'center top' : 'center bottom' }}
+                        >
+                          <Paper elevation={8}>
+                            <ClickAwayListener onClickAway={handleClose}>
+                              <MenuList
+                                id="simple-menu"
+                                autoFocusItem={modeOpen}
+                              >
+                                <MenuItem onClick={handleClose} value={0}>Standard</MenuItem>
+                                <MenuItem onClick={handleClose} value={1}>Taiko</MenuItem>
+                                <MenuItem onClick={handleClose} value={2}>Catch the Beat</MenuItem>
+                                <MenuItem onClick={handleClose} value={3}>Mania</MenuItem>
+                                <Divider></Divider>
+                                <MenuItem onClick={handleClose} value={4}>All</MenuItem>
+                              </MenuList>
+                            </ClickAwayListener>
+                          </Paper>
+                        </Grow>
+                      )}
+                    </Popper>
                   </FormControl>
                 </Grid>
                 <Grid item>
