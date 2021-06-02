@@ -125,7 +125,6 @@ export const Profiles = React.memo(function SearchBar(props: Input) {
 
     const loadProfiles = async () => {
         setInitial(true)
-        console.log("Loading profiles")
         let savedProfiles = window.localStorage.getItem("profiles")
         if (savedProfiles != null) {
             let profileParsed = JSON.parse(savedProfiles);

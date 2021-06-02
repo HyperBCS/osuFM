@@ -42,7 +42,6 @@ export default function FormDialog(props: Input) {
         if (profileName.length > 0 && !checkDuplicate(profileName)) {
             props.setProfileName(false);
             let tmp_filter = Object.assign({}, props.filters)
-            console.log(tmp_filter)
             let tmp_profile = { name: profileName, profile: tmp_filter }
             tmp_profiles.push(tmp_profile)
             props.setProfiles(tmp_profiles)
