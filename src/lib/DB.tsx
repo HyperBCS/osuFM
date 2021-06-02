@@ -76,7 +76,6 @@ export async function getMaps(page: number, rowsPerPage: number, filters: any, d
       req_mods = filters.req_mods
     }
 
-
     query_params = mode_str +
       `avg_pp BETWEEN ` + filters.min_pp + ` AND ` + filters.max_pp + ` AND ` +
       `bpm BETWEEN ` + filters.min_bpm + ` AND ` + filters.max_bpm + ` AND ` +
@@ -85,7 +84,7 @@ export async function getMaps(page: number, rowsPerPage: number, filters: any, d
       `cs BETWEEN ` + filters.min_cs + ` AND ` + filters.max_cs + ` AND ` +
       `length BETWEEN ` + filters.min_len + ` AND ` + filters.max_len + ` AND ` +
       `date_ranked BETWEEN ` + filters.min_date + ` AND ` + filters.max_date + ` AND ` +
-      `((pop_mod & ` + req_mods + ` == ` + req_mods + ` AND ` + `pop_mod & ` + opt_mods + `) OR (pop_mod == ` + req_mods + `)) `
+      `((pop_mod & ` + req_mods + ` == ` + req_mods + ` AND ` + `pop_mod & ` + opt_mods + ` AND pop_mod & ` + ~(opt_mods | req_mods) + ` == 0) OR (pop_mod == ` + req_mods + `)) `
   }
 
   if (filters.search.length > 0) {
