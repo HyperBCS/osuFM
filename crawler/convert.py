@@ -58,9 +58,9 @@ class Beatmap(object):
     avg_rank = 0
     avg_pos = 0
     
-    def __init__(self, bid, set_id, title, artist, mapper, cs, ar, od, length, bpm, diff, version, mode, date_ranked, score, pop_mod, avg_pp, avg_acc, avg_rank, avg_pos):
+    def __init__(self, bid, sid, title, artist, mapper, cs, ar, od, length, bpm, diff, version, mode, date_ranked, score, pop_mod, avg_pp, avg_acc, avg_rank, avg_pos):
         self.bid = bid
-        self.set_id = set_id
+        self.sid = sid
         self.title = title
         self.artist = artist
         self.mapper = mapper
@@ -83,7 +83,7 @@ class Beatmap(object):
     def to_dict(self):
         return {
         'bid': self.bid,
-        'sid': self.set_id,
+        'sid': self.sid,
         'name': self.title,
         'artist': self.artist,
         'mapper': self.mapper,
@@ -116,7 +116,6 @@ def loadMaps():
                                     m.version,m.mode,m.date_ranked, m.score, m.pop_mod, m.avg_pp, m.avg_acc, m.avg_rank, m.avg_pos)
         good_maps.append(b)
     print("Loaded",count,"maps from the DB")
-
 try:
     db.connect()
 except:
@@ -177,41 +176,34 @@ sqliteCursor.executescript('''
     DROP TABLE old_beatmaps;
     COMMIT TRANSACTION;''')
 
-q1 = """CREATE INDEX "queryHelper" ON "beatmaps" (
-	"score"	DESC,
-	"index",
-	"bid",
-	"sid",
-	"name",
-	"artist",
-	"mapper",
-	"version",
-	"ar",
-	"cs",
-	"od",
-	"length",
-	"bpm",
-	"diff",
+sqliteCursor.executescript(
+    """CREATE INDEX "loaderHelp" ON "beatmaps" (
 	"mode",
-	"date_ranked",
-	"pop_mod",
-	"avg_pp",
-	"avg_acc",
-	"avg_rank",
-	"avg_pos"
+	"score"	DESC
 );
-"""
+CREATE INDEX "searchHelp" ON "beatmaps" (
+	"mode"	DESC,
+	"score"	DESC,
+	"ar"	DESC,
+	"cs"	DESC,
+	"length"	DESC,
+	"bpm"	DESC,
+	"diff"	DESC,
+	"date_ranked"	DESC,
+	"pop_mod"	DESC,
+	"avg_pp"	DESC
+);
+""")
 q2 = "pragma journal_mode = delete;"
 q3 = "pragma page_size = 4096;"
 
 q4 = "VACUUM;"
-sqliteCursor.execute(q1)
 sqliteCursor.execute(q2)
 sqliteCursor.execute(q3)
 sqliteCursor.execute(q4)
 con.commit()
 con.close()
 
-# f=open("datemodified", "w")
-# f.write(str(datetime.now()))
-# f.close()
+f=open("datemodified", "w")
+f.write(str(datetime.now()))
+f.close()

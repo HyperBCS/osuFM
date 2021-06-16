@@ -542,7 +542,6 @@ for map_info in good_maps:
         print("    AVG ACC: ",map_info.avg_acc)
         print("    AVG RANK: ",map_info.avg_rank)
 
-good_maps.sort(key=lambda x:x.score, reverse=True)
 try:
     os.remove("osuDB.db")
 except:

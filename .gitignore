@@ -1,5 +1,6 @@
 *.csv
 beatmaps.csv
+datemodified
 *.hdf
 keys.cfg
 conf.json
