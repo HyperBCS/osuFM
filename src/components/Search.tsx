@@ -266,14 +266,16 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
 
   const handleMinPP = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    filter_tmp.min_pp = event.target.value
+    let pp = isNaN(parseFloat(event.target.value)) ? 0 : parseFloat(event.target.value)
+    filter_tmp.min_pp = pp
     props.setFilters(filter_tmp)
     setMinPP(event.target.value)
   };
 
   const handleMaxPP = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    filter_tmp.max_pp = event.target.value
+    let pp = isNaN(parseFloat(event.target.value)) ? Number.MAX_SAFE_INTEGER : parseFloat(event.target.value)
+    filter_tmp.max_pp = pp
     props.setFilters(filter_tmp)
     setMaxPP(event.target.value)
   };
@@ -317,14 +319,16 @@ export const SearchBar = React.memo(function SearchBar(props: Input) {
 
   const handleMinBPM = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    filter_tmp.min_bpm = event.target.value
+    let bpm = isNaN(parseFloat(event.target.value)) ? 0 : parseFloat(event.target.value)
+    filter_tmp.min_bpm = bpm
     props.setFilters(filter_tmp)
     setMinBPM(event.target.value)
   };
 
   const handleMaxBPM = (event: React.ChangeEvent<HTMLInputElement>) => {
     let filter_tmp = props.filters
-    filter_tmp.max_bpm = event.target.value
+    let bpm = isNaN(parseFloat(event.target.value)) ? Number.MAX_SAFE_INTEGER : parseFloat(event.target.value)
+    filter_tmp.max_bpm = bpm
     props.setFilters(filter_tmp)
     setMaxBPM(event.target.value)
   };

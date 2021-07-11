@@ -23,7 +23,7 @@ export default function FormDialog(props: Input) {
     const handleApply = () => {
         props.profiles.forEach(function (profile: any) {
             if (profile.name === props.selectedProfile) {
-                let tmp_profile = profile.profile
+                let tmp_profile = JSON.parse(JSON.stringify(profile.profile))
                 tmp_profile.mode = props.filters.mode
                 props.setFilters(tmp_profile)
                 props.handleRefresh(tmp_profile)
