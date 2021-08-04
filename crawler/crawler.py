@@ -249,7 +249,7 @@ def predictData(X,y,num_scores,bid):
     bin_list = {}
     for ind,val in enumerate(X):
         # 50 / 2 groups
-        bin_label = math.floor(100*((val-1) / 2) / 100)
+        bin_label = math.floor(100*((val-1) / 4) / 100)
         if bin_label not in bin_list:
             bin_list[bin_label] = {}
             bin_list[bin_label]['x'] = []
@@ -258,7 +258,7 @@ def predictData(X,y,num_scores,bid):
         bin_list[bin_label]['x'].append(X[ind])
         bin_list[bin_label]['y'].append(y[ind])
         bin_list[bin_label]['count'] += 1
-    count_arr = np.empty([26,])
+    count_arr = np.empty([25,])
     for bin_label in bin_list:
         count_arr[bin_label] = (bin_list[bin_label]['count'])
     bins_normal = np.amax(count_arr)
@@ -287,9 +287,9 @@ def predictData(X,y,num_scores,bid):
     score = reg1.score(new_x, new_y)
     for ind in range(len(new_y)):
         if reg1.coef_[0][0] >= 0:
-            new_y[ind] = new_y[ind] + 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+            new_y[ind] = new_y[ind] + 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 4) / 100)]
         else:
-            new_y[ind] = new_y[ind] - 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 2) / 100)]
+            new_y[ind] = new_y[ind] - 0.005*new_y[ind]/count_arr[math.floor(100*((new_x[ind]-1) / 4) / 100)]
     reg = LinearRegression().fit(new_x, new_y)
     y_pred = reg.predict(new_x)
     score = reg.score(new_x, new_y)
@@ -319,7 +319,7 @@ def getURL(url, auth_string, checkJson):
                       + "Retry... " + url)
             if tries == 0:
                 print("BAD DATA")
-                exit(-1)
+                return None
             continue
         if checkJson:
             return r.json()
@@ -332,8 +332,8 @@ def parse_scores(user, scores, beatmaps):
             beatmaps[mode][score["beatmap"]["id"]] = {}
         mods = modsToInt(score["mods"]) & ~( (1<<30) | (1<<9) | (1<<5) | (1<<14))
         try:
-            user_score = Score(score["user"]["id"], score["beatmap"]["id"], user["global_rank"], score["accuracy"], mods, pos+1, score["beatmap"]["mode_int"],
-                        score["pp"], user["pp"])
+            user_score = Score(score["user"]["id"], score["beatmap"]["id"], int(user["global_rank"]), score["accuracy"], mods, pos+1, score["beatmap"]["mode_int"],
+                        int(score["pp"]), user["pp"])
             if mods not in beatmaps[mode][score["beatmap"]["id"]]:
                 b = Beatmap(score["beatmap"]["id"], score["beatmap"]["beatmapset_id"], score["beatmapset"]["title"],
                                 score["beatmapset"]["artist"], score["beatmapset"]["creator"], score["beatmap"]["cs"], score["beatmap"]["ar"],
@@ -519,7 +519,7 @@ for mode_int,mode in enumerate(modes):
 
             for task in as_completed(thread_list):
                 user_scores = task.result()
-                if len(user_scores) == 0 or "user" not in user_scores[0]:
+                if user_scores == None or len(user_scores) == 0 or "user" not in user_scores[0]:
                     continue
                 user_id = ((user_scores[0])["user"])["id"]
                 user_score_map[user_id] = user_scores
