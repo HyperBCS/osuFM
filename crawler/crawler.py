@@ -84,6 +84,72 @@ def intToMod(mod_int):
         mod_string += "MR"
     return mod_string
 
+def intToAcr(mod_int):
+    mod_string = []
+    if (mod_int == -1):
+        mod_string.append({"acronym":"NO"})
+    if (mod_int & 1 << 0):
+        mod_string.append({"acronym":"NF"})
+    if (mod_int & 1 << 1):
+        mod_string.append({"acronym":"EZ"})
+    if (mod_int & 1 << 2):
+        mod_string.append({"acronym":"TD"})
+    if (mod_int & 1 << 3):
+        mod_string.append({"acronym":"HD"})
+    if (mod_int & 1 << 4):
+        mod_string.append({"acronym":"HR"})
+    if (mod_int & 1 << 6 and not(mod_int & 1 << 9)):
+        mod_string.append({"acronym":"DT"})
+    if (mod_int & 1 << 7):
+        mod_string.append({"acronym":"RX"})
+    if (mod_int & 1 << 8):
+        mod_string.append({"acronym":"HT"})
+    if (mod_int & 1 << 9):
+        mod_string.append({"acronym":"NC"})
+    if (mod_int & 1 << 10):
+        mod_string.append({"acronym":"FL"})
+    if (mod_int & 1 << 5):
+        mod_string.append({"acronym":"SD"})
+    if (mod_int & 1 << 11):
+        mod_string.append({"acronym":"AP"})
+    if (mod_int & 1 << 12):
+        mod_string.append({"acronym":"SO"})
+    if (mod_int & 1 << 13):
+        mod_string.append({"acronym":"RX"})
+    if (mod_int & 1 << 14):
+        mod_string.append({"acronym":"PF"})
+    if (mod_int & 1 << 15):
+        mod_string.append({"acronym":"4K"})
+    if (mod_int & 1 << 16):
+        mod_string.append({"acronym":"5K"})
+    if (mod_int & 1 << 17):
+        mod_string.append({"acronym":"6K"})
+    if (mod_int & 1 << 18):
+        mod_string.append({"acronym":"7K"})
+    if (mod_int & 1 << 19):
+        mod_string.append({"acronym":"8K"})
+    if (mod_int & 1 << 20):
+        mod_string.append({"acronym":"FI"})
+    if (mod_int & 1 << 21):
+        mod_string.append({"acronym":"RD"})
+    if (mod_int & 1 << 22):
+        mod_string.append({"acronym":"CM"})
+    if (mod_int & 1 << 23):
+        mod_string.append({"acronym":"TP"})
+    if (mod_int & 1 << 24):
+        mod_string.append({"acronym":"9K"})
+    if (mod_int & 1 << 25):
+        mod_string.append({"acronym":"CP"})
+    if (mod_int & 1 << 26):
+        mod_string.append({"acronym":"1K"})
+    if (mod_int & 1 << 27):
+        mod_string.append({"acronym":"3K"})
+    if (mod_int & 1 << 28):
+        mod_string.append({"acronym":"2K"})
+    if (mod_int & 1 << 30):
+        mod_string.append({"acronym":"MR"})
+    return mod_string
+
 def modsToInt(mod_string_arr):
     mods = 0
     for mod in mod_string_arr:
@@ -435,11 +501,69 @@ def getDates(maps, auth_string):
         print("Setting date ranked for map ["+str(ind+1)+"/"+str(len(maps))+"]")
         m.date_ranked = date_cache[m.sid]
 
+# def calcDiffs(maps):
+#     for ind, m in enumerate(maps):
+#         print("Calculating diff for map ["+str(ind+1)+"/"+str(len(maps))+"]")
+#         if  m.calculated or m.mode != 0 or not ((m.pop_mod & ((1 << 1) + (1 << 4) + (1 << 6) + (1 << 8))) > 0):
+#             m.calculated = 1
+#             continue
+#         url = "https://osu.ppy.sh/osu/" + str(m.bid)
+#         map_text = getURL(url, "", False)
+#         try:
+#             ez = ezpp_new()
+#             ezpp_set_mods(ez, m.pop_mod)
+#             ezpp_data(ez, map_text, len(map_text.encode('utf-8')))
+#             diff = ezpp_stars(ez)
+#             if(diff > 100):
+#                 print("Invalid map file")
+#                 ezpp_free(ez)
+#                 continue
+#             m.diff = diff
+#             m.ar = ezpp_ar(ez)
+#             m.cs = ezpp_cs(ez)
+#             m.od = ezpp_od(ez)
+#             if (m.pop_mod & (1 << 6)):
+#                 m.length /= 1.5
+#                 m.bpm *= 1.5
+#             elif (m.pop_mod & (1 << 8)):
+#                 m.length *= 1.5
+#                 m.bpm /= 1.5
+#             ezpp_free(ez)
+#         except:
+#            print("Exception caught handling map " + str(m.id))
+def diffFetch(map):
+    tries = 100
+    url = "https://osu.ppy.sh/difficulty-rating"
+    while tries > 0:
+        try:
+            body = {"beatmap_id":map.bid,"ruleset_id":map.mode,"mods":intToAcr(map.pop_mod)}
+            print(body,map.pop_mod)
+            r = requests.post(url,json=body)
+        except Exception as e:
+            traceback.print_exc(file=sys.stdout)
+            tries -= 1
+            continue
+        if r.status_code != 200:
+            tries -= 1
+            time.sleep(0.5)
+            print("[" + str(r.status_code) + "]"
+                      + "[" + str(100 - tries) + "]"
+                      + "Retry... " + url)
+            if tries == 0:
+                print("BAD DATA")
+                return None
+            continue
+        return r.text
+
+
 def calcDiffs(maps):
     for ind, m in enumerate(maps):
         print("Calculating diff for map ["+str(ind+1)+"/"+str(len(maps))+"]")
-        if  m.calculated or m.mode != 0 or not ((m.pop_mod & ((1 << 1) + (1 << 4) + (1 << 6) + (1 << 8))) > 0):
+        if  m.calculated or not ((m.pop_mod & ((1 << 1) + (1 << 4) + (1 << 6) + (1 << 8))) > 0):
             m.calculated = 1
+            continue
+        m.diff = diffFetch(m)
+        if m.mode != 0:
             continue
         url = "https://osu.ppy.sh/osu/" + str(m.bid)
         map_text = getURL(url, "", False)
@@ -452,7 +576,6 @@ def calcDiffs(maps):
                 print("Invalid map file")
                 ezpp_free(ez)
                 continue
-            m.diff = diff
             m.ar = ezpp_ar(ez)
             m.cs = ezpp_cs(ez)
             m.od = ezpp_od(ez)
