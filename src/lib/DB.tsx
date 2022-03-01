@@ -24,7 +24,7 @@ export async function getDBConnection() {
       config: {
         serverMode: "full", // file is just a plain old full sqlite database
         requestChunkSize: 4096, // the page size of the  sqlite database (by default 4096)
-        url: '/static/osuDB.db' // url to the database (relative or full)
+        url: 'https://s3.amazonaws.com/pp.bcs.dev/static/osuDB.db' // url to the database (relative or full)
       }
     }],
     workerUrl.toString(), wasmUrl.toString()
