@@ -18,13 +18,17 @@ export async function getDBConnection() {
   );
   // the legacy webpack4 way is something like `import wasmUrl from "file-loader!sql.js-httpvfs/dist/sql-wasm.wasm"`.
 
+  let d = new Date()
+  d.getDate() > 15 ? d.setDate(15) : d.setDate(1)
+  let dateStr = d.toISOString().slice(0,10).replace(/-/g,"");
+
   const worker = await createDbWorker(
     [{
       from: "inline",
       config: {
         serverMode: "full", // file is just a plain old full sqlite database
         requestChunkSize: 4096, // the page size of the  sqlite database (by default 4096)
-        url: 'https://s3.amazonaws.com/pp.bcs.dev/static/osuDB.db' // url to the database (relative or full)
+        url: '/static/osuDB.db?dateVer=' + dateStr // url to the database (relative or full)
       }
     }],
     workerUrl.toString(), wasmUrl.toString()
